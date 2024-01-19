@@ -20,7 +20,12 @@ public class Board {
     reset();
   }
 
-  public int getDim(){
+  /**
+   * Get the dimension of the board.
+
+   * @return The one side dimension as an integer.
+   */
+  public int getDim() {
     return DIM;
   }
 
@@ -36,7 +41,7 @@ public class Board {
    * @return True if the given index is within the limits of the board.
    */
   public boolean isField(int index) {
-    return false;
+    return 0 <= index && index < DIM * DIM;
   }
 
   /**
@@ -48,7 +53,7 @@ public class Board {
    * @return True if the given index is within the limits of the board.
    */
   public boolean isField(int row, int col) {
-    return false;
+    return 0 <= row && row < DIM && 0 <= col && col < DIM;
   }
 
   /**
@@ -58,7 +63,7 @@ public class Board {
    * @return True if the given position is not occupied by a stone of any color.
    */
   public boolean isEmpty(int index) {
-    return false;
+    return fields[index] == Stone.EMPTY;
   }
 
   /**
@@ -69,7 +74,7 @@ public class Board {
    * @return True if the given position is not occupied by a stone of any color.
    */
   public boolean isEmpty(int row, int col) {
-    return false;
+    return isField(row, col) && isEmpty(index(row, col));
   }
 
   /**
@@ -79,7 +84,11 @@ public class Board {
    * @return Either empty, black or white.
    */
   public Stone getField(int index) {
-    return null;
+    if (isField(index)) {
+      return fields[index];
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -90,7 +99,12 @@ public class Board {
    * @return Either empty, black or white.
    */
   public Stone getField(int row, int col) {
-    return null;
+    if(isField(row, col)) {
+      return getField(index(row, col));
+    } else {
+      return null;
+    }
+
   }
 
   /**
@@ -118,7 +132,9 @@ public class Board {
    * @param stone The color of the stone set (black or white).
    */
   public void setField(int index, Stone stone) {
-    fields[index] = stone;
+    if (isField(index) && isEmpty(index)) {
+      fields[index] = stone;
+    }
   }
   /**
    * Set the intersection specified by the index to the specified stone color.
@@ -128,7 +144,9 @@ public class Board {
    * @param stone The color of the stone set (black or white).
    */
   public void setField(int row, int col, Stone stone) {
-
+    if (isField(row, col) && isEmpty(row, col)){
+      fields[index(row, col)] = stone;
+    }
   }
   /**
    * Find the indices of the free squares of a stone.
@@ -160,6 +178,7 @@ public class Board {
    * @return the number of stones put and territory surrounded
    */
   public int getScore(Stone stone) {
+
     return 0;
   }
 
@@ -172,7 +191,7 @@ public class Board {
 
   private static String numberLine(int line) {
     StringBuilder numberLine = new StringBuilder();
-    for (int i = 0; i < DIM-1; i++) {
+    for (int i = 0; i < DIM - 1; i++) {
       int number = line * DIM + i;
       if (number < 10) {
         numberLine.append(number).append("----");
@@ -200,8 +219,9 @@ public class Board {
     intersectionLine.append(fields[line * DIM + DIM - 1].toString());
     return intersectionLine.toString();
   }
+
   @Override
-  public String toString(){
+  public String toString() {
     StringBuilder boardString = new StringBuilder();
     for (int i = 0; i < DIM - 1; i++) {
       boardString.append(intersectionLine(i)).append(DELIM).append(numberLine(i)).append("\n");
