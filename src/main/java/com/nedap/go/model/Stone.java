@@ -13,4 +13,12 @@ public enum Stone {
   public boolean isFilled(){
     return this == BLACK || this == WHITE;
   }
+  @Override
+  public String toString(){
+    return switch (this){
+      case BLACK -> "X";
+      case WHITE -> "O";
+      case EMPTY -> "*";
+    };
+  }
 }
