@@ -118,7 +118,7 @@ public class Board {
    * @param stone The color of the stone set (black or white).
    */
   public void setField(int index, Stone stone) {
-
+    fields[index] = stone;
   }
   /**
    * Set the intersection specified by the index to the specified stone color.
@@ -174,7 +174,7 @@ public class Board {
     StringBuilder numberLine = new StringBuilder();
     for (int i = 0; i < DIM-1; i++) {
       int number = line * DIM + i;
-      if (number < 9) {
+      if (number < 10) {
         numberLine.append(number).append("----");
       } else {
         numberLine.append(number).append("---");
@@ -186,7 +186,7 @@ public class Board {
 
   private static String boxLine() {
     StringBuilder boxLine = new StringBuilder();
-    boxLine.append("|   ".repeat(DIM - 1));
+    boxLine.append("|    ".repeat(DIM - 1));
     boxLine.append("|");
     return boxLine.toString();
   }
@@ -195,7 +195,7 @@ public class Board {
     StringBuilder intersectionLine = new StringBuilder();
     for (int i = 0; i < DIM - 1; i++) {
       int index = line * DIM + i;
-      intersectionLine.append(fields[index].toString()).append("    ");
+      intersectionLine.append(fields[index].toString()).append("----");
     }
     intersectionLine.append(fields[line * DIM + DIM - 1].toString());
     return intersectionLine.toString();
@@ -207,7 +207,7 @@ public class Board {
       boardString.append(intersectionLine(i)).append(DELIM).append(numberLine(i)).append("\n");
       boardString.append(boxLine()).append(DELIM).append(boxLine()).append("\n");
     }
-    int finalLine = DIM * (DIM - 1);
+    int finalLine = DIM - 1;
     boardString.append(intersectionLine(finalLine)).append(DELIM)
         .append(numberLine(finalLine)).append("\n");
     return boardString.toString();
