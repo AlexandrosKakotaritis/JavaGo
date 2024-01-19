@@ -20,6 +20,10 @@ public class Board {
     reset();
   }
 
+  public Board(Stone[] fields) {
+    this.fields = fields;
+  }
+
   /**
    * Get the dimension of the board.
 
@@ -122,7 +126,11 @@ public class Board {
    * @return The copy of the board.
    */
   public Board deepCopy() {
-    return null;
+    Stone[] copiedFields = new Stone[DIM * DIM];
+    for (int i = 0; i <DIM * DIM; i++) {
+      copiedFields[i] = fields[i];
+    }
+    return new Board(copiedFields);
   }
 
   /**
