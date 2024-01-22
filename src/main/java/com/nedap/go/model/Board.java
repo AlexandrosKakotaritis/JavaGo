@@ -200,17 +200,52 @@ public class Board {
   /**
    * Get the score for a specific stone.
 
-   * @param stone The stone color to get score for
+   * @param target The stone color to get score for
    * @return the number of stones put and territory surrounded
    */
-  public int getScore(Stone stone) {
+  public int getScore(Stone target) {
     int stones = 0;
-    int area = 0;
     for(Stone field: fields){
-      stones = field == stone ? stones + 1: stones;
+      stones = field == target ? stones + 1: stones;
     }
+    getAreaScoring(target);
+    return stones + getAreaScoring(target);
+  }
 
-    return area;
+  private int getAreaScoring(Stone target){
+    int areaScore = 0;
+    for(List<Integer> listOfEmpty: getStoneChains(Stone.EMPTY)){
+      if(getOwner(listOfEmpty) == target){
+        areaScore += listOfEmpty.size();
+      }
+    }
+    return areaScore;
+  }
+  private Stone getOwner(List<Integer> chain) {
+    List<Integer> borders = getAreaBorder(chain);
+    Stone owner = fields[borders.get(0)];
+    if (borders.size() > 1) {
+      for(Integer index: borders.subList(1, borders.size()-1)) {
+        if (fields[index] != owner) {
+          owner = Stone.EMPTY;
+          break;
+        }
+      }
+    }
+    return owner;
+  }
+
+  private List<Integer> getAreaBorder(List<Integer> chain) {
+    List<Integer> borders = new ArrayList<>();
+    for (Integer indexOfChain: chain) {
+      List<Integer> neighbours = getNeighbours(indexOfChain);
+      for (Integer indexOfNeighbours: neighbours) {
+        if(fields[indexOfNeighbours] != fields[indexOfChain]){
+          borders.add(indexOfNeighbours);
+        }
+      }
+    }
+    return borders;
   }
 
 
