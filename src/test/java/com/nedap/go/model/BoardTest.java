@@ -140,6 +140,25 @@ public class BoardTest {
     System.out.println(board);
     assertEquals(81, board.getScore(Stone.BLACK));
   }
+
+  @Test
+  public void testEdgeCapture(){
+    int[] black = new int[]{1, 10, 19, 27, 28};
+    int[] white = new int[]{0, 9, 18};
+
+    for (int i = 0; i < black.length; i++) {
+      board.setField(black[i], Stone.BLACK);
+    }
+    for (int i = 0; i < white.length; i++) {
+      board.setField(white[i], Stone.WHITE);
+    }
+    String boardBeforeCapture = board.toString();
+    board.calculateCaptures(Stone.BLACK);
+    board.calculateCaptures(Stone.WHITE);
+    assertNotEquals(boardBeforeCapture, board.toString());
+    assertEquals(81, board.getScore(Stone.BLACK));
+
+  }
   @Test
   public void testDeepCopy(){
     int[] black = new int[]{21, 22, 23, 29, 33, 37, 38, 42, 46, 51, 56, 57, 58, 59};
