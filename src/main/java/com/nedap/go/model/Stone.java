@@ -7,11 +7,16 @@ public enum Stone {
   BLACK, WHITE, EMPTY;
 
   /**
-   * Check if an intersection is filled
-   * @return true if not EMPTY.
+   * Give the opposite stone.
+
+   * @return Black if it is white and vice versa.
    */
-  public boolean isFilled(){
-    return this == BLACK || this == WHITE;
+  public Stone other(){
+    if(this==BLACK){
+      return WHITE;
+    }else{
+      return BLACK;
+    }
   }
   @Override
   public String toString(){
