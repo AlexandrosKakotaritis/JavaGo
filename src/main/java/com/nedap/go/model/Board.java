@@ -1,7 +1,11 @@
 package com.nedap.go.model;
 
-import java.nio.charset.StandardCharsets;
+import com.sun.javafx.logging.jfr.JFRInputEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -114,7 +118,7 @@ public class Board {
   /**
    * Resets the board in a state where all the intersections are empty.
    */
-  private void reset() {
+  void reset() {
     for (int i = 0; i < DIM * DIM; i++) {
       fields[i] = Stone.EMPTY;
     }
@@ -166,18 +170,33 @@ public class Board {
     return null;
   }
 
-  private boolean hasFreedom(int index) {
-    return false;
-  }
-
   /**
    * Get all the stone strings of the board.
 
    * @return A list containing the sets of position for each stone.
    */
-  public List<Set<Integer>> getStoneChains() {
-    return null;
+  public List<List<Integer>> getStoneChains(Stone target) {
+    Queue<Integer> notVisited = getStonePositions(target);
+    List<List<Integer>> listOfChains = new ArrayList<>();
+    while(!notVisited.isEmpty()) {
+      int next = notVisited.poll();
+      List<Integer> chain = BreadthFirstSearch.bfs(next, fields);
+      listOfChains.add(chain);
+      notVisited.removeAll(chain);
+    }
+    return listOfChains;
   }
+
+  private Queue<Integer> getStonePositions(Stone target) {
+    Queue<Integer> queue = new LinkedList<>();
+    for (int i = 0; i < fields.length; i++) {
+      if (fields[i] == target){
+        queue.add(i);
+      }
+    }
+    return queue;
+  }
+
 
   /**
    * Get the score for a specific stone.
@@ -186,9 +205,15 @@ public class Board {
    * @return the number of stones put and territory surrounded
    */
   public int getScore(Stone stone) {
+    int stones = 0;
+    int area = 0;
+    for(Stone field: fields){
+      stones = field == stone ? stones + 1: stones;
+    }
 
-    return 0;
+    return area;
   }
+
 
   /**
    * Goes through the board calculates the captures and removes captured pieces.
