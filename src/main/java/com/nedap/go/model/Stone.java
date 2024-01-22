@@ -21,8 +21,8 @@ public enum Stone {
   @Override
   public String toString(){
     return switch (this){
-      case BLACK -> "X";
-      case WHITE -> "O";
+      case BLACK -> "○";
+      case WHITE -> "●";
       case EMPTY -> "*";
     };
   }
