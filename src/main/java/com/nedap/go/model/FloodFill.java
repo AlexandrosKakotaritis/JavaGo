@@ -39,8 +39,7 @@ class FloodFill {
 
   static List<Integer> BreadthWideSearch(int start, Stone[] fields) {
     int dim = (int) Math.sqrt(fields.length);
-    int[] deltasX = new int[]{0, 0, -1, +1};
-    int[] deltasY = new int[]{-1, +1, 0, 0};
+    int[] deltas = new int[]{dim, -dim, -1, +1};
     Queue<Integer> queue = new LinkedList<>();
     List<Integer> visitedIdx = new ArrayList<>();
     Stone target = fields[start];
@@ -48,16 +47,13 @@ class FloodFill {
     visitedIdx.add(start);
     while(!queue.isEmpty()){
       int current = queue.poll();
-      for (int i = 0; i < deltasY.length; i++) {
-        int nextX = current % dim + deltasX[i];
-        int nextY = current / dim + deltasY[i];
-        if(isValidIndex(nextX, nextY, dim)){
-          int next = nextY * dim + nextX;
-            if(isValidTarget(next, fields, target)
-            && isNotAlreadySearched(next, visitedIdx)){
-            queue.add(next);
-            visitedIdx.add(next);
-          }
+      for (int i = 0; i < deltas.length; i++) {
+        int next = current + deltas[i];
+        if(isValidIndex(next, deltas[i], dim)
+          && isValidTarget(next, fields, target)
+          && isNotAlreadySearched(next, visitedIdx)){
+          queue.add(next);
+          visitedIdx.add(next);
         }
       }
     }
