@@ -5,7 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-class BreadthFirstSearch {
+class FloodFill {
+
 
   private static boolean isValidIndex(int index, int delta, int dim) {
 
@@ -36,9 +37,10 @@ class BreadthFirstSearch {
     return true;
   }
 
-  static List<Integer> bfs(int start, Stone[] fields) {
+  static List<Integer> BreadthWideSearch(int start, Stone[] fields) {
     int dim = (int) Math.sqrt(fields.length);
-    int[] deltas = new int[]{-dim, dim, -1, +1};
+    int[] deltasX = new int[]{0, 0, -1, +1};
+    int[] deltasY = new int[]{-1, +1, 0, 0};
     Queue<Integer> queue = new LinkedList<>();
     List<Integer> visitedIdx = new ArrayList<>();
     Stone target = fields[start];
@@ -46,17 +48,21 @@ class BreadthFirstSearch {
     visitedIdx.add(start);
     while(!queue.isEmpty()){
       int current = queue.poll();
-      for (Integer delta: deltas) {
-        int next = current + delta;
-        if(isValidIndex(next, delta, dim)
-            && isValidTarget(next, fields, target)
+      for (int i = 0; i < deltasY.length; i++) {
+        int nextX = current % dim + deltasX[i];
+        int nextY = current / dim + deltasY[i];
+        if(isValidIndex(nextX, nextY, dim)){
+          int next = nextY * dim + nextX;
+            if(isValidTarget(next, fields, target)
             && isNotAlreadySearched(next, visitedIdx)){
-          queue.add(next);
-          visitedIdx.add(next);
+            queue.add(next);
+            visitedIdx.add(next);
+          }
         }
       }
     }
     return visitedIdx;
   }
 }
+
 
