@@ -1,12 +1,9 @@
 package com.nedap.go.model;
 
-import com.sun.javafx.logging.jfr.JFRInputEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 /**
  * A class representing a Go board with modifiable dimensions.
@@ -40,6 +37,8 @@ public class Board {
   public int index(int row, int col) {
     return row * DIM + col;
   }
+
+  public int[] rowCol(int index) {return new int[]{index / DIM, index % DIM};}
 
   /**
    * Checks if the given parameter is within the bounds defined by the size of the board
@@ -180,7 +179,7 @@ public class Board {
     List<List<Integer>> listOfChains = new ArrayList<>();
     while(!notVisited.isEmpty()) {
       int next = notVisited.poll();
-      List<Integer> chain = BreadthFirstSearch.bfs(next, fields);
+      List<Integer> chain = FloodFill.BreadthWideSearch(next, fields);
       listOfChains.add(chain);
       notVisited.removeAll(chain);
     }
@@ -218,8 +217,47 @@ public class Board {
   /**
    * Goes through the board calculates the captures and removes captured pieces.
    */
-  public void calculateCaptures() {
+  public void calculateCaptures(Stone target) {
+    List<List<Integer>> listOfChains = getStoneChains(target);
+    for(List<Integer> chain: listOfChains){
+      if (getFreedoms(chain) == 0){
+        removeStones(chain);
+      }
+    }
+  }
 
+  private void removeStones(List<Integer> chain) {
+    for(Integer index: chain){
+      fields[index] = Stone.EMPTY;
+    }
+  }
+
+  private int getFreedoms(List<Integer> listOfTarget) {
+    int freedoms = 0;
+    for(Integer integer: listOfTarget){
+      List<Integer> neighbours = getNeighbours(integer);
+      for (Integer index: neighbours) {
+        if(fields[index] == Stone.EMPTY){
+          freedoms++;
+        }
+      }
+    }
+    return freedoms;
+  }
+
+  private List<Integer> getNeighbours(Integer integer) {
+    int[] deltaX = new int[]{0, 0, +1, -1};
+    int[] deltaY = new int[]{+1, -1, 0, 0};
+    List neighbours = new ArrayList();
+    for (int i = 0; i < deltaX.length; i++) {
+      int nextX = integer % DIM + deltaX[i];
+      int nextY = integer / DIM + deltaY[i];
+      if(isField(nextY, nextX)){
+        int next = nextY * DIM + nextX;
+        neighbours.add(next);
+      }
+    }
+    return neighbours;
   }
 
   private static String numberLine(int line) {

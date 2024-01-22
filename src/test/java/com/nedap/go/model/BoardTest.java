@@ -126,7 +126,7 @@ public class BoardTest {
   @Test
   public void testCapture(){
     int[] black = new int[]{21, 22, 23, 29, 33, 39, 43, 49, 53, 58, 61, 68, 69};
-    int[] white = new int[]{30, 31, 32, 40, 41, 42, 50, 51, 59, 60};
+    int[] white = new int[]{30, 31, 32, 40, 41, 42, 50, 51, 52, 59, 60};
 
     for (int i = 0; i < black.length; i++) {
       board.setField(black[i], Stone.BLACK);
@@ -135,7 +135,9 @@ public class BoardTest {
       board.setField(white[i], Stone.WHITE);
     }
     System.out.println(board);
-    board.calculateCaptures();
+    board.calculateCaptures(Stone.BLACK);
+    board.calculateCaptures(Stone.WHITE);
+    System.out.println(board);
     assertEquals(81, board.getScore(Stone.BLACK));
   }
   @Test
