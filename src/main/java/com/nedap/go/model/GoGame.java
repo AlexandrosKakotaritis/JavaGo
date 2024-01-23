@@ -1,10 +1,21 @@
 package com.nedap.go.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GoGame implements Game{
 
   private boolean isPlayer1Turn;
+  private GoPlayer player1, player2;
+  private Board board;
+  private GoMove player1LastMove, player2LastMove;
+
+  public GoGame(GoPlayer player1, GoPlayer player2) {
+    this.player1 = player1;
+    this.player2 = player2;
+    isPlayer1Turn = true;
+  }
+
   /**
    * Check if the game is over, i.e., there is a winner or no more moves are available.
    *
@@ -12,7 +23,7 @@ public class GoGame implements Game{
    */
   @Override
   public boolean isGameover() {
-    return false;
+    return player1LastMove.getPass() && player2LastMove.getPass();
   }
 
   /**
@@ -21,8 +32,8 @@ public class GoGame implements Game{
    * @return the player whose turn it is
    */
   @Override
-  public Player getTurn() {
-    return null;
+  public GoPlayer getTurn() {
+    return isPlayer1Turn? player1: player2;
   }
 
   /**
@@ -31,7 +42,16 @@ public class GoGame implements Game{
    * @return the winner, or null if no player is the winner or the game is not over
    */
   @Override
-  public Player getWinner() {
+  public GoPlayer getWinner() {
+    if(isGameover()) {
+      if (board.getScore(player1.getStone())
+          > board.getScore(player2.getStone())) {
+        return player1;
+      } else if (board.getScore(player1.getStone())
+          < board.getScore(player2.getStone())) {
+        return player2;
+      }
+    }
     return null;
   }
 
@@ -42,7 +62,16 @@ public class GoGame implements Game{
    */
   @Override
   public List<? extends Move> getValidMoves() {
-    return null;
+    List<GoMove> validMoves = new ArrayList<>();
+    for (int i = 0; i < board.getDim() * board.getDim(); i++) {
+
+      GoMove move = new GoMove(this.getTurn(), i);
+      if(isValidMove(move)){
+        validMoves.add(move);
+      }
+    }
+    validMoves.add(new GoMove(this.getTurn()));
+    return validMoves;
   }
 
   /**
@@ -52,7 +81,12 @@ public class GoGame implements Game{
    * @return true if the move is a valid move
    */
   @Override
-  public boolean isValidMove(Move move) {
+  public boolean isValidMove(GoMove move) {
+    return board.isField(move.getIndex()) && board.isEmpty(move.getIndex())
+        && move.getPlayer() == this.getTurn() && this.checkKoRule();
+  }
+
+  private boolean checkKoRule() {
     return false;
   }
 
@@ -62,12 +96,18 @@ public class GoGame implements Game{
    * @param move the move to play
    */
   @Override
-  public void doMove(Move move) {
-
+  public void doMove(GoMove move) throws InvalidMoveException {
+    if(isValidMove(move)){
+      if(!move.getPass()){
+        board.setField(move.getIndex(), move.getPlayer().getStone());
+      }
+    }else{
+      throw new InvalidMoveException();
+    }
   }
 
   @Override
-  public Game deepCopy() {
+  public GoGame deepCopy() {
     return null;
   }
 }
