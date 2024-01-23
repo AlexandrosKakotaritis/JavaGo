@@ -7,9 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.nedap.go.Go;
 import java.util.HashMap;
-import java.util.jar.JarOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +31,7 @@ public class GameTest {
     assertEquals(player2, game.getTurn());
   }
   @Test
-  public void testIsValidMove(){
+  public void testIsValidMove() throws InvalidMoveException {
     assertTrue(game.isValidMove(new GoMove(player1, 60)));
     assertTrue(game.isValidMove(new GoMove(player2)));
     assertFalse(game.isValidMove(new GoMove(player1, -1)));

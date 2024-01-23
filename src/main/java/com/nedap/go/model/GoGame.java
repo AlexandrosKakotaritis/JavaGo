@@ -1,8 +1,11 @@
 package com.nedap.go.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+import javafx.util.Pair;
 
 /**
  * The class containing the basic Go game logic.
@@ -14,6 +17,7 @@ public class GoGame implements Game {
   private final GoPlayer player2;
   private final Board board;
   private Stack<GoMove> lastMoves;
+  private Map<Pair<Integer, Stone>, BoardList> previousBoards;
 
   /**
    * Constructor for creating a new game.
@@ -22,7 +26,8 @@ public class GoGame implements Game {
    * @param player2 The player with the white stones.
    */
   public GoGame(GoPlayer player1, GoPlayer player2) {
-    this(player1, player2, new Board(), true);
+    this(player1, player2, new Board(), true,
+        new HashMap<>());
   }
 
   /**
@@ -33,11 +38,14 @@ public class GoGame implements Game {
    * @param board         The board of the new game object
    * @param isPlayer1Turn The boolean signifying the players turn.
    */
-  public GoGame(GoPlayer player1, GoPlayer player2, Board board, boolean isPlayer1Turn) {
+  public GoGame(GoPlayer player1, GoPlayer player2, Board board,
+      boolean isPlayer1Turn,
+      Map<Pair<Integer, Stone>, BoardList> previousBoards) {
     this.player1 = player1;
     this.player2 = player2;
     this.board = board;
     this.isPlayer1Turn = isPlayer1Turn;
+    this.previousBoards = previousBoards;
     lastMoves = new Stack<>();
   }
 
@@ -48,7 +56,8 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isGameover() {
-    return lastMoves.size() > 2 && lastMoves.pop().getPass() && lastMoves.pop().getPass();
+    return lastMoves.size() > 2 && lastMoves.pop().getPass()
+        && lastMoves.pop().getPass();
   }
 
   /**
@@ -108,12 +117,20 @@ public class GoGame implements Game {
     return move.getPass() || board.isField(move.getIndex())
         && board.isEmpty(move.getIndex())
         && move.getPlayer() == this.getTurn()
-        && checkKoRule(move);
+        && checkKoRuleOK(move);
   }
 
-  private boolean checkKoRule(GoMove move) {
-
-    return false;
+  private boolean checkKoRuleOK(GoMove move) {
+    Pair<Integer, Stone> pair = new Pair<>(move.getIndex(),
+        move.getPlayer().getStone());
+    if(previousBoards.containsKey(pair)){
+      Board newBoard = board.deepCopy();
+      newBoard.setField(move.getIndex(), move.getPlayer().getStone());
+      newBoard.calculateCaptures(move.getPlayer().getStone().other());
+      newBoard.calculateCaptures(move.getPlayer().getStone());
+      return !previousBoards.get(pair).matches(newBoard);
+    }
+    return true;
   }
 
   /**
@@ -143,6 +160,15 @@ public class GoGame implements Game {
 
   private void recordLastMove(GoMove move) {
     lastMoves.push(move);
+    Pair<Integer, Stone> pair = new Pair<>(move.getIndex(),
+        move.getPlayer().getStone());
+    if(previousBoards.containsKey(pair)){
+      previousBoards.get(pair).add(board);
+    }else{
+      BoardList listOfBoards = new BoardList();
+      listOfBoards.add(board.deepCopy());
+      previousBoards.put(pair, listOfBoards);
+    }
   }
 
   /**
@@ -152,7 +178,8 @@ public class GoGame implements Game {
    */
   @Override
   public GoGame deepCopy() {
-    return new GoGame(player1, player2, board.deepCopy(), isPlayer1Turn);
+    return new GoGame(player1, player2, board.deepCopy(),
+        isPlayer1Turn, previousBoards);
   }
 
   @Override
