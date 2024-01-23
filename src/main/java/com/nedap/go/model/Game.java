@@ -17,13 +17,13 @@ public interface Game {
      * Query whose turn it is
      * @return the player whose turn it is
      */
-    Player getTurn();
+    GoPlayer getTurn();
 
     /**
      * Get the winner of the game. If the game is a draw, then this method returns null.
      * @return the winner, or null if no player is the winner or the game is not over
      */
-    Player getWinner();
+    GoPlayer getWinner();
 
     /**
      * Return all moves that are valid in the current state of the game
@@ -36,13 +36,13 @@ public interface Game {
      * @param move the move to check
      * @return true if the move is a valid move
      */
-    boolean isValidMove(Move move);
+    boolean isValidMove(GoMove move);
 
     /**
      * Perform the move, assuming it is a valid move.
      * @param move the move to play
      */
-    void doMove(Move move);
+    void doMove(GoMove move) throws InvalidMoveException;
 
-    Game deepCopy();
+    GoGame deepCopy();
 }
