@@ -12,7 +12,7 @@ public class Board {
 
   private static final String DELIM = "      ";
   private static final int DIM = 9;
-  private Stone[] fields;
+  private final Stone[] fields;
 
   /**
    * Constructs a new board with every intersection empty.
@@ -53,10 +53,23 @@ public class Board {
     return DIM;
   }
 
+  /**
+   * Transform a row and column to a 1D index.
+   *
+   * @param row The row of the intersection.
+   * @param col The column of the intersection.
+   * @return The corresponding index.
+   */
   public int index(int row, int col) {
     return row * DIM + col;
   }
 
+  /**
+   * Transform the 1D index to row and column representation.
+   *
+   * @param index The 1D index.
+   * @return An integer array {row, column}
+   */
   public int[] rowCol(int index) {
     return new int[]{index / DIM, index % DIM};
   }
@@ -149,9 +162,7 @@ public class Board {
    */
   public Board deepCopy() {
     Stone[] copiedFields = new Stone[DIM * DIM];
-    for (int i = 0; i < DIM * DIM; i++) {
-      copiedFields[i] = fields[i];
-    }
+    System.arraycopy(fields, 0, copiedFields, 0, DIM * DIM);
     return new Board(copiedFields);
   }
 
@@ -331,10 +342,17 @@ public class Board {
     return boardString.toString();
   }
 
-  public boolean equals(Object object){
+  /**
+   * Overrides the basic equals method.
+   *
+   * @param object The object to compare the current board with
+   * @return True if the object is an instance of class Board and has every field contain the same
+   *       stone.
+   */
+  @Override
+  public boolean equals(Object object) {
     boolean isEqual = false;
-    if(object instanceof Board) {
-      Board board = (Board) object;
+    if (object instanceof Board board) {
       if (board.getDim() == this.getDim()) {
         isEqual = true;
         for (int i = 0; i < this.getDim() * getDim(); i++) {
