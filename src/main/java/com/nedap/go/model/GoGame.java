@@ -146,4 +146,16 @@ public class GoGame implements Game {
   public GoGame deepCopy() {
     return new GoGame(player1, player2, board.deepCopy(), isPlayer1Turn);
   }
+
+  @Override
+  public String toString() {
+    return scoreBoard() + "\n" + board + "\n" + getTurn()
+        + " it is your turn!";
+  }
+
+  private String scoreBoard() {
+    return player1 + " " + Stone.BLACK + ": " + board.getScore(Stone.BLACK)
+        + " - "
+        + board.getScore(Stone.WHITE) + " :" +  Stone.WHITE  + " " + player2;
+  }
 }
