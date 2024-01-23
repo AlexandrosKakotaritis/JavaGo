@@ -1,23 +1,23 @@
 package com.nedap.go.model;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 /**
  * The class containing the basic Go game logic.
  */
-public class GoGame implements Game{
+public class GoGame implements Game {
 
   private boolean isPlayer1Turn;
-  private GoPlayer player1, player2;
-  private Board board;
+  private final GoPlayer player1;
+  private final GoPlayer player2;
+  private final Board board;
   private Stack<GoMove> lastMoves;
 
   /**
-   * Constructor for creating a new game
+   * Constructor for creating a new game.
+   *
    * @param player1 The player with the black stones.
    * @param player2 The player with the white stones.
    */
@@ -27,13 +27,13 @@ public class GoGame implements Game{
 
   /**
    * Constructor for creating a game in progress (Mainly used for copying).
-   * @param player1 The player with the black stones.
-   * @param player2 The player with the white stones.
-   * @param board The board of the new game object
+   *
+   * @param player1       The player with the black stones.
+   * @param player2       The player with the white stones.
+   * @param board         The board of the new game object
    * @param isPlayer1Turn The boolean signifying the players turn.
    */
-  public GoGame(GoPlayer player1, GoPlayer player2, Board board,
-      boolean isPlayer1Turn){
+  public GoGame(GoPlayer player1, GoPlayer player2, Board board, boolean isPlayer1Turn) {
     this.player1 = player1;
     this.player2 = player2;
     this.board = board;
@@ -48,18 +48,17 @@ public class GoGame implements Game{
    */
   @Override
   public boolean isGameover() {
-    return lastMoves.size() > 2
-        && lastMoves.pop().getPass() && lastMoves.pop().getPass();
+    return lastMoves.size() > 2 && lastMoves.pop().getPass() && lastMoves.pop().getPass();
   }
 
   /**
-   * Query whose turn it is
+   * Query whose turn it is.
    *
    * @return the player whose turn it is
    */
   @Override
   public GoPlayer getTurn() {
-    return isPlayer1Turn? player1: player2;
+    return isPlayer1Turn ? player1 : player2;
   }
 
   /**
@@ -69,12 +68,10 @@ public class GoGame implements Game{
    */
   @Override
   public GoPlayer getWinner() {
-    if(isGameover()) {
-      if (board.getScore(player1.getStone())
-          > board.getScore(player2.getStone())) {
+    if (isGameover()) {
+      if (board.getScore(player1.getStone()) > board.getScore(player2.getStone())) {
         return player1;
-      } else if (board.getScore(player1.getStone())
-          < board.getScore(player2.getStone())) {
+      } else if (board.getScore(player1.getStone()) < board.getScore(player2.getStone())) {
         return player2;
       }
     }
@@ -82,7 +79,7 @@ public class GoGame implements Game{
   }
 
   /**
-   * Return all moves that are valid in the current state of the game
+   * Return all moves that are valid in the current state of the game.
    *
    * @return the list of currently valid moves
    */
@@ -92,7 +89,7 @@ public class GoGame implements Game{
     for (int i = 0; i < board.getDim() * board.getDim(); i++) {
 
       GoMove move = new GoMove(this.getTurn(), i);
-      if(isValidMove(move)){
+      if (isValidMove(move)) {
         validMoves.add(move);
       }
     }
@@ -101,15 +98,14 @@ public class GoGame implements Game{
   }
 
   /**
-   * Check if a move is a valid move
+   * Check if a move is a valid move.
    *
    * @param move the move to check
    * @return true if the move is a valid move
    */
   @Override
   public boolean isValidMove(GoMove move) {
-    return move.getPass()? true: board.isField(move.getIndex())
-        && board.isEmpty(move.getIndex())
+    return move.getPass() || board.isField(move.getIndex()) && board.isEmpty(move.getIndex())
         && move.getPlayer() == this.getTurn();
   }
 
@@ -122,18 +118,17 @@ public class GoGame implements Game{
    * Perform the move, assuming it is a valid move.
    *
    * @param move the move to play
-   * @throws InvalidMoveException when an attempt on playing an invalid move
-   * is made.
+   * @throws InvalidMoveException when an attempt on playing an invalid move is made.
    */
   @Override
   public void doMove(GoMove move) throws InvalidMoveException {
-    if(isValidMove(move)){
-      if(!move.getPass()){
+    if (isValidMove(move)) {
+      if (!move.getPass()) {
         board.setField(move.getIndex(), move.getPlayer().getStone());
       }
       recordLastMove(move);
       isPlayer1Turn = !isPlayer1Turn;
-    }else{
+    } else {
       throw new InvalidMoveException();
     }
   }
@@ -143,12 +138,12 @@ public class GoGame implements Game{
   }
 
   /**
-   * Create a copy of the game
+   * Create a copy of the game.
+   *
    * @return The copy of the game.
    */
   @Override
   public GoGame deepCopy() {
-    return new GoGame(player1, player2, board.deepCopy(),
-        isPlayer1Turn);
+    return new GoGame(player1, player2, board.deepCopy(), isPlayer1Turn);
   }
 }
