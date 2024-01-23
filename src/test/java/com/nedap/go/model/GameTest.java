@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.nedap.go.Go;
+import java.util.HashMap;
 import java.util.jar.JarOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +17,14 @@ public class GameTest {
 
   private GoGame game;
   private GoPlayer player1, player2;
+  private Board board;
   @BeforeEach
   public void setUp(){
     player1 = () -> Stone.BLACK;
     player2 = () -> Stone.WHITE;
-    game = new GoGame(player1, player2);
+    board = new Board();
+    game = new GoGame(player1, player2, board, true,
+        new HashMap<>());
   }
   @Test
   public void testGetTurn() throws InvalidMoveException {
@@ -114,7 +118,8 @@ public class GameTest {
       board.setField(black[i], Stone.BLACK);
       board.setField(white[i], Stone.WHITE);
     }
-    GoGame newGame = new GoGame(player1, player2, board, true);
+    GoGame newGame = new GoGame(player1, player2, board, true,
+        new HashMap<>());
     newGame.doMove(new GoMove(player1, 68));
     newGame.doMove(new GoMove(player2));
     System.out.println(newGame);
@@ -127,42 +132,57 @@ public class GameTest {
   }
   @Test
   public void testSuicide() throws InvalidMoveException {
-    Board board = new Board();
+    Board newBoard = new Board();
     int[] black = new int[]{21, 22, 23, 29, 33, 39, 43, 49, 53, 58, 61, 68, 69};
     int[] white = new int[]{0, 30, 31, 32, 40, 41, 42, 50, 51, 52, 59, 60};
     for (int i = 0; i < black.length; i++) {
-      board.setField(black[i], Stone.BLACK);
+      newBoard.setField(black[i], Stone.BLACK);
       if (i < white.length - 1) {
-        board.setField(white[i], Stone.WHITE);
+        newBoard.setField(white[i], Stone.WHITE);
       }
     }
-    GoGame newGame = new GoGame(player1, player2, board, false);
+    GoGame newGame = new GoGame(player1, player2, newBoard, false,
+        new HashMap<>());
     System.out.println(newGame);
-    assertEquals(13, board.getScore(Stone.BLACK));
-    assertEquals(11, board.getScore(Stone.WHITE));
+    assertEquals(13, newBoard.getScore(Stone.BLACK));
+    assertEquals(11, newBoard.getScore(Stone.WHITE));
     newGame.doMove(new GoMove(player2, 60));
     System.out.println(newGame);
-    assertEquals(24, board.getScore(Stone.BLACK));
-    assertEquals(1, board.getScore(Stone.WHITE));
+    assertEquals(24, newBoard.getScore(Stone.BLACK));
+    assertEquals(1, newBoard.getScore(Stone.WHITE));
   }
 
   @Test
   public void testSuicideCapture() throws InvalidMoveException {
-    Board board = new Board();
+    Board newBoard = new Board();
     int[] black = new int[]{29, 37, 47};
     int[] white = new int[]{30, 38, 40, 48};
     for (int i = 0; i < black.length; i++) {
-      board.setField(black[i], Stone.BLACK);
-      board.setField(white[i], Stone.WHITE);
+      newBoard.setField(black[i], Stone.BLACK);
+      newBoard.setField(white[i], Stone.WHITE);
     }
-    board.setField(48, Stone.WHITE);
-    GoGame newGame = new GoGame(player1, player2, board, true);
+    newBoard.setField(48, Stone.WHITE);
+    GoGame newGame = new GoGame(player1, player2, newBoard, true,
+        new HashMap<>());
     System.out.println(newGame);
-    assertEquals(3, board.getScore(Stone.BLACK));
-    assertEquals(5, board.getScore(Stone.WHITE));
+    assertEquals(3, newBoard.getScore(Stone.BLACK));
+    assertEquals(5, newBoard.getScore(Stone.WHITE));
     newGame.doMove(new GoMove(player1, 39));
     System.out.println(newGame);
-    assertEquals(5, board.getScore(Stone.BLACK));
-    assertEquals(3, board.getScore(Stone.WHITE));
+    assertEquals(5, newBoard.getScore(Stone.BLACK));
+    assertEquals(3, newBoard.getScore(Stone.WHITE));
+  }
+
+  @Test
+  public void testKoRule() throws InvalidMoveException {
+    int[] black = new int[]{29, 37, 47, 39};
+    int[] white = new int[]{30, 40, 48, 38};
+    for (int i = 0; i < black.length; i++) {
+      game.doMove(new GoMove(player1, black[i]));
+      game.doMove(new GoMove(player2, white[i]));
+    }
+    System.out.println(game);
+    GoMove move = new GoMove(player1, 39);
+    assertFalse(game.isValidMove(move));
   }
 }
