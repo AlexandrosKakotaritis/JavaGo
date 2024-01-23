@@ -262,13 +262,16 @@ public class Board {
   /**
    * Goes through the board calculates the captures and removes captured pieces.
    */
-  public void calculateCaptures(Stone target) {
+  public boolean calculateCaptures(Stone target) {
     List<List<Integer>> listOfChains = getStoneChains(target);
+    boolean captured = false;
     for (List<Integer> chain : listOfChains) {
       if (getFreedoms(chain) == 0) {
         removeStones(chain);
+        captured = true;
       }
     }
+    return captured;
   }
 
   private void removeStones(List<Integer> chain) {

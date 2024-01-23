@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,7 @@ public class GameTest {
     player2 = () -> Stone.WHITE;
     board = new Board();
     game = new GoGame(player1, player2, board, true,
-        new HashMap<>());
+        new BoardList());
   }
   @Test
   public void testGetTurn() throws InvalidMoveException {
@@ -117,7 +116,7 @@ public class GameTest {
       board.setField(white[i], Stone.WHITE);
     }
     GoGame newGame = new GoGame(player1, player2, board, true,
-        new HashMap<>());
+        new BoardList());
     newGame.doMove(new GoMove(player1, 68));
     newGame.doMove(new GoMove(player2));
     System.out.println(newGame);
@@ -140,7 +139,7 @@ public class GameTest {
       }
     }
     GoGame newGame = new GoGame(player1, player2, newBoard, false,
-        new HashMap<>());
+        new BoardList());
     System.out.println(newGame);
     assertEquals(13, newBoard.getScore(Stone.BLACK));
     assertEquals(11, newBoard.getScore(Stone.WHITE));
@@ -161,7 +160,7 @@ public class GameTest {
     }
     newBoard.setField(48, Stone.WHITE);
     GoGame newGame = new GoGame(player1, player2, newBoard, true,
-        new HashMap<>());
+        new BoardList());
     System.out.println(newGame);
     assertEquals(3, newBoard.getScore(Stone.BLACK));
     assertEquals(5, newBoard.getScore(Stone.WHITE));
@@ -182,5 +181,22 @@ public class GameTest {
     System.out.println(game);
     GoMove move = new GoMove(player1, 39);
     assertFalse(game.isValidMove(move));
+    assertThrows(InvalidMoveException.class, () -> game.doMove(move));
+  }
+
+  @Test
+  public void testKoRuleAfter3Moves() throws InvalidMoveException {
+    int[] black = new int[]{20, 12, 30, 22, 59, 49, 67, 35, 53, 80, 36, 43, 57, 22};
+    int[] white = new int[]{13, 23, 31, 54, 48, 58, 66, 34, 42, 52, 44, 21, 44, 58};
+
+    for (int i = 0; i < black.length - 1; i++) {
+      game.doMove(new GoMove(player1, black[i]));
+      game.doMove(new GoMove(player2, white[i]));
+    }
+    game.doMove(new GoMove(player1, black[black.length - 1]));
+    System.out.println(game);
+    GoMove move = new GoMove(player1, white[white.length - 1]);
+    assertFalse(game.isValidMove(move));
+    assertThrows(InvalidMoveException.class, () -> game.doMove(move));
   }
 }
