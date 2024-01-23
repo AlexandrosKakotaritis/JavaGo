@@ -105,11 +105,13 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isValidMove(GoMove move) {
-    return move.getPass() || board.isField(move.getIndex()) && board.isEmpty(move.getIndex())
-        && move.getPlayer() == this.getTurn();
+    return move.getPass() || board.isField(move.getIndex())
+        && board.isEmpty(move.getIndex())
+        && move.getPlayer() == this.getTurn()
+        && checkKoRule(move);
   }
 
-  private boolean checkKoRule() {
+  private boolean checkKoRule(GoMove move) {
 
     return false;
   }
@@ -125,12 +127,18 @@ public class GoGame implements Game {
     if (isValidMove(move)) {
       if (!move.getPass()) {
         board.setField(move.getIndex(), move.getPlayer().getStone());
+        doCaptures(move.getPlayer().getStone());
       }
       recordLastMove(move);
       isPlayer1Turn = !isPlayer1Turn;
     } else {
       throw new InvalidMoveException();
     }
+  }
+
+  private void doCaptures(Stone stone) {
+    board.calculateCaptures(stone.other());
+    board.calculateCaptures(stone);
   }
 
   private void recordLastMove(GoMove move) {
