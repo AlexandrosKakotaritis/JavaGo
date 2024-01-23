@@ -30,7 +30,7 @@ public class GameTest {
     assertEquals(player2, game.getTurn());
   }
   @Test
-  public void testIsValidMove() throws InvalidMoveException {
+  public void testIsValidMove() {
     assertTrue(game.isValidMove(new GoMove(player1, 60)));
     assertTrue(game.isValidMove(new GoMove(player2)));
     assertFalse(game.isValidMove(new GoMove(player1, -1)));
