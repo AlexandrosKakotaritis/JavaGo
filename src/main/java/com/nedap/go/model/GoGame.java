@@ -9,12 +9,12 @@ import java.util.Stack;
  */
 public class GoGame implements Game {
 
-  private boolean isPlayer1Turn;
   private final GoPlayer player1;
   private final GoPlayer player2;
   private final Board board;
-  private Stack<GoMove> lastMoves;
-  private BoardList possibleKoBoards;
+  private final Stack<GoMove> lastMoves;
+  private final BoardList possibleKoBoards;
+  private boolean isPlayer1Turn;
 
   /**
    * Constructor for creating a new game.
@@ -23,8 +23,7 @@ public class GoGame implements Game {
    * @param player2 The player with the white stones.
    */
   public GoGame(GoPlayer player1, GoPlayer player2) {
-    this(player1, player2, new Board(), true,
-        new BoardList());
+    this(player1, player2, new Board(), true, new BoardList());
   }
 
   /**
@@ -35,8 +34,8 @@ public class GoGame implements Game {
    * @param board         The board of the new game object
    * @param isPlayer1Turn The boolean signifying the players turn.
    */
-  public GoGame(GoPlayer player1, GoPlayer player2, Board board,
-      boolean isPlayer1Turn, BoardList possibleKoBoards) {
+  public GoGame(GoPlayer player1, GoPlayer player2, Board board, boolean isPlayer1Turn,
+      BoardList possibleKoBoards) {
     this.player1 = player1;
     this.player2 = player2;
     this.board = board;
@@ -52,8 +51,7 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isGameover() {
-    return lastMoves.size() > 2 && lastMoves.pop().getPass()
-        && lastMoves.pop().getPass();
+    return lastMoves.size() > 2 && lastMoves.pop().getPass() && lastMoves.pop().getPass();
   }
 
   /**
@@ -110,13 +108,11 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isValidMove(GoMove move) {
-    return move.getPass() || board.isField(move.getIndex())
-        && board.isEmpty(move.getIndex())
-        && move.getPlayer() == this.getTurn()
-        && isKoRuleOK(move);
+    return move.getPass() || board.isField(move.getIndex()) && board.isEmpty(move.getIndex())
+        && move.getPlayer() == this.getTurn() && isKoRuleOk(move);
   }
 
-  private boolean isKoRuleOK(GoMove move) {
+  private boolean isKoRuleOk(GoMove move) {
     Board newBoard = board.deepCopy();
     newBoard.setField(move.getIndex(), move.getPlayer().getStone());
     newBoard.calculateCaptures(move.getPlayer().getStone().other());
@@ -136,7 +132,7 @@ public class GoGame implements Game {
       if (!move.getPass()) {
         Board previousBoard = board.deepCopy();
         board.setField(move.getIndex(), move.getPlayer().getStone());
-        if(checkCaptures(move.getPlayer().getStone())){
+        if (checkCaptures(move.getPlayer().getStone())) {
           possibleKoBoards.add(previousBoard);
         }
       }
@@ -148,8 +144,7 @@ public class GoGame implements Game {
   }
 
   private boolean checkCaptures(Stone stone) {
-    return board.calculateCaptures(stone.other())
-      || board.calculateCaptures(stone);
+    return board.calculateCaptures(stone.other()) || board.calculateCaptures(stone);
   }
 
   private void recordLastMove(GoMove move) {
@@ -164,22 +159,19 @@ public class GoGame implements Game {
   @Override
   public GoGame deepCopy() {
     BoardList possibleKoBoardsCopy = new BoardList();
-    for(Board koBoard: possibleKoBoards){
+    for (Board koBoard : possibleKoBoards) {
       possibleKoBoardsCopy.add(koBoard.deepCopy());
     }
-    return new GoGame(player1, player2, board.deepCopy(),
-        isPlayer1Turn, possibleKoBoardsCopy);
+    return new GoGame(player1, player2, board.deepCopy(), isPlayer1Turn, possibleKoBoardsCopy);
   }
 
   @Override
   public String toString() {
-    return scoreBoard() + "\n" + board + "\n" + getTurn()
-        + " it is your turn!";
+    return scoreBoard() + "\n" + board + "\n" + getTurn() + " it is your turn!";
   }
 
   private String scoreBoard() {
-    return player1 + " " + Stone.BLACK + ": " + board.getScore(Stone.BLACK)
-        + " - "
-        + board.getScore(Stone.WHITE) + " :" +  Stone.WHITE  + " " + player2;
+    return player1 + " " + Stone.BLACK + ": " + board.getScore(Stone.BLACK) + " - "
+        + board.getScore(Stone.WHITE) + " :" + Stone.WHITE + " " + player2;
   }
 }
