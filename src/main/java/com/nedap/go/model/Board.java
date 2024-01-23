@@ -328,12 +328,15 @@ public class Board {
     return boardString.toString();
   }
 
-  public boolean equals(Board board){
+  public boolean equals(Object object){
     boolean isEqual = false;
-    if (board.getDim() == this.getDim()){
-      isEqual = true;
-      for (int i = 0; i < this.getDim() * getDim(); i++) {
-        isEqual &=  this.getField(i) == board.getField(i);
+    if(object instanceof Board) {
+      Board board = (Board) object;
+      if (board.getDim() == this.getDim()) {
+        isEqual = true;
+        for (int i = 0; i < this.getDim() * getDim(); i++) {
+          isEqual &= this.getField(i) == board.getField(i);
+        }
       }
     }
     return isEqual;
