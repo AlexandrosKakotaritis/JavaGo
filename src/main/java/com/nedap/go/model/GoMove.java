@@ -58,4 +58,10 @@ public class GoMove implements Move {
   public int getIndex() {
     return index;
   }
+
+  public boolean equals(GoMove move){
+    return this.getIndex() == move.getIndex()
+        && this.getPass() == move.getPass()
+        && this.getPlayer().getStone() == move.getPlayer().getStone();
+  }
 }
