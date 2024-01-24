@@ -236,6 +236,11 @@ public class Board {
 
   private int getAreaScoring(Stone target) {
     int areaScore = 0;
+    List<List<Integer>> listOfEmptyChains = getStoneChains(Stone.EMPTY);
+    if(listOfEmptyChains.size() == 1
+        && listOfEmptyChains.get(0).size() == DIM * DIM){
+      return 0;
+    }
     for (List<Integer> listOfEmpty : getStoneChains(Stone.EMPTY)) {
       if (getOwner(listOfEmpty) == target) {
         areaScore += listOfEmpty.size();
