@@ -7,13 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.nedap.go.model.utils.BoardList;
+import com.nedap.go.model.utils.InvalidMoveException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GameTest {
 
   private GoGame game;
-  private GoPlayer player1, player2;
+  private Player player1, player2;
   private Board board;
   @BeforeEach
   public void setUp(){

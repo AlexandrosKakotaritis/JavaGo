@@ -1,5 +1,6 @@
 package com.nedap.go.model;
 
+import com.nedap.go.model.utils.FloodFillGo;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -201,7 +202,7 @@ public class Board {
     List<List<Integer>> listOfChains = new ArrayList<>();
     while (!notVisited.isEmpty()) {
       int next = notVisited.poll();
-      List<Integer> chain = FloodFill.BreadthWideSearch(next, fields);
+      List<Integer> chain = FloodFillGo.breadthWideSearch(next, fields);
       listOfChains.add(chain);
       notVisited.removeAll(chain);
     }
