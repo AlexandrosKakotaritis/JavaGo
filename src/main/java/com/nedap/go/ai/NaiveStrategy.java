@@ -1,8 +1,6 @@
 package com.nedap.go.ai;
 
 import com.nedap.go.model.Game;
-import com.nedap.go.model.GoGame;
-import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Move;
 
 public class NaiveStrategy implements Strategy {

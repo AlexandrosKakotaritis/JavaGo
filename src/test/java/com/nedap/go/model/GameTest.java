@@ -16,12 +16,12 @@ public class GameTest {
 
   private GoGame game;
   private Player player1, player2;
-  private Board board;
+
   @BeforeEach
   public void setUp(){
     player1 = () -> Stone.BLACK;
     player2 = () -> Stone.WHITE;
-    board = new Board();
+    Board board = new Board();
     game = new GoGame(player1, player2, board, true,
         new BoardList());
   }
