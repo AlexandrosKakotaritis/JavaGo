@@ -10,6 +10,9 @@ import com.nedap.go.model.Move;
 import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.Scanner;
 
 /**
@@ -17,10 +20,22 @@ import java.util.Scanner;
  */
 public class GoTui {
 
-  Scanner sc = new Scanner(System.in);
+  Scanner sc;
+  PrintWriter output;
   private GoGame game;
   private Player player1;
   private Player player2;
+  private boolean isSystemOut = false;
+
+  public GoTui(Reader input, PrintWriter output) {
+    this.output = output;
+    sc = new Scanner(input);
+  }
+
+  public GoTui() {
+    this(new InputStreamReader(System.in), new PrintWriter(System.out, true));
+    isSystemOut = true;
+  }
 
   public static void main(String[] args) {
     GoTui tui = new GoTui();
@@ -70,11 +85,11 @@ public class GoTui {
               Type the preferred line number as seen in the numbering grid, \s
               e.g. 6. \s
         """;
-    System.out.println(helpText);
-    System.out.println(helpGame);
-    System.out.println("Press Enter");
+    output.println(helpText);
+    output.println(helpGame);
+    output.println("Press Enter");
     sc.nextLine();
-    System.out.println();
+    output.println();
   }
 
   /**
@@ -118,7 +133,7 @@ public class GoTui {
    * @return true if a new game is played or false to exit to menu
    */
   private boolean retry() {
-    System.out.print("Game is over! Want to play again? (Y/N)");
+    output.println("Game is over! Want to play again? (Y/N)");
     String choice = sc.nextLine().trim().split("\\s+")[0];
     Player tempPlayer = player1;
     player1 = player2;
@@ -132,13 +147,13 @@ public class GoTui {
   private void displayWinner(boolean quit) {
     if (quit) {
       String message = getQuitMessage();
-      System.out.println(message);
+      output.println(message);
     } else {
       Player winner = game.getWinner();
       if (winner == null) {
-        System.out.println("It's a tie GG!");
+        output.println("It's a tie GG!");
       } else {
-        System.out.println("Winner is: " + ((AbstractPlayer) winner).getName() + " GG!");
+        output.println("Winner is: " + ((AbstractPlayer) winner).getName() + " GG!");
       }
     }
   }
@@ -167,7 +182,7 @@ public class GoTui {
    * Displays the state of the boardBox and the scoreboard.
    */
   private void displayState() {
-    System.out.println(game);
+    output.println(game);
   }
 
   /**
@@ -178,14 +193,17 @@ public class GoTui {
    */
   private void createGame(Player player1, Player player2) {
     game = new GoGame(player1, player2);
-    System.out.println("Begin!");
+    output.println("Begin!");
   }
 
   private Player createPlayer(int index, Stone stone) throws QuitGameException {
 
-    System.out.println("Give name for Player " + index + " with " + stone + " stone");
-    System.out.println("(See help for AI players, use exit to quit to main menu)");
-    System.out.print("-->");
+    output.println("Give name for Player " + index + " with " + stone + " stone");
+    output.println("(See help for AI players, use exit to quit to main menu)");
+    if (isSystemOut) {
+      output.print("-->");
+      output.flush();
+    }
 
     String playerName = sc.nextLine();
     Player player;
@@ -214,8 +232,11 @@ public class GoTui {
             2. Help\s
             3. Quit\s
         """;
-    System.out.println(menu);
-    System.out.print("-->");
+    output.println(menu);
+    if (isSystemOut) {
+      output.print("-->");
+      output.flush();
+    }
     return Integer.parseInt(sc.nextLine());
   }
 }
