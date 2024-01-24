@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +45,8 @@ public class HumanPlayerTest {
       player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
-      game = new GoGame(human, player2, board, true, new BoardList());
+      game = new GoGame(human, player2, board, true, new BoardList(),
+          new LinkedList());
 
       pw.println("2");
       Move move = human.determineMove(game);
@@ -65,7 +67,8 @@ public class HumanPlayerTest {
       player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
-      game = new GoGame(human, player2, board, true, new BoardList());
+      game = new GoGame(human, player2, board, true, new BoardList(),
+          new LinkedList());
 
       pw.println("hint");
       pw.println(6);
@@ -87,7 +90,8 @@ public class HumanPlayerTest {
       player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
-      game = new GoGame(human, player2, board, true, new BoardList());
+      game = new GoGame(human, player2, board, true, new BoardList(),
+          new LinkedList());
 
       pw.println("why?");
       pw.println(6);
@@ -112,7 +116,8 @@ public class HumanPlayerTest {
       player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
-      game = new GoGame(human, player2, board, true, new BoardList());
+      game = new GoGame(human, player2, board, true, new BoardList(),
+          new LinkedList());
 
       pw.println("quit");
       assertThrows(QuitGameException.class, () -> human.determineMove(game));
