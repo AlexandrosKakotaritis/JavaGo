@@ -44,7 +44,8 @@ public class HumanPlayer extends AbstractPlayer implements Player {
    * @param helper The AI used for hints.
    */
   public HumanPlayer(String name, Stone stone, ComputerPlayer helper) {
-    this(name, stone, helper, new InputStreamReader(System.in), new PrintWriter(System.out));
+    this(name, stone, helper, new InputStreamReader(System.in),
+        new PrintWriter(System.out, true));
     isConsole = true;
   }
 
@@ -58,8 +59,8 @@ public class HumanPlayer extends AbstractPlayer implements Player {
    * @param playerInput The input reader.
    * @param output      The output writer.
    */
-  public HumanPlayer(String name, Stone stone, ComputerPlayer helper, Reader playerInput,
-      PrintWriter output) {
+  public HumanPlayer(String name, Stone stone, ComputerPlayer helper,
+      Reader playerInput, PrintWriter output) {
     super(name);
     this.stone = stone;
     this.helper = helper;
@@ -76,10 +77,8 @@ public class HumanPlayer extends AbstractPlayer implements Player {
   @Override
   public Move determineMove(Game game) throws QuitGameException {
     GoMove move;
-    int input;
     try {
-      input = inputManager(game);
-      move = inputToMove(input);
+      move = inputManager(game);
     } catch (WrongInputException e) {
       output.println("Wrong move input! Moves must be an integer "
           + "corresponding to an intersection e.g. 10");
@@ -94,23 +93,24 @@ public class HumanPlayer extends AbstractPlayer implements Player {
     }
   }
 
-  private GoMove inputToMove(int index) {
-    return new GoMove(this, index);
-  }
-
-  private int inputManager(Game game) throws WrongInputException, QuitGameException {
+  private GoMove inputManager(Game game) throws WrongInputException, QuitGameException {
     output.println("Player " + getName() + " Choose a move");
     if (isConsole) {
       output.print("-->");
+      output.flush();
     }
     String input = playerInput.nextLine();
     try {
-      return Integer.parseInt(input);
+      int moveIndex = Integer.parseInt(input);
+      return new GoMove(this, moveIndex);
     } catch (NumberFormatException e) {
       switch (input) {
         case "quit" -> {
           output.close();
           throw new QuitGameException();
+        }
+        case "pass" -> {
+          return new GoMove(this);
         }
         case "hint" -> giveHint(game);
         default -> throw new WrongInputException();
