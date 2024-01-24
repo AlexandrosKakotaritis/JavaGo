@@ -5,7 +5,7 @@ package com.nedap.go.model;
  */
 public class GoMove implements Move {
 
-  private final GoPlayer player;
+  private final Player player;
   private final boolean pass;
   private final int index;
 
@@ -15,7 +15,7 @@ public class GoMove implements Move {
    * @param player The player that makes the move
    * @param index  The index of the determined move
    */
-  public GoMove(GoPlayer player, int index) {
+  public GoMove(Player player, int index) {
     this.player = player;
     this.pass = false;
     this.index = index;
@@ -26,7 +26,7 @@ public class GoMove implements Move {
    *
    * @param player The player making the passing move.
    */
-  public GoMove(GoPlayer player) {
+  public GoMove(Player player) {
     this.player = player;
     this.pass = true;
     this.index = -1;
@@ -37,7 +37,7 @@ public class GoMove implements Move {
    *
    * @return The player that made the move.
    */
-  public GoPlayer getPlayer() {
+  public Player getPlayer() {
     return player;
   }
 

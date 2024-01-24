@@ -1,20 +1,19 @@
 package com.nedap.go.model;
 
+import com.nedap.go.ui.ExitGameException;
+
 /**
  * A player of a game.
  */
-public abstract class AbstractGoPlayer implements GoPlayer {
+public abstract class AbstractPlayer implements Player {
 
   private final String name;
-  private final Stone stone;
-
 
   /**
    * Creates a new Player object.
    */
-  public AbstractGoPlayer(String name, Stone stone) {
+  public AbstractPlayer(String name) {
     this.name = name;
-    this.stone = stone;
   }
 
   /**
@@ -27,21 +26,12 @@ public abstract class AbstractGoPlayer implements GoPlayer {
   }
 
   /**
-   * Returns the stone of the player.
-   *
-   * @return the stone of the player.
-   */
-  public Stone getStone() {
-    return stone;
-  }
-
-  /**
    * Determines the next move, if the game still has available moves.
    *
    * @param game the current game
    * @return the player's choice
    */
-  public abstract Move determineMove(Game game);
+  public abstract Move determineMove(Game game) throws ExitGameException;
 
   /**
    * Returns a representation of a player, i.e., their name
