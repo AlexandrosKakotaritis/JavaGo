@@ -1,6 +1,6 @@
 package com.nedap.go.model;
 
-import com.nedap.go.ui.ExitGameException;
+import com.nedap.go.tui.QuitGameException;
 
 /**
  * A player of a game.
@@ -31,7 +31,7 @@ public abstract class AbstractPlayer implements Player {
    * @param game the current game
    * @return the player's choice
    */
-  public abstract Move determineMove(Game game) throws ExitGameException;
+  public abstract Move determineMove(Game game) throws QuitGameException;
 
   /**
    * Returns a representation of a player, i.e., their name
