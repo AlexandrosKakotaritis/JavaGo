@@ -1,4 +1,4 @@
-package com.nedap.go.ui;
+package com.nedap.go.tui;
 
 import com.nedap.go.ai.ComputerPlayer;
 import com.nedap.go.ai.NaiveStrategy;
@@ -8,13 +8,19 @@ import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Move;
 import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.Scanner;
 
 public class HumanPlayer extends AbstractPlayer implements Player {
 
   private final Player helper;
   private final Stone stone;
-  Scanner playerInput = new Scanner(System.in);
+  Scanner playerInput;
+  PrintWriter output;
+
+  private boolean isConsole;
 
   /**
    * Creates a new Player object.
@@ -22,9 +28,18 @@ public class HumanPlayer extends AbstractPlayer implements Player {
    * @param name Name of the player
    */
   public HumanPlayer(String name, Stone stone) {
+    this(name, stone, new ComputerPlayer(new NaiveStrategy(), stone),
+        new InputStreamReader(System.in), new PrintWriter(System.out));
+    isConsole = true;
+  }
+
+  public HumanPlayer(String name, Stone stone, ComputerPlayer helper,
+      Reader playerInput, PrintWriter output){
     super(name);
     this.stone = stone;
-    helper = new ComputerPlayer(new NaiveStrategy(), stone);
+    this.helper = helper;
+    this.playerInput = new Scanner(playerInput);
+    this.output = output;
   }
 
   /**
@@ -34,23 +49,22 @@ public class HumanPlayer extends AbstractPlayer implements Player {
    * @return the player's choice
    */
   @Override
-  public Move determineMove(Game game) throws ExitGameException {
+  public Move determineMove(Game game) throws QuitGameException {
     GoMove move;
     int input;
     try {
       input = inputManager(game);
       move = inputToMove(input);
     } catch (WrongInputException e) {
-      System.out.println(
-          "Wrong move input! " + "Moves must be an integer "
-              + "corresponding to an intersection"
-              + "e.g. 10");
+      output.println(
+          "Wrong move input! Moves must be an integer "
+              + "corresponding to an intersection e.g. 10");
       return determineMove(game);
     }
     if (game.isValidMove(move)) {
       return move;
     } else {
-      System.out.println("Invalid Move! Try again");
+      output.println("Invalid Move! Try again");
       System.out.println(game);
       return determineMove(game);
     }
@@ -60,15 +74,20 @@ public class HumanPlayer extends AbstractPlayer implements Player {
     return new GoMove(this, index);
   }
 
-  private int inputManager(Game game) throws WrongInputException, ExitGameException {
-    System.out.println("Player " + getName() + " Choose a move");
-    System.out.print("-->");
+  private int inputManager(Game game) throws WrongInputException, QuitGameException {
+    output.println("Player " + getName() + " Choose a move");
+    if (isConsole) {
+      output.print("-->");
+    }
     String input = playerInput.nextLine();
     try {
       return Integer.parseInt(input);
     } catch (NumberFormatException e) {
       switch (input) {
-        case "quit" -> throw new ExitGameException();
+        case "quit" -> {
+          output.close();
+          throw new QuitGameException();
+        }
         case "hint" -> giveHint(game);
         default -> throw new WrongInputException();
       }
@@ -76,10 +95,10 @@ public class HumanPlayer extends AbstractPlayer implements Player {
     }
   }
 
-  private void giveHint(Game game) throws ExitGameException {
+  private void giveHint(Game game) throws QuitGameException {
     Game gameCopy = game.deepCopy();
     Move move = ((AbstractPlayer) helper).determineMove(gameCopy);
-    System.out.println("Try playing " + ((GoMove) move).getIndex());
+    output.println("Try playing " + ((GoMove) move).getIndex());
   }
 
 
