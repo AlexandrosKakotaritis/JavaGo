@@ -13,28 +13,53 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Scanner;
 
+/**
+ * Class used for enabling humans to play the game through the GoTUI class.
+ */
 public class HumanPlayer extends AbstractPlayer implements Player {
 
   private final Player helper;
   private final Stone stone;
   Scanner playerInput;
   PrintWriter output;
-
   private boolean isConsole;
 
   /**
-   * Creates a new Player object.
+   * Creates a new HumanPlayer object. This constructor is used for default play through the
+   * console.
    *
-   * @param name Name of the player
+   * @param name  Name of the player.
+   * @param stone The stone color of the player.
    */
   public HumanPlayer(String name, Stone stone) {
-    this(name, stone, new ComputerPlayer(new NaiveStrategy(), stone),
-        new InputStreamReader(System.in), new PrintWriter(System.out));
+    this(name, stone, new ComputerPlayer(new NaiveStrategy(), stone));
     isConsole = true;
   }
 
-  public HumanPlayer(String name, Stone stone, ComputerPlayer helper,
-      Reader playerInput, PrintWriter output){
+  /**
+   * This constructor gives the ability to choose AI helper.
+   *
+   * @param name   Name of the player
+   * @param stone  The stone color of the player.
+   * @param helper The AI used for hints.
+   */
+  public HumanPlayer(String name, Stone stone, ComputerPlayer helper) {
+    this(name, stone, helper, new InputStreamReader(System.in), new PrintWriter(System.out));
+    isConsole = true;
+  }
+
+  /**
+   * Generalized constructor which defines the level of the helper and input/output through
+   * Reader/PrintWriter.
+   *
+   * @param name        Name of the player
+   * @param stone       The stone color of the player.
+   * @param helper      The AI used for hints.
+   * @param playerInput The input reader.
+   * @param output      The output writer.
+   */
+  public HumanPlayer(String name, Stone stone, ComputerPlayer helper, Reader playerInput,
+      PrintWriter output) {
     super(name);
     this.stone = stone;
     this.helper = helper;
@@ -56,9 +81,8 @@ public class HumanPlayer extends AbstractPlayer implements Player {
       input = inputManager(game);
       move = inputToMove(input);
     } catch (WrongInputException e) {
-      output.println(
-          "Wrong move input! Moves must be an integer "
-              + "corresponding to an intersection e.g. 10");
+      output.println("Wrong move input! Moves must be an integer "
+          + "corresponding to an intersection e.g. 10");
       return determineMove(game);
     }
     if (game.isValidMove(move)) {

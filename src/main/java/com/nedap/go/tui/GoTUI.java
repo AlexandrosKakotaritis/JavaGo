@@ -1,4 +1,4 @@
-package com.nedap.go.ui;
+package com.nedap.go.tui;
 
 
 import com.nedap.go.ai.ComputerPlayer;
@@ -77,7 +77,7 @@ public class GoTUI {
            try {
                player1 = createPlayer(1, Stone.BLACK);
                player2 = createPlayer(2, Stone.WHITE);
-           } catch (ExitGameException e) {
+           } catch (QuitGameException e) {
                playGame = false;
            }
        }
@@ -89,7 +89,7 @@ public class GoTUI {
                     displayState();
                     newMove();
                 }
-            }catch (ExitGameException e){
+            }catch (QuitGameException e){
                 quit = true;
             } catch (InvalidMoveException e) {
                 throw new RuntimeException(e);
@@ -151,7 +151,7 @@ public class GoTUI {
     /**
      * Plays the next move specified by the player.
      */
-    private void newMove() throws InvalidMoveException, ExitGameException {
+    private void newMove() throws InvalidMoveException, QuitGameException {
         Move move = ((AbstractPlayer) game.getTurn()).determineMove(game);
         game.doMove(move);
     }
@@ -173,7 +173,7 @@ public class GoTUI {
         System.out.println("Begin!");
     }
 
-    private Player createPlayer(int index, Stone stone) throws ExitGameException {
+    private Player createPlayer(int index, Stone stone) throws QuitGameException {
         Player player;
         System.out.println("Give name for Player " + index + " with " + stone + " stone");
         System.out.println("(See help for AI players, use exit to quit to main menu)");
@@ -182,7 +182,7 @@ public class GoTUI {
         String playerName = sc.nextLine();
 
         player = switch (playerName) {
-            case "exit" -> throw new ExitGameException();
+            case "exit" -> throw new QuitGameException();
             case "-N" -> new ComputerPlayer(new NaiveStrategy(), stone);
 //            case "-S" -> new ComputerPlayer(new SmartStrategy(), stone);
             default -> createHumanPlayer(playerName, stone);

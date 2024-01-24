@@ -1,4 +1,4 @@
-package com.nedap.go.ui;
+package com.nedap.go.tui;
 
 public class WrongInputException extends Exception{
 
