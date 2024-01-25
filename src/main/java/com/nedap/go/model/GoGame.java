@@ -180,7 +180,7 @@ public class GoGame implements Game {
 
   @Override
   public String toString() {
-    return scoreBoard() + "\n" + board + "\n" + getTurn() + " it is your turn!";
+    return scoreBoard() + "\n" + board;
   }
 
   private String scoreBoard() {
