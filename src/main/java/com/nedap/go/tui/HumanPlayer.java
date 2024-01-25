@@ -113,9 +113,7 @@ public class HumanPlayer extends AbstractPlayer implements Player {
 
   private GoMove getSpecialMove(Game game, String input) throws QuitGameException, WrongInputException {
     switch (input) {
-      case "quit" -> {
-        throw new QuitGameException();
-      }
+      case "quit" -> throw new QuitGameException();
       case "pass" -> {
         return new GoMove(this);
       }

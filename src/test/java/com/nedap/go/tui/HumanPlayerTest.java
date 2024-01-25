@@ -50,7 +50,7 @@ public class HumanPlayerTest {
       Move move = human.determineMove(game);
       game.doMove(move);
       s = br.readLine();
-      assertEquals("Player " + human.getName() + " Choose a move", s);
+      assertEquals("Choose a move", s);
       System.out.println(game);
     }
   }
@@ -71,7 +71,7 @@ public class HumanPlayerTest {
       Move move = human.determineMove(game);
       game.doMove(move);
       s = br.readLine();
-      assertEquals("Player " + human.getName() + " Choose a move", s);
+      assertEquals("Choose a move", s);
       s = br.readLine();
       assertTrue(s.contains("Try playing"));
     }
@@ -92,7 +92,7 @@ public class HumanPlayerTest {
       Move move = human.determineMove(game);
       game.doMove(move);
       s = br.readLine();
-      assertEquals("Player " + human.getName() + " Choose a move", s);
+      assertEquals("Choose a move", s);
       s = br.readLine();
       String helpLine = "Wrong move input! Moves must be an integer "
           + "corresponding to an intersection e.g. 10";
