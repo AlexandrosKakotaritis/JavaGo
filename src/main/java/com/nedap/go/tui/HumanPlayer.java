@@ -94,35 +94,49 @@ public class HumanPlayer extends AbstractPlayer implements Player {
   }
 
   private GoMove inputManager(Game game) throws WrongInputException, QuitGameException {
-    output.println("Player " + getName() + " Choose a move");
-    if (isConsole) {
-      output.print("-->");
-      output.flush();
+    String input = "";
+    printCommandFlavor();
+    if(playerInput.hasNext()){
+      input = playerInput.nextLine();
     }
-    String input = playerInput.nextLine();
     try {
       int moveIndex = Integer.parseInt(input);
       return new GoMove(this, moveIndex);
     } catch (NumberFormatException e) {
-      switch (input) {
-        case "quit" -> {
-          output.close();
-          throw new QuitGameException();
-        }
-        case "pass" -> {
-          return new GoMove(this);
-        }
-        case "hint" -> giveHint(game);
-        default -> throw new WrongInputException();
+      GoMove x = getSpecialMove(game, input);
+      if (x != null) {
+        return x;
       }
       return inputManager(game);
     }
+  }
+
+  private GoMove getSpecialMove(Game game, String input) throws QuitGameException, WrongInputException {
+    switch (input) {
+      case "quit" -> {
+        throw new QuitGameException();
+      }
+      case "pass" -> {
+        return new GoMove(this);
+      }
+      case "hint" -> giveHint(game);
+      default -> throw new WrongInputException();
+    }
+    return null;
   }
 
   private void giveHint(Game game) throws QuitGameException {
     Game gameCopy = game.deepCopy();
     Move move = ((AbstractPlayer) helper).determineMove(gameCopy);
     output.println("Try playing " + ((GoMove) move).getIndex());
+  }
+
+  private void printCommandFlavor(){
+    output.println("Choose a move");
+    if (isConsole) {
+      output.print("-->");
+      output.flush();
+    }
   }
 
 
