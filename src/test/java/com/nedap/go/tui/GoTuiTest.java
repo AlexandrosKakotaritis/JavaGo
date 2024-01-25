@@ -61,7 +61,7 @@ public class GoTuiTest {
   private static String readMovePrompt(BufferedReader br) throws IOException {
     String s;
     br.readLine();
-    s = br.readLine();
+    s = br.readLine() + "/n";
     s += br.readLine();
     return s;
   }
@@ -278,7 +278,7 @@ public class GoTuiTest {
           pw.println(2);
         } else if (i < 3) {
           pw.println("pass");
-          pw.println("pass");
+
         }
 
       }
@@ -362,7 +362,6 @@ public class GoTuiTest {
           pw.println(2);
         } else if (i < 3) {
           pw.println("pass");
-          pw.println("pass");
         }
 
       }
@@ -374,16 +373,19 @@ public class GoTuiTest {
 
       s = br.readLine();
       assertEquals("Begin!", s);
-      s = br.readLine();
-      for (int i = 0; i < 2; i++) {
-        s = readBoard(br);
-      }
-
       pw.println("quit");
+      s = br.readLine();
+      s = readBoard(br);
+
+
+      s = readMovePrompt(br);
+      s = readBoard(br);
+
+      br.readLine();
+      br.readLine();
       pw.println("N");
       pw.println(3);
       t.join();
-      System.out.println(2);
     }
   }
 }
