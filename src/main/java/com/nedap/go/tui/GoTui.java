@@ -233,8 +233,8 @@ public class GoTui implements Runnable {
   }
 
   private Player createHumanPlayer(String playerName, Stone stone) {
-    return new HumanPlayer(playerName, stone, new ComputerPlayer(new NaiveStrategy(), stone),
-        input, output);
+    return new HumanPlayer(playerName, stone, new ComputerPlayer(new NaiveStrategy(), stone), input,
+        output);
   }
 
   /**
@@ -258,12 +258,12 @@ public class GoTui implements Runnable {
     return Integer.parseInt(sc.nextLine());
   }
 
-  private void println(Object o){
+  private void println(Object o) {
     output.println(o);
     output.flush();
   }
 
-  private void print(Object o){
+  private void print(Object o) {
     output.print(o);
     output.flush();
   }

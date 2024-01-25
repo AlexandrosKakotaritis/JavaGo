@@ -25,7 +25,8 @@ public class GoGame implements Game {
    * @param player2 The player with the white stones.
    */
   public GoGame(Player player1, Player player2) {
-    this(player1, player2, new Board(), true, new BoardList(), new LinkedList());
+    this(player1, player2, new Board(), true, new BoardList(),
+        new LinkedList<>());
   }
 
   /**
@@ -37,7 +38,7 @@ public class GoGame implements Game {
    * @param isPlayer1Turn The boolean signifying the players turn.
    */
   public GoGame(Player player1, Player player2, Board board, boolean isPlayer1Turn,
-      BoardList possibleKoBoards, List last2Moves) {
+      BoardList possibleKoBoards, List<GoMove> last2Moves) {
     this.player1 = player1;
     this.player2 = player2;
     this.board = board;
@@ -155,7 +156,7 @@ public class GoGame implements Game {
   private void recordLastMove(GoMove move) {
     last2Moves.add(move);
     if(last2Moves.size() > 2){
-      last2Moves.remove(0);
+      last2Moves.removeFirst();
     }
   }
 
@@ -167,13 +168,10 @@ public class GoGame implements Game {
   @Override
   public GoGame deepCopy() {
     BoardList possibleKoBoardsCopy = new BoardList();
-    List<Move> last2MovesCopy = new LinkedList<>();
     for (Board koBoard : possibleKoBoards) {
       possibleKoBoardsCopy.add(koBoard.deepCopy());
     }
-    for (Move move: last2Moves) {
-      last2MovesCopy.add(move);
-    }
+    List<GoMove> last2MovesCopy = new LinkedList<>(last2Moves);
     return new GoGame(player1, player2, board.deepCopy(), isPlayer1Turn, possibleKoBoardsCopy,
         last2MovesCopy);
   }
