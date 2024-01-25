@@ -27,7 +27,7 @@ public class HumanPlayerTest {
 
   private Player player2;
   private HumanPlayer human;
-  Board board;
+  private Board board;
 
   @BeforeEach
   public void setUp() {
@@ -41,8 +41,6 @@ public class HumanPlayerTest {
     try (var pr1 = new PipedReader(); var pw1 = new PipedWriter(pr1);
         var pr2 = new PipedReader(); var pw2 = new PipedWriter(pr2);
         var br = new BufferedReader(pr2); var pw = new PrintWriter(pw1)) {
-      board = new Board();
-      player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
       game = new GoGame(human, player2, board, true, new BoardList(),
@@ -63,8 +61,6 @@ public class HumanPlayerTest {
     try (var pr1 = new PipedReader(); var pw1 = new PipedWriter(pr1);
         var pr2 = new PipedReader(); var pw2 = new PipedWriter(pr2);
         var br = new BufferedReader(pr2); var pw = new PrintWriter(pw1)) {
-      board = new Board();
-      player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
       game = new GoGame(human, player2, board, true, new BoardList(),
@@ -86,8 +82,6 @@ public class HumanPlayerTest {
     try (var pr1 = new PipedReader(); var pw1 = new PipedWriter(pr1);
         var pr2 = new PipedReader(); var pw2 = new PipedWriter(pr2);
         var br = new BufferedReader(pr2); var pw = new PrintWriter(pw1)) {
-      board = new Board();
-      player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
       game = new GoGame(human, player2, board, true, new BoardList(),
@@ -112,8 +106,6 @@ public class HumanPlayerTest {
     try (var pr1 = new PipedReader(); var pw1 = new PipedWriter(pr1);
         var pr2 = new PipedReader(); var pw2 = new PipedWriter(pr2);
         var br = new BufferedReader(pr2); var pw = new PrintWriter(pw1)) {
-      board = new Board();
-      player2 = () -> Stone.WHITE;
       human = new HumanPlayer("Henk", Stone.BLACK,
           new ComputerPlayer(new NaiveStrategy(), Stone.BLACK), pr1, new PrintWriter(pw2));
       game = new GoGame(human, player2, board, true, new BoardList(),
