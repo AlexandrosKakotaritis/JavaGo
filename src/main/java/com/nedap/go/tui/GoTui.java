@@ -18,10 +18,12 @@ import java.util.Scanner;
 /**
  * TUI class for the game Go.
  */
-public class GoTui {
+public class GoTui implements Runnable {
 
   Scanner sc;
   PrintWriter output;
+
+  Reader input;
   private GoGame game;
   private Player player1;
   private Player player2;
@@ -29,11 +31,12 @@ public class GoTui {
 
   public GoTui(Reader input, PrintWriter output) {
     this.output = output;
+    this.input = input;
     sc = new Scanner(input);
   }
 
   public GoTui() {
-    this(new InputStreamReader(System.in), new PrintWriter(System.out, true));
+    this(new InputStreamReader(System.in), new PrintWriter(System.out));
     isSystemOut = true;
   }
 
@@ -85,11 +88,11 @@ public class GoTui {
               Type the preferred line number as seen in the numbering grid, \s
               e.g. 6. \s
         """;
-    output.println(helpText);
-    output.println(helpGame);
-    output.println("Press Enter");
+    println(helpText);
+    println(helpGame);
+    println("Press Enter");
     sc.nextLine();
-    output.println();
+    println("");
   }
 
   /**
@@ -99,6 +102,37 @@ public class GoTui {
    */
   private void play(boolean playGame) {
 
+    playGame = startNewGame(playGame);
+    while (playGame) {
+      setUpGame(player1, player2);
+      boolean quit = runGame();
+      displayState();
+      displayWinner(quit);
+      playGame = retry();
+    }
+  }
+
+  private boolean runGame() {
+    boolean quit = false;
+    try {
+      while (!game.isGameover()) {
+        displayState();
+        displayTurn();
+        newMove();
+      }
+    } catch (QuitGameException e) {
+      quit = true;
+    } catch (InvalidMoveException e) {
+      throw new RuntimeException(e);
+    }
+    return quit;
+  }
+
+  private void displayTurn() {
+    println(game.getTurn() + " it is your turn!");
+  }
+
+  private boolean startNewGame(boolean playGame) {
     if (playGame) {
       try {
         player1 = createPlayer(1, Stone.BLACK);
@@ -107,24 +141,7 @@ public class GoTui {
         playGame = false;
       }
     }
-    while (playGame) {
-      boolean quit = false;
-      createGame(player1, player2);
-      try {
-        while (!game.isGameover()) {
-          displayState();
-          newMove();
-        }
-      } catch (QuitGameException e) {
-        quit = true;
-      } catch (InvalidMoveException e) {
-        throw new RuntimeException(e);
-      }
-      displayState();
-      displayWinner(quit);
-      playGame = retry();
-
-    }
+    return playGame;
   }
 
   /**
@@ -133,7 +150,7 @@ public class GoTui {
    * @return true if a new game is played or false to exit to menu
    */
   private boolean retry() {
-    output.println("Game is over! Want to play again? (Y/N)");
+    println("Game is over! Want to play again? (Y/N)");
     String choice = sc.nextLine().trim().split("\\s+")[0];
     Player tempPlayer = player1;
     player1 = player2;
@@ -147,13 +164,13 @@ public class GoTui {
   private void displayWinner(boolean quit) {
     if (quit) {
       String message = getQuitMessage();
-      output.println(message);
+      println(message);
     } else {
       Player winner = game.getWinner();
       if (winner == null) {
-        output.println("It's a tie GG!");
+        println("It's a tie GG!");
       } else {
-        output.println("Winner is: " + ((AbstractPlayer) winner).getName() + " GG!");
+        println("Winner is: " + ((AbstractPlayer) winner).getName() + " GG!");
       }
     }
   }
@@ -182,7 +199,7 @@ public class GoTui {
    * Displays the state of the boardBox and the scoreboard.
    */
   private void displayState() {
-    output.println(game);
+    println(game);
   }
 
   /**
@@ -191,24 +208,24 @@ public class GoTui {
    * @param player1 The first player.
    * @param player2 The second player.
    */
-  private void createGame(Player player1, Player player2) {
+  private void setUpGame(Player player1, Player player2) {
     game = new GoGame(player1, player2);
-    output.println("Begin!");
+    println("Begin!");
   }
 
   private Player createPlayer(int index, Stone stone) throws QuitGameException {
 
-    output.println("Give name for Player " + index + " with " + stone + " stone");
-    output.println("(See help for AI players, use exit to quit to main menu)");
+    println("Give name for Player " + index + " with " + stone + " stone");
+    println("(See help for AI players, use exit to quit to main menu)");
     if (isSystemOut) {
-      output.print("-->");
-      output.flush();
+      print("-->");
+//      output.flush();
     }
 
     String playerName = sc.nextLine();
     Player player;
     player = switch (playerName) {
-      case "exit" -> throw new QuitGameException();
+      case "quit" -> throw new QuitGameException();
       case "-N" -> new ComputerPlayer(new NaiveStrategy(), stone);
       default -> createHumanPlayer(playerName, stone);
     };
@@ -216,7 +233,8 @@ public class GoTui {
   }
 
   private Player createHumanPlayer(String playerName, Stone stone) {
-    return new HumanPlayer(playerName, stone);
+    return new HumanPlayer(playerName, stone, new ComputerPlayer(new NaiveStrategy(), stone),
+        input, output);
   }
 
   /**
@@ -226,18 +244,28 @@ public class GoTui {
    */
   private int menu() {
     String menu = """
-        Welcome to Dots and Boxes!\s
+        Welcome to JavaGO!\s
                Main Menu\s
             1. Play Game\s
             2. Help\s
             3. Quit\s
         """;
-    output.println(menu);
+    println(menu);
     if (isSystemOut) {
-      output.print("-->");
-      output.flush();
+      print("-->");
     }
+
     return Integer.parseInt(sc.nextLine());
+  }
+
+  private void println(Object o){
+    output.println(o);
+    output.flush();
+  }
+
+  private void print(Object o){
+    output.print(o);
+    output.flush();
   }
 }
 
