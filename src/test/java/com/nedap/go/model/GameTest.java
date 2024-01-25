@@ -24,7 +24,7 @@ public class GameTest {
     player2 = () -> Stone.WHITE;
     Board board = new Board();
     game = new GoGame(player1, player2, board, true,
-        new BoardList(), new LinkedList());
+        new BoardList(), new LinkedList<>());
   }
   @Test
   public void testGetTurn() throws InvalidMoveException {
@@ -119,7 +119,7 @@ public class GameTest {
       board.setField(white[i], Stone.WHITE);
     }
     GoGame newGame = new GoGame(player1, player2, board, true,
-        new BoardList(), new LinkedList());
+        new BoardList(), new LinkedList<>());
     newGame.doMove(new GoMove(player1, 68));
     newGame.doMove(new GoMove(player2));
     System.out.println(newGame);
@@ -142,7 +142,7 @@ public class GameTest {
       }
     }
     GoGame newGame = new GoGame(player1, player2, newBoard, false,
-        new BoardList(), new LinkedList());
+        new BoardList(), new LinkedList<>());
     System.out.println(newGame);
     assertEquals(13, newBoard.getScore(Stone.BLACK));
     assertEquals(11, newBoard.getScore(Stone.WHITE));
@@ -163,7 +163,7 @@ public class GameTest {
     }
     newBoard.setField(48, Stone.WHITE);
     GoGame newGame = new GoGame(player1, player2, newBoard, true,
-        new BoardList(), new LinkedList());
+        new BoardList(), new LinkedList<>());
     System.out.println(newGame);
     assertEquals(3, newBoard.getScore(Stone.BLACK));
     assertEquals(5, newBoard.getScore(Stone.WHITE));
