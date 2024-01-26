@@ -204,9 +204,9 @@ public class GameServer extends SocketServer {
         GoMove move = game.newMove(moveIndex, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
       } catch (InvalidMoveException e) {
-        sendError(clientHandler, "Invalid Move!");
+        sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
-        sendError(clientHandler, "Not your turn!");
+        sendError(clientHandler, e.getMessage());
       }
     }
   }
@@ -218,9 +218,9 @@ public class GameServer extends SocketServer {
         GoMove move = game.newMove(row, col, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
       } catch (InvalidMoveException e) {
-        sendError(clientHandler, "Invalid Move!");
+        sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
-        sendError(clientHandler, "Not your turn");
+        sendError(clientHandler, e.getMessage());
       }
     }
   }
@@ -232,9 +232,9 @@ public class GameServer extends SocketServer {
         GoMove move = game.passMove(clientHandler);
         sendPass(game.getClients(), move.getPlayer().getStone());
       } catch (InvalidMoveException e) {
-        sendError(clientHandler, "Invalid Move!");
+        sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
-        sendError(clientHandler, "Not your turn");
+        sendError(clientHandler, e.getMessage());
       }
     }
   }

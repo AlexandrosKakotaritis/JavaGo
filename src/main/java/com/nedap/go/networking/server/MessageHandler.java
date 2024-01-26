@@ -39,7 +39,7 @@ public class MessageHandler {
       case FRESH -> handleInitialization(message);
       case PREGAME -> handlePreGame(message);
       case IN_GAME -> handleGame(message);
-      default -> throw new ImproperMessageException();
+      default -> throw new ImproperMessageException(message + "Not appropriate for player's state");
     }
   }
 
