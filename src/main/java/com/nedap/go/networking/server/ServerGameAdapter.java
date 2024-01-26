@@ -28,6 +28,9 @@ public class ServerGameAdapter {
     createGame();
   }
 
+  private int rowColumnToIndex(int row, int column){
+    return row * boardDim + column;
+  }
   public List<ClientHandler> getClients() {
     return Arrays.asList(client1, client2);
   }
@@ -35,12 +38,12 @@ public class ServerGameAdapter {
   public GoMove newMove(int index, ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
-          Move move = new GoMove(game.getTurn(), index);
+          GoMove move = new GoMove(game.getTurn(), index);
           game.doMove(move);
           if (game.isGameover()) {
               endGame(false);
           }
-          return (GoMove) move;
+          return move;
       } else {
           throw new NotYourTurnException();
       }
@@ -49,12 +52,13 @@ public class ServerGameAdapter {
   public GoMove newMove(int row, int col, ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
-          Move move = new GoMoveRowColumn(game.getTurn(), row, col);
-          game.doMove(move);
+        GoMoveRowColumn move = new GoMoveRowColumn(game.getTurn(), row, col);
+        game.doMove(move);
           if (game.isGameover()) {
               endGame(false);
           }
-          return (GoMove) move;
+          return new GoMove(move.getPlayer(),
+              rowColumnToIndex(move.getRow(), move.getColumn()));
       } else {
           throw new NotYourTurnException();
       }
@@ -63,12 +67,12 @@ public class ServerGameAdapter {
   public GoMove passMove(ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
-          Move move = new GoMove(game.getTurn());
+          GoMove move = new GoMove(game.getTurn());
           game.doMove(move);
           if (game.isGameover()) {
               endGame(false);
           }
-          return (GoMove) move;
+          return move;
       } else {
         throw new NotYourTurnException();
       }

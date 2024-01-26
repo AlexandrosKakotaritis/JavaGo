@@ -5,26 +5,20 @@ import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.SocketServer;
-import com.nedap.go.networking.protocol.Protocol;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
-import java.util.Set;
+
 
 public class GameServer extends SocketServer {
-
-  private static final Set<String> supportedExtensions = null;
   private static int boardDim;
   private final List<ClientHandler> listOfClients;
   private final Queue<ClientHandler> inQueueClients;
   private final List<ServerGameAdapter> listOfGames;
-  private Set<String> runExtensions;
-  private int gamesStarted;
 
   /**
    * Constructs a new GameServer
@@ -38,7 +32,6 @@ public class GameServer extends SocketServer {
     listOfClients = new ArrayList<>();
     inQueueClients = new LinkedList<>();
     listOfGames = new ArrayList<>();
-    gamesStarted = 0;
   }
 
   public static void main(String[] args) {
@@ -90,19 +83,6 @@ public class GameServer extends SocketServer {
     super.close();
   }
 
-  public void helloReceived(ClientHandler client, String information) {
-    runExtensions = new HashSet<>();
-    String[] splits = information.split(Protocol.SEPARATOR);
-    if (splits.length > 1) {
-      for (int i = 1; i < splits.length; i++) {
-        if (supportedExtensions.contains(splits[i])) {
-          runExtensions.add(splits[i]);
-        }
-      }
-    }
-    client.sayHello(runExtensions);
-  }
-
   /**
    * Adds a ClientHandler to the list of clients.
    *
@@ -120,7 +100,7 @@ public class GameServer extends SocketServer {
     if (nameOK) {
       listOfClients.add(clientHandler);
     }
-    clientHandler.sendLogin(nameOK);
+    clientHandler.sendLogin(nameOK, clientHandler.getUsername());
     return nameOK;
   }
 
@@ -160,6 +140,7 @@ public class GameServer extends SocketServer {
       ServerConnection serverConnection = new ServerConnection(socket, clientHandler);
       clientHandler.setServerConnection(serverConnection);
       serverConnection.start();
+      clientHandler.sayHello();
     } catch (IOException e) {
       System.out.println("Sorry! Could not connect.");
     }
@@ -171,6 +152,7 @@ public class GameServer extends SocketServer {
 
   public synchronized void addInQueue(ClientHandler clientHandler) {
     inQueueClients.add(clientHandler);
+    clientHandler.sendQeued();
     if (inQueueClients.size() > 1) {
       startGame();
     }

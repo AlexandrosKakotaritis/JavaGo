@@ -2,7 +2,6 @@ package com.nedap.go.networking.server;
 
 import com.nedap.go.model.Stone;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Client handler for game application. Responsible for forwarding decoded instructions to the server
@@ -29,13 +28,6 @@ public class ClientHandler {
     }
 
     /**
-     * Received hello and sent to the server.
-     */
-    public void helloReceived(String information) {
-        server.helloReceived(this, information);
-    }
-
-    /**
      * Get the username set by the client.
      *
      * @return The username as a string.
@@ -57,13 +49,13 @@ public class ClientHandler {
     }
 
 
-    public void sendLogin(boolean nameOK) {
-        serverConnection.sendLogin(nameOK);
+    public void sendLogin(boolean nameOK, String username) {
+        serverConnection.sendLogin(nameOK, username);
     }
 
 
-    public void sayHello(Set runExtensions) {
-        serverConnection.sayHello(runExtensions);
+    public void sayHello() {
+        serverConnection.sayHello();
     }
 
     public void queueReceived() {
@@ -112,6 +104,10 @@ public class ClientHandler {
 
     public void sendGameOver(String message) {
         serverConnection.sendGameOver(message);
+    }
+
+    public void sendQeued() {
+        serverConnection.sendQueued();
     }
 }
 

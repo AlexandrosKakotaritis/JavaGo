@@ -6,7 +6,6 @@ import com.nedap.go.networking.protocol.Protocol;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The class responsible for decoding messages. For decoding receiving messages
@@ -41,16 +40,9 @@ public class ServerConnection extends SocketConnection {
     super.start();
   }
 
-  public boolean sayHello(Set<String> runExtensions) {
-    StringBuilder sb = new StringBuilder(Protocol.HELLO);
-    sb.append(Protocol.SEPARATOR);
-    sb.append(Protocol.SERVER_DESCRIPTION);
-//        if(runExtensions.size()>0)
-    for (String s : runExtensions) {
-      sb.append(Protocol.SEPARATOR);
-      sb.append(s);
-    }
-    return sendMessage(sb.toString());
+  public boolean sayHello() {
+    return sendMessage(Protocol.HELLO + Protocol.SEPARATOR
+        + Protocol.SERVER_DESCRIPTION);
   }
 
 
@@ -81,12 +73,12 @@ public class ServerConnection extends SocketConnection {
     clientHandler.handleDisconnect();
   }
 
-  public void sendLogin(boolean nameOK) {
+  public void sendLogin(boolean nameOK, String username) {
     if (nameOK) {
-      sendMessage(Protocol.ACCEPTED);
+      sendMessage(Protocol.ACCEPTED + Protocol.SEPARATOR + username);
       messageHandler.setPlayerState(PlayerState.PREGAME);
     } else {
-      sendMessage(Protocol.REJECTED);
+      sendMessage(Protocol.REJECTED + Protocol.SEPARATOR + username);
     }
   }
 
@@ -107,7 +99,8 @@ public class ServerConnection extends SocketConnection {
   }
 
   public void sendMove(int moveIndex, Stone stone) throws NotAppropriateStoneException {
-    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex + getStoneName(stone));
+    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex
+        + Protocol.SEPARATOR + getStoneName(stone));
   }
 
   public void sendGameOver(String message) {
@@ -126,5 +119,9 @@ public class ServerConnection extends SocketConnection {
       case Stone.WHITE -> Protocol.WHITE;
       default -> throw new NotAppropriateStoneException("Your stones are broken");
     };
+  }
+
+  public void sendQueued() {
+    sendMessage(Protocol.QUEUED);
   }
 }
