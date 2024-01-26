@@ -12,13 +12,15 @@ public class ClientHandler {
     private String username;
 
     private ServerConnection serverConnection;
-    public ClientHandler(GameServer server){
+
+    public ClientHandler(GameServer server) {
         this.server = server;
     }
 
     /**
      * Set the ServerConnection object responsible for decoding the messages, maintain the conection
      * to the client and handling the input output streams.
+     *
      * @param serverConnection the ServerConnection object.
      */
     public void setServerConnection(ServerConnection serverConnection) {
@@ -34,13 +36,14 @@ public class ClientHandler {
 
     /**
      * Get the username set by the client.
+     *
      * @return The username as a string.
      */
-    public String getUsername(){
+    public String getUsername() {
         return username;
     }
 
-    public boolean receiveLogin(String username){
+    public boolean receiveLogin(String username) {
         this.username = username;
         return server.addClient(this);
     }
@@ -86,9 +89,13 @@ public class ClientHandler {
         server.handleMove(this, moveIndex);
     }
 
-    public void receiveMove(int row, int col) {server.handleMove(this, row, col);}
+    public void receiveMove(int row, int col) {
+        server.handleMove(this, row, col);
+    }
 
-    public void receivePass(){server.handlePass(this);}
+    public void receivePass() {
+        server.handlePass(this);
+    }
 
     public void sendError(String errorMessage) {
         serverConnection.sendError(errorMessage);
@@ -98,15 +105,19 @@ public class ClientHandler {
         serverConnection.sendMove(moveIndex);
     }
 
+    public void sendMove(int row, int col) {
+        serverConnection.sendMove(row, col);
+    }
 
+    public void sendPass() {
+        serverConnection.sendPass();
+    }
 
     public void sendGameOver(String message) {
         serverConnection.sendGameOver(message);
     }
-
-    public void sendMove(int row, int col) {
-        serverConnection.sendMove(row, col);
-    }
 }
+
+
 
 

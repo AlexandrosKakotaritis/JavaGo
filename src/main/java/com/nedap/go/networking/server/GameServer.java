@@ -167,7 +167,7 @@ public class GameServer extends SocketServer {
             ServerGameLogic game = findGame(clientHandler);
             if (game != null) {
                 try {
-                    if (game.newMove(moveIndex, clientHandler.getUsername()))
+                    if (game.newMove(moveIndex, clientHandler))
                         sendMove(game.getClients(), moveIndex);
                 } catch (InvalidMoveException e) {
                     sendError(clientHandler, "Invalid Move!");
@@ -179,7 +179,7 @@ public class GameServer extends SocketServer {
         ServerGameLogic game = findGame(clientHandler);
         if (game != null) {
             try {
-                if (game.newMove(row, col, clientHandler.getUsername()))
+                if (game.newMove(row, col, clientHandler))
                     sendMove(game.getClients(), row, col);
             } catch (InvalidMoveException e) {
                 sendError(clientHandler, "Invalid Move!");
@@ -187,14 +187,28 @@ public class GameServer extends SocketServer {
         }
     }
 
+    public void handlePass(ClientHandler clientHandler) {
+        ServerGameLogic game = findGame(clientHandler);
+        if (game != null) {
+            try {
+                if (game.passMove(clientHandler))
+                    sendPass(game.getClients());
+            } catch (InvalidMoveException e) {
+                sendError(clientHandler, "Invalid Move!");
+            }
+        }
+    }
+
+    private void sendPass(List<ClientHandler> clients) {
+        for(ClientHandler clientHandler: clients){
+            clientHandler.sendPass();
+        }
+    }
+
     private void sendMove(List<ClientHandler> clients, int row, int col) {
         for(ClientHandler clientHandler: clients){
             clientHandler.sendMove(row, col);
         }
-    }
-
-    public void handlePass(ClientHandler clientHandler) {
-
     }
 
     private void sendMove(List<ClientHandler> clients, int moveIndex) {

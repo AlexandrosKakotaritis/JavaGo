@@ -109,4 +109,8 @@ public class ServerConnection extends SocketConnection {
         sendMessage(Protocol.MOVE + Protocol.SEPARATOR + row
             + Protocol.ROW_COL_SEPARATOR + col);
     }
+
+    public void sendPass() {
+        sendMessage(Protocol.PASS);
+    }
 }
