@@ -1,6 +1,8 @@
 package com.nedap.go.networking.server;
 
 import com.nedap.go.networking.protocol.Protocol;
+import com.nedap.go.networking.server.utils.ImproperMessageException;
+import com.nedap.go.networking.server.utils.PlayerState;
 
 /**
  * class for decoding incoming messages from the client.

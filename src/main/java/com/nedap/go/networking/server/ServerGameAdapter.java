@@ -6,6 +6,7 @@ import com.nedap.go.model.GoMove;
 import com.nedap.go.model.GoMoveRowColumn;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
+import com.nedap.go.networking.server.utils.NotYourTurnException;
 import java.util.Arrays;
 import java.util.List;
 

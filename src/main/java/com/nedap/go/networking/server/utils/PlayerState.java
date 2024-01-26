@@ -1,4 +1,4 @@
-package com.nedap.go.networking.server;
+package com.nedap.go.networking.server.utils;
 
 /**
  * A player can be in 4 distinct states. Useful for ignoring

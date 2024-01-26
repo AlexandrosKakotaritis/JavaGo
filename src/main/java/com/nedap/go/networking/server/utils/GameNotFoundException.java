@@ -1,4 +1,4 @@
-package com.nedap.go.networking.server;
+package com.nedap.go.networking.server.utils;
 
 public class GameNotFoundException extends Exception {
   public GameNotFoundException(){
