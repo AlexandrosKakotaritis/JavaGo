@@ -247,7 +247,12 @@ public class GameServer extends SocketServer {
 
   private void sendMove(List<ClientHandler> clients, int moveIndex, Stone stone) {
     for (ClientHandler clientHandler : clients) {
-      clientHandler.sendMove(moveIndex);
+      try {
+        clientHandler.sendMove(moveIndex, stone);
+      } catch (NotAppropriateStoneException e) {
+        System.out.println(e.getMessage());
+        sendError(clientHandler, e.getMessage());
+      }
     }
   }
 

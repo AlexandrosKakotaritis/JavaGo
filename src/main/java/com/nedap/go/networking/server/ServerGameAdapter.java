@@ -7,11 +7,10 @@ import com.nedap.go.model.GoMoveRowColumn;
 import com.nedap.go.model.Move;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
-import com.nedap.go.tui.QuitGameException;
 import java.util.Arrays;
 import java.util.List;
 
-public class ServerGameLogic {
+public class ServerGameAdapter {
 
   private final GameServer server;
   private final ClientHandler client1;
@@ -20,7 +19,7 @@ public class ServerGameLogic {
   private GoGame game;
   private final int boardDim;
 
-  public ServerGameLogic(ClientHandler client1, ClientHandler client2, GameServer server,
+  public ServerGameAdapter(ClientHandler client1, ClientHandler client2, GameServer server,
       int boardDim) {
     this.client1 = client1;
     this.client2 = client2;
@@ -33,45 +32,45 @@ public class ServerGameLogic {
     return Arrays.asList(client1, client2);
   }
 
-  public boolean newMove(int index, ClientHandler clientHandler)
-      throws InvalidMoveException {
+  public GoMove newMove(int index, ClientHandler clientHandler)
+      throws InvalidMoveException, NotYourTurnException {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
           Move move = new GoMove(game.getTurn(), index);
           game.doMove(move);
           if (game.isGameover()) {
               endGame(false);
           }
-          return true;
+          return (GoMove) move;
       } else {
-          return false;
+          throw new NotYourTurnException();
       }
   }
 
-  public boolean newMove(int row, int col, ClientHandler clientHandler)
-      throws InvalidMoveException {
+  public GoMove newMove(int row, int col, ClientHandler clientHandler)
+      throws InvalidMoveException, NotYourTurnException {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
           Move move = new GoMoveRowColumn(game.getTurn(), row, col);
           game.doMove(move);
           if (game.isGameover()) {
               endGame(false);
           }
-          return true;
+          return (GoMove) move;
       } else {
-          return false;
+          throw new NotYourTurnException();
       }
   }
 
-  public boolean passMove(ClientHandler clientHandler)
-      throws InvalidMoveException {
+  public GoMove passMove(ClientHandler clientHandler)
+      throws InvalidMoveException, NotYourTurnException {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
           Move move = new GoMove(game.getTurn());
           game.doMove(move);
           if (game.isGameover()) {
               endGame(false);
           }
-          return true;
+          return (GoMove) move;
       } else {
-          return false;
+        throw new NotYourTurnException();
       }
   }
 

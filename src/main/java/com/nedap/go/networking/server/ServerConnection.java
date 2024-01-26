@@ -1,5 +1,6 @@
 package com.nedap.go.networking.server;
 
+import com.nedap.go.model.Stone;
 import com.nedap.go.networking.SocketConnection;
 import com.nedap.go.networking.protocol.Protocol;
 import java.io.IOException;
@@ -105,8 +106,14 @@ public class ServerConnection extends SocketConnection {
     messageHandler.setPlayerState(PlayerState.IN_GAME);
   }
 
-  public void sendMove(int moveIndex) {
-    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex);
+  public void sendMove(int moveIndex, Stone stone) throws NotAppropriateStoneException {
+    String stoneColor="";
+    switch(stone){
+      case Stone.BLACK -> stoneColor = Protocol.BLACK;
+      case Stone.WHITE -> stoneColor = Protocol.WHITE;
+      default -> throw new NotAppropriateStoneException("Your stones are broken");
+    }
+    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex + stoneColor);
   }
 
   public void sendGameOver(String message) {

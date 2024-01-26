@@ -1,5 +1,6 @@
 package com.nedap.go.networking.server;
 
+import com.nedap.go.model.Stone;
 import java.util.List;
 import java.util.Set;
 
@@ -101,12 +102,8 @@ public class ClientHandler {
         serverConnection.sendError(errorMessage);
     }
 
-    public void sendMove(int moveIndex) {
-        serverConnection.sendMove(moveIndex);
-    }
-
-    public void sendMove(int row, int col) {
-        serverConnection.sendMove(row, col);
+    public void sendMove(int moveIndex, Stone stone) throws NotAppropriateStoneException {
+        serverConnection.sendMove(moveIndex, stone);
     }
 
     public void sendPass() {
