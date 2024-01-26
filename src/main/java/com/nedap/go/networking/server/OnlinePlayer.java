@@ -1,0 +1,25 @@
+package com.nedap.go.networking.server;
+
+
+import com.nedap.go.model.Player;
+import com.nedap.go.model.Stone;
+
+public class OnlinePlayer implements Player {
+
+    private final String playerName;
+    private final Stone stone;
+    public OnlinePlayer(String playerName, Stone stone) {
+        this.playerName = playerName;
+        this.stone = stone;
+    }
+
+    @Override
+    public Stone getStone() {
+        return stone;
+    }
+
+
+    public String getName(){
+        return playerName;
+    }
+}
