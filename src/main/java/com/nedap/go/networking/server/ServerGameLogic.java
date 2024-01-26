@@ -51,7 +51,7 @@ public class ServerGameLogic {
     }
 
     public boolean passMove(String playerName) throws QuitGameException, InvalidMoveException {
-        if (((OnlinePlayer) game.getTurn()).getName().equals(playerName)) {
+        if (game.getTurn().equals(playerName)) {
             Move move = new GoMove(game.getTurn());
             game.doMove(move);
             if (game.isGameover()) endGame(false);
