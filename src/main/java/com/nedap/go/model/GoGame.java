@@ -48,6 +48,15 @@ public class GoGame implements Game {
   }
 
   /**
+   * Translate a row and a column to an index of the board.
+   * @param row The row of the position.
+   * @param column The column of the position.
+   * @return The index corresponding to the row and column given.
+   */
+  public int rowColumnToIndex(int row, int column){
+    return board.index(row, column);
+  }
+  /**
    * Check if the game is over, i.e., there is a winner or no more moves are available.
    *
    * @return whether the game is over
