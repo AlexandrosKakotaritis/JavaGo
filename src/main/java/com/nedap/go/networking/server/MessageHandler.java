@@ -49,6 +49,7 @@ public class MessageHandler {
       switch (messageArray[0]) {
         case Protocol.MOVE -> handleMove(messageArray[1]);
         case Protocol.PASS -> clientHandler.receivePass();
+        case Protocol.RESIGN -> clientHandler.handleResign();
       }
     }
   }

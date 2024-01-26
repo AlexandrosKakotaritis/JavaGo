@@ -20,4 +20,5 @@ public final class Protocol {
   public static final String SERVER_DESCRIPTION = "Server by Alex";
   public static final String BLACK = "BLACK";
   public static final String WHITE = "WHITE";
+  public static final String RESIGN = "RESIGN";
 }

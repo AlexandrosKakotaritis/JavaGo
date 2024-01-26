@@ -267,4 +267,11 @@ public class GameServer extends SocketServer {
   public void sendError(ClientHandler clientHandler, String errorMessage) {
     clientHandler.sendError(errorMessage);
   }
+
+  public void handleResign(ClientHandler clientHandler) {
+    ServerGameAdapter game = findGame(clientHandler);
+    if (game != null) {
+      game.endGame(false);
+    }
+  }
 }

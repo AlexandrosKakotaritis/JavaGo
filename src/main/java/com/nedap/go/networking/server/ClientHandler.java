@@ -113,6 +113,10 @@ public class ClientHandler {
     public void sendTurn(String name) {
         serverConnection.sendTurn(name);
     }
+
+    public void handleResign() {
+        server.handleResign(this);
+    }
 }
 
 
