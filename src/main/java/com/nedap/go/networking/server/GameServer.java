@@ -146,8 +146,8 @@ public class GameServer extends SocketServer {
         ClientHandler player2 = inQueueClients.poll();
         listOfGames.add(new ServerGameLogic(player1,
                                             player2, this, boardDim));
-        player1.startGame(player1.getUsername(), player2.getUsername());
-        player2.startGame(player1.getUsername(), player2.getUsername());
+        player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
+        player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
     }
 
     public synchronized void removeFromQueue(ClientHandler clientHandler) {

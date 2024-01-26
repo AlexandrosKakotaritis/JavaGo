@@ -2,6 +2,9 @@ package com.nedap.go.networking.server;
 
 import com.nedap.go.networking.protocol.Protocol;
 
+/**
+ * class for decoding incoming messages from the client
+ */
 public class MessageHandler {
     private PlayerState playerState;
     private final ClientHandler clientHandler;

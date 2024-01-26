@@ -77,8 +77,8 @@ public class ClientHandler {
         serverConnection.sendList(listOfClients);
     }
 
-    public void startGame(String usernamePlayer1, String usernamePlayer2) {
-        serverConnection.startGame(usernamePlayer1, usernamePlayer2);
+    public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
+        serverConnection.startGame(usernamePlayer1, usernamePlayer2, boardDim);
     }
 
     public void exitQueue() {
