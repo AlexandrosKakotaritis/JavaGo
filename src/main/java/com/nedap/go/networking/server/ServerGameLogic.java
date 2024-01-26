@@ -27,6 +27,10 @@ public class ServerGameLogic {
         return Arrays.asList(client1, client2);
     }
 
+    public int rowColumnToIndex(int row, int col){
+        return game.rowColumnToIndex(row, col);
+    }
+
     public boolean newMove(int index, String playerName) throws InvalidMoveException {
         if (((OnlinePlayer) game.getTurn()).getName().equals(playerName)) {
             Move move = new GoMove(game.getTurn(), index);
@@ -46,7 +50,7 @@ public class ServerGameLogic {
         }else return false;
     }
 
-    public boolean newMove(String playerName) throws QuitGameException, InvalidMoveException {
+    public boolean passMove(String playerName) throws QuitGameException, InvalidMoveException {
         if (((OnlinePlayer) game.getTurn()).getName().equals(playerName)) {
             Move move = new GoMove(game.getTurn());
             game.doMove(move);
