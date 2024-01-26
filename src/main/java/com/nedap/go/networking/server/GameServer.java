@@ -271,7 +271,7 @@ public class GameServer extends SocketServer {
   public void handleResign(ClientHandler clientHandler) {
     ServerGameAdapter game = findGame(clientHandler);
     if (game != null) {
-      game.endGame(false);
+      game.endGame(true);
     }
   }
 }
