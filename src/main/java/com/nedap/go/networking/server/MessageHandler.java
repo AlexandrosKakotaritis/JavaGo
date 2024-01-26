@@ -39,13 +39,13 @@ public class MessageHandler {
       case FRESH -> handleInitialization(message);
       case PREGAME -> handlePreGame(message);
       case IN_GAME -> handleGame(message);
-      default -> throw new ImproperMessageException(message + "Not appropriate for player's state");
+      default -> throw new ImproperMessageException(message + ": Not appropriate for player's state");
     }
   }
 
   private void handleGame(String message) {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length > 1) {
+    if (messageArray.length >= 1) {
       switch (messageArray[0]) {
         case Protocol.MOVE -> handleMove(messageArray[1]);
         case Protocol.PASS -> clientHandler.receivePass();
@@ -54,7 +54,7 @@ public class MessageHandler {
   }
 
   private void handleMove(String s) {
-    String[] moveSplits = s.split(",");
+    String[] moveSplits = s.split(Protocol.ROW_COL_SEPARATOR);
     if (moveSplits.length > 1) {
       int column = Integer.parseInt(moveSplits[0]);
       int row = Integer.parseInt(moveSplits[1]);

@@ -31,6 +31,11 @@ public class ServerGameAdapter {
   private int rowColumnToIndex(int row, int column){
     return row * boardDim + column;
   }
+
+  public boolean isGameOver() {
+    return game.isGameover();
+  }
+
   public List<ClientHandler> getClients() {
     return Arrays.asList(client1, client2);
   }
@@ -40,9 +45,6 @@ public class ServerGameAdapter {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
           GoMove move = new GoMove(game.getTurn(), index);
           game.doMove(move);
-          if (game.isGameover()) {
-              endGame(false);
-          }
           return move;
       } else {
           throw new NotYourTurnException();
@@ -54,11 +56,8 @@ public class ServerGameAdapter {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
         GoMoveRowColumn move = new GoMoveRowColumn(game.getTurn(), row, col);
         game.doMove(move);
-          if (game.isGameover()) {
-              endGame(false);
-          }
-          return new GoMove(move.getPlayer(),
-              rowColumnToIndex(move.getRow(), move.getColumn()));
+        return new GoMove(move.getPlayer(),
+            rowColumnToIndex(move.getRow(), move.getColumn()));
       } else {
           throw new NotYourTurnException();
       }
@@ -69,13 +68,14 @@ public class ServerGameAdapter {
       if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
           GoMove move = new GoMove(game.getTurn());
           game.doMove(move);
-          if (game.isGameover()) {
-              endGame(false);
-          }
           return move;
       } else {
         throw new NotYourTurnException();
       }
+  }
+
+  public OnlinePlayer getTurn(){
+    return (OnlinePlayer) game.getTurn();
   }
 
 
@@ -85,7 +85,7 @@ public class ServerGameAdapter {
     game = new GoGame(player1, player2, boardDim);
   }
 
-  private void endGame(boolean quit) {
+  public void endGame(boolean quit) {
       if (quit) {
           server.gameOver(this, getQuitMessage());
       } else {
@@ -118,4 +118,5 @@ public class ServerGameAdapter {
       } else
           return client1;
   }
+
 }

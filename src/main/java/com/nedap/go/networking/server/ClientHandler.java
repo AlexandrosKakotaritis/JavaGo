@@ -109,6 +109,10 @@ public class ClientHandler {
     public void sendQeued() {
         serverConnection.sendQueued();
     }
+
+    public void sendTurn(String name) {
+        serverConnection.sendTurn(name);
+    }
 }
 
 

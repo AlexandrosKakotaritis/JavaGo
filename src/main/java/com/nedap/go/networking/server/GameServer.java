@@ -185,6 +185,7 @@ public class GameServer extends SocketServer {
       try {
         GoMove move = game.newMove(moveIndex, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
+        sendTurn(game.getClients(), game.getTurn());
       } catch (InvalidMoveException e) {
         sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
@@ -199,6 +200,7 @@ public class GameServer extends SocketServer {
       try {
         GoMove move = game.newMove(row, col, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
+        sendTurn(game.getClients(), game.getTurn());
       } catch (InvalidMoveException e) {
         sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
@@ -213,6 +215,12 @@ public class GameServer extends SocketServer {
       try {
         GoMove move = game.passMove(clientHandler);
         sendPass(game.getClients(), move.getPlayer().getStone());
+        if(game.isGameOver()){
+          game.endGame(false);
+        }else{
+          sendTurn(game.getClients(), game.getTurn());
+        }
+
       } catch (InvalidMoveException e) {
         sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
@@ -240,6 +248,12 @@ public class GameServer extends SocketServer {
         System.out.println(e.getMessage());
         sendError(clientHandler, e.getMessage());
       }
+    }
+  }
+
+  private void sendTurn(List<ClientHandler> clients, OnlinePlayer turn) {
+    for (ClientHandler clientHandler : clients) {
+      clientHandler.sendTurn(turn.getName());
     }
   }
 

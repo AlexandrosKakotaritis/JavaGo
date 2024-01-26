@@ -124,4 +124,8 @@ public class ServerConnection extends SocketConnection {
   public void sendQueued() {
     sendMessage(Protocol.QUEUED);
   }
+
+  public void sendTurn(String name) {
+    sendMessage(Protocol.MAKE_MOVE + Protocol.SEPARATOR + name);
+  }
 }
