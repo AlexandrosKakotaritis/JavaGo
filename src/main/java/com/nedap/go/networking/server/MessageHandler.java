@@ -20,10 +20,6 @@ public class MessageHandler {
     playerState = PlayerState.FRESH;
   }
 
-  PlayerState getPlayerState() {
-    return playerState;
-  }
-
   /**
    * Change the player's state as dictated from the server.
    *

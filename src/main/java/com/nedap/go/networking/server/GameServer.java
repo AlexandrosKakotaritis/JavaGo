@@ -190,11 +190,7 @@ public class GameServer extends SocketServer {
         GoMove move = game.newMove(moveIndex, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
         sendTurn(game.getClients(), game.getTurn());
-      } catch (InvalidMoveException e) {
-        sendError(clientHandler, e.getMessage());
-      } catch (NotYourTurnException e) {
-        sendError(clientHandler, e.getMessage());
-      } catch (GameNotFoundException e) {
+      } catch (InvalidMoveException | GameNotFoundException | NotYourTurnException e) {
         sendError(clientHandler, e.getMessage());
       }
   }
@@ -212,12 +208,8 @@ public class GameServer extends SocketServer {
         GoMove move = game.newMove(row, col, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
         sendTurn(game.getClients(), game.getTurn());
-      } catch (InvalidMoveException e) {
+      } catch (InvalidMoveException | NotYourTurnException | GameNotFoundException e) {
         sendError(clientHandler, e.getMessage());
-      } catch (NotYourTurnException e) {
-        sendError(clientHandler, e.getMessage());
-      } catch (GameNotFoundException e) {
-        throw new RuntimeException(e);
       }
   }
 
@@ -236,11 +228,7 @@ public class GameServer extends SocketServer {
       } else {
         sendTurn(game.getClients(), game.getTurn());
       }
-    } catch (InvalidMoveException e) {
-      sendError(clientHandler, e.getMessage());
-    } catch (NotYourTurnException e) {
-      sendError(clientHandler, e.getMessage());
-    } catch (GameNotFoundException e) {
+    } catch (InvalidMoveException | GameNotFoundException | NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }

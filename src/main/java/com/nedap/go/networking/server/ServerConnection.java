@@ -42,11 +42,9 @@ public class ServerConnection extends SocketConnection {
 
   /**
    * Send hello message to client.
-   *
-   * @return true if sent successfully
    */
-  public boolean sayHello() {
-    return sendMessage(Protocol.HELLO + Protocol.SEPARATOR + Protocol.SERVER_DESCRIPTION);
+  public void sayHello() {
+    sendMessage(Protocol.HELLO + Protocol.SEPARATOR + Protocol.SERVER_DESCRIPTION);
   }
 
 
