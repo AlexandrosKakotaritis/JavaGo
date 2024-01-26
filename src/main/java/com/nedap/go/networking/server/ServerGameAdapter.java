@@ -85,31 +85,28 @@ public class ServerGameAdapter {
     game = new GoGame(player1, player2, boardDim);
   }
 
-  public void endGame(boolean quit) {
-      if (quit) {
-          server.gameOver(this, getQuitMessage());
-      } else {
-          OnlinePlayer winner = (OnlinePlayer) game.getWinner();
-          if (winner == null) {
-              server.gameOver(this, "It's a tie");
-          } else {
-              server.gameOver(this, "Winner is: " + winner.getName() + " GG!");
-          }
-      }
+  public void endGame() {
+    OnlinePlayer winner = (OnlinePlayer) game.getWinner();
+    if (winner == null) {
+        server.gameOver(this, "It's a tie");
+    } else {
+        server.gameOver(this, "Winner is: " + winner.getName() + " GG!");
+    }
+  }
+
+  public void endGame(ClientHandler clientHandler){
+    server.gameOver(this, getQuitMessage(clientHandler));
   }
 
   private OnlinePlayer createPlayer(ClientHandler clientHandler, Stone mark) {
     return new OnlinePlayer(clientHandler, mark);
   }
 
-  private String getQuitMessage() {
-    String message;
-    if (game.getTurn().equals(player1)) {
-      message = (player1.getName()) + " forfeited the match. " + player2.getName() + " wins";
-    } else {
-      message = (player2.getName()) + " forfeited the match. " + player1.getName() + " wins";
-    }
-    return message;
+  private String getQuitMessage(ClientHandler clientHandler) {
+    OnlinePlayer winner = clientHandler.equals(player1.getClientHandler())?
+        player2: player1;
+    return clientHandler.getUsername() + " forfeited the match. "
+        + winner.getName() + " wins";
   }
 
   public ClientHandler getOtherPlayer(ClientHandler clientHandler) {

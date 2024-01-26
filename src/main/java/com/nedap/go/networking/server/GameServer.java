@@ -216,7 +216,7 @@ public class GameServer extends SocketServer {
         GoMove move = game.passMove(clientHandler);
         sendPass(game.getClients(), move.getPlayer().getStone());
         if(game.isGameOver()){
-          game.endGame(false);
+          game.endGame();
         }else{
           sendTurn(game.getClients(), game.getTurn());
         }
@@ -271,7 +271,7 @@ public class GameServer extends SocketServer {
   public void handleResign(ClientHandler clientHandler) {
     ServerGameAdapter game = findGame(clientHandler);
     if (game != null) {
-      game.endGame(true);
+      game.endGame(clientHandler);
     }
   }
 }
