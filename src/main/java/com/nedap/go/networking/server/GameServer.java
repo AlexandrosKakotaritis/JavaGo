@@ -229,8 +229,8 @@ public class GameServer extends SocketServer {
     ServerGameAdapter game = findGame(clientHandler);
     if (game != null) {
       try {
-        game.passMove(clientHandler);
-        sendPass(game.getClients());
+        GoMove move = game.passMove(clientHandler);
+        sendPass(game.getClients(), move.getPlayer().getStone());
       } catch (InvalidMoveException e) {
         sendError(clientHandler, "Invalid Move!");
       } catch (NotYourTurnException e) {
@@ -239,9 +239,14 @@ public class GameServer extends SocketServer {
     }
   }
 
-  private void sendPass(List<ClientHandler> clients) {
+  private void sendPass(List<ClientHandler> clients, Stone stone) {
     for (ClientHandler clientHandler : clients) {
-      clientHandler.sendPass();
+      try {
+        clientHandler.sendPass(stone);
+      } catch (NotAppropriateStoneException e) {
+        System.out.println(e.getMessage());
+        sendError(clientHandler, e.getMessage());
+      }
     }
   }
 

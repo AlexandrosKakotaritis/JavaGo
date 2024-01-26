@@ -107,13 +107,7 @@ public class ServerConnection extends SocketConnection {
   }
 
   public void sendMove(int moveIndex, Stone stone) throws NotAppropriateStoneException {
-    String stoneColor="";
-    switch(stone){
-      case Stone.BLACK -> stoneColor = Protocol.BLACK;
-      case Stone.WHITE -> stoneColor = Protocol.WHITE;
-      default -> throw new NotAppropriateStoneException("Your stones are broken");
-    }
-    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex + stoneColor);
+    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex + getStoneName(stone));
   }
 
   public void sendGameOver(String message) {
@@ -121,7 +115,16 @@ public class ServerConnection extends SocketConnection {
     sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + message);
   }
 
-  public void sendPass() {
-    sendMessage(Protocol.PASS);
+  public void sendPass(Stone stone) throws NotAppropriateStoneException {
+    sendMessage(Protocol.PASS + Protocol.SEPARATOR + getStoneName(stone));
+  }
+
+  private String getStoneName(Stone stone) throws NotAppropriateStoneException {
+
+    return switch(stone){
+      case Stone.BLACK -> Protocol.BLACK;
+      case Stone.WHITE -> Protocol.WHITE;
+      default -> throw new NotAppropriateStoneException("Your stones are broken");
+    };
   }
 }

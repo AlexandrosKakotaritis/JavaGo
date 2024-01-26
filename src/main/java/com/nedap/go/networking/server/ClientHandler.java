@@ -106,8 +106,8 @@ public class ClientHandler {
         serverConnection.sendMove(moveIndex, stone);
     }
 
-    public void sendPass() {
-        serverConnection.sendPass();
+    public void sendPass(Stone stone) throws NotAppropriateStoneException {
+        serverConnection.sendPass(stone);
     }
 
     public void sendGameOver(String message) {
