@@ -16,7 +16,7 @@ public class GameServer extends SocketServer {
     private Set runExtensions;
     private static final Set supportedExtensions = null;
     private int gamesStarted;
-    private int boardDim;
+    private static int boardDim;
 
     /**
      * Constructs a new GameServer
@@ -232,6 +232,8 @@ public class GameServer extends SocketServer {
         Scanner sc = new Scanner(System.in);
         GameServer gameServer;
         while(true) {
+            System.out.println("Please provide a boardSize");
+            boardDim = sc.nextInt();
             System.out.println("Please provide a port");
             int portNumber = sc.nextInt();
             try {
