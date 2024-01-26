@@ -1,7 +1,7 @@
 package com.nedap.go.networking.server;
 
-import DotsAndBoxes.networking.SocketConnection;
-import DotsAndBoxes.networking.protocol.Protocol;
+import com.nedap.go.networking.SocketConnection;
+import com.nedap.go.networking.protocol.Protocol;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
@@ -39,7 +39,7 @@ public class ServerConnection extends SocketConnection {
     public boolean sayHello(Set<String> runExtensions){
         StringBuilder sb = new StringBuilder(Protocol.HELLO);
         sb.append(Protocol.SEPARATOR);
-        sb.append(Protocol.SERVERDESCRIPTION);
+        sb.append(Protocol.SERVER_DESCRIPTION);
 //        if(runExtensions.size()>0)
         for (String s: runExtensions) {
             sb.append(Protocol.SEPARATOR);
@@ -74,10 +74,10 @@ public class ServerConnection extends SocketConnection {
 
     public void sendLogin(boolean nameOK) {
         if(nameOK){
-            sendMessage(Protocol.LOGIN);
+            sendMessage(Protocol.ACCEPTED);
             messageHandler.setPlayerState(PlayerState.PREGAME);
         }
-        else sendMessage(Protocol.ALREADYLOGGEDIN);
+        else sendMessage(Protocol.REJECTED);
     }
 
     public void sendList(List<ClientHandler> listOfClients) {
@@ -91,7 +91,7 @@ public class ServerConnection extends SocketConnection {
     }
 
     public void startGame(String usernamePlayer1, String usernamePlayer2) {
-        sendMessage(Protocol.NEWGAME + Protocol.SEPARATOR + usernamePlayer1
+        sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1
                             + Protocol.SEPARATOR + usernamePlayer2);
         messageHandler.setPlayerState(PlayerState.INGAME);
     }
@@ -102,6 +102,11 @@ public class ServerConnection extends SocketConnection {
 
     public void sendGameOver(String message) {
         messageHandler.setPlayerState(PlayerState.PREGAME);
-        sendMessage(Protocol.GAMEOVER + Protocol.SEPARATOR + message);
+        sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + message);
+    }
+
+    public void sendMove(int row, int col) {
+        sendMessage(Protocol.MOVE + Protocol.SEPARATOR + row
+            + Protocol.ROW_COL_SEPARATOR + col);
     }
 }

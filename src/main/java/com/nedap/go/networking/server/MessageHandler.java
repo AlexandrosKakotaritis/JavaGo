@@ -32,13 +32,21 @@ public class MessageHandler {
         if(messageArray.length > 1){
             switch (messageArray[0]) {
                 case Protocol.MOVE -> handleMove(messageArray[1]);
-                case Protocol.PASS -> clientHandler.receiveMove();
+                case Protocol.PASS -> clientHandler.receivePass();
             }
         }
     }
 
     private void handleMove(String s) {
-
+        String[] moveSplits = s.split(",");
+        if (moveSplits.length > 1){
+            int column = Integer.parseInt(moveSplits[0]);
+            int row = Integer.parseInt(moveSplits[1]);
+            clientHandler.receiveMove(row, column);
+        }else {
+            int index = Integer.parseInt(moveSplits[0]);
+            clientHandler.receiveMove(index);
+        }
     }
 
     private void handlePreGame(String message) {

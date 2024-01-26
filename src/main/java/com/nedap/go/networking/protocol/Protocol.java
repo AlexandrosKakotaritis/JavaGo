@@ -8,6 +8,7 @@ public final class Protocol {
     public static final String QUEUE = "QUEUE";
     public static final String QUEUED = "QUEUED";
     public static final String MOVE = "MOVE";
+    public static final String ROW_COL_SEPARATOR = ",";
     public static final String ACCEPTED = "ACCEPTED";
     public static final String REJECTED = "REJECTED";
     public static final String NEW_GAME = "NEW GAME";
@@ -18,4 +19,5 @@ public final class Protocol {
     public static final String PASS = "PASS";
 
     public static final String SERVER_DESCRIPTION = "Server by Alex";
+
 }

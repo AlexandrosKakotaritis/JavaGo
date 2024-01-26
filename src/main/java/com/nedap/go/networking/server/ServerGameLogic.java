@@ -1,8 +1,10 @@
 package com.nedap.go.networking.server;
 
 
+import com.nedap.go.model.Board;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
+import com.nedap.go.model.GoMoveRowColumn;
 import com.nedap.go.model.Move;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
@@ -11,24 +13,23 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ServerGameLogic {
-    GameServer server;
-    ClientHandler client1, client2;
-    OnlinePlayer player1, player2;
-    GoGame game;
+    private GameServer server;
+    private ClientHandler client1, client2;
+    private OnlinePlayer player1, player2;
+    private GoGame game;
+    private int boardDim;
 
-    public ServerGameLogic(ClientHandler client1, ClientHandler client2, GameServer server) {
+    public ServerGameLogic(ClientHandler client1, ClientHandler client2, GameServer server,
+        int boardDim) {
         this.client1 = client1;
         this.client2 = client2;
         this.server = server;
+        this.boardDim = boardDim;
         createGame();
     }
 
     public List<ClientHandler> getClients(){
         return Arrays.asList(client1, client2);
-    }
-
-    public int rowColumnToIndex(int row, int col){
-        return game.rowColumnToIndex(row, col);
     }
 
     public boolean newMove(int index, String playerName) throws InvalidMoveException {
@@ -41,9 +42,8 @@ public class ServerGameLogic {
     }
 
     public boolean newMove(int row, int col, String playerName) throws InvalidMoveException {
-        if (((OnlinePlayer) game.getTurn()).getName().equals(playerName)) {
-            int index = game.rowColumnToIndex(row, col);
-            Move move = new GoMove(game.getTurn(), index);
+        if (game.getTurn().equals(playerName)) {
+            Move move = new GoMoveRowColumn(game.getTurn(), row, col);
             game.doMove(move);
             if (game.isGameover()) endGame(false);
             return true;
@@ -61,9 +61,9 @@ public class ServerGameLogic {
 
 
     private void createGame() {
-        player1 = createPlayer(client1.getUsername(), Stone.BLACK);
-        player2 = createPlayer(client2.getUsername(), Stone.WHITE);
-        game = new GoGame(player1, player2);
+        player1 = createPlayer(client1, Stone.BLACK);
+        player2 = createPlayer(client2, Stone.WHITE);
+        game = new GoGame(player1, player2, boardDim);
     }
 
     private void endGame(boolean quit) {
@@ -78,8 +78,8 @@ public class ServerGameLogic {
         }
     }
 
-    private OnlinePlayer createPlayer(String playerName, Stone mark) {
-        return new OnlinePlayer(playerName, mark);
+    private OnlinePlayer createPlayer(ClientHandler clientHandler, Stone mark) {
+        return new OnlinePlayer(clientHandler, mark);
     }
 
     private String getQuitMessage() {

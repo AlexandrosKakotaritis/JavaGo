@@ -15,7 +15,8 @@ public class GameServer extends SocketServer {
     private List<ServerGameLogic> listOfGames;
     private Set runExtensions;
     private static final Set supportedExtensions = null;
-    int gamesStarted;
+    private int gamesStarted;
+    private int boardDim;
 
     /**
      * Constructs a new GameServer
@@ -144,7 +145,7 @@ public class GameServer extends SocketServer {
         ClientHandler player1 = inQueueClients.poll();
         ClientHandler player2 = inQueueClients.poll();
         listOfGames.add(new ServerGameLogic(player1,
-                                            player2, this));
+                                            player2, this, boardDim));
         player1.startGame(player1.getUsername(), player2.getUsername());
         player2.startGame(player1.getUsername(), player2.getUsername());
     }
@@ -179,10 +180,16 @@ public class GameServer extends SocketServer {
         if (game != null) {
             try {
                 if (game.newMove(row, col, clientHandler.getUsername()))
-                    sendMove(game.getClients(), moveIndex);
+                    sendMove(game.getClients(), row, col);
             } catch (InvalidMoveException e) {
                 sendError(clientHandler, "Invalid Move!");
             }
+        }
+    }
+
+    private void sendMove(List<ClientHandler> clients, int row, int col) {
+        for(ClientHandler clientHandler: clients){
+            clientHandler.sendMove(row, col);
         }
     }
 
