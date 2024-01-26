@@ -15,13 +15,14 @@ import java.util.Scanner;
 
 
 public class GameServer extends SocketServer {
+
   private static int boardDim;
   private final List<ClientHandler> listOfClients;
   private final Queue<ClientHandler> inQueueClients;
   private final List<ServerGameAdapter> listOfGames;
 
   /**
-   * Constructs a new GameServer
+   * Constructs a new GameServer.
    *
    * @param port the port to listen on
    * @throws IOException if the server socket cannot be created, for example, because the port is
@@ -34,7 +35,16 @@ public class GameServer extends SocketServer {
     listOfGames = new ArrayList<>();
   }
 
+  /**
+   * The main method of the server
+   *
+   * @param args command line arguments
+   */
   public static void main(String[] args) {
+    runServer();
+  }
+
+  private static void runServer() {
     Scanner sc = new Scanner(System.in);
     GameServer gameServer;
     while (true) {
@@ -51,7 +61,7 @@ public class GameServer extends SocketServer {
       }
     }
   }
-
+  //        CONNECTION METHODS
   /**
    * Returns the port on which this server is listening for connections.
    *
@@ -82,26 +92,26 @@ public class GameServer extends SocketServer {
   public synchronized void close() {
     super.close();
   }
-
+//--------------------LIST HANDLING
   /**
    * Adds a ClientHandler to the list of clients.
    *
    * @param clientHandler the ClientHandler object to be added.
    */
   public synchronized boolean addClient(ClientHandler clientHandler) {
-    boolean nameOK = true;
+    boolean nameOk = true;
     for (ClientHandler handler : listOfClients) {
       if (clientHandler.getUsername() != null && clientHandler.getUsername()
           .equalsIgnoreCase(handler.getUsername())) {
-        nameOK = false;
+        nameOk = false;
         break;
       }
     }
-    if (nameOK) {
+    if (nameOk) {
       listOfClients.add(clientHandler);
     }
-    clientHandler.sendLogin(nameOK, clientHandler.getUsername());
-    return nameOK;
+    clientHandler.sendLogin(nameOk, clientHandler.getUsername());
+    return nameOk;
   }
 
   /**
@@ -129,6 +139,19 @@ public class GameServer extends SocketServer {
   }
 
   /**
+   * Add to matchmaking queue.
+   *
+   * @param clientHandler The clientHandler of the client asking to join the queue.
+   */
+  public synchronized void addInQueue(ClientHandler clientHandler) {
+    inQueueClients.add(clientHandler);
+    clientHandler.sendQueued();
+    if (inQueueClients.size() > 1) {
+      startGame();
+    }
+  }
+//--------------------RECEIVED MESSAGE HANDLERS
+  /**
    * Creates a new connection handler for the given socket.
    *
    * @param socket the socket for the connection
@@ -146,43 +169,24 @@ public class GameServer extends SocketServer {
     }
   }
 
-  public void listReceived(ClientHandler clientHandler) {
+  /**
+   * Handle LIST command which displays a list of logged in players.
+   *
+   * @param clientHandler The clientHandler of the client asking for the list.
+   */
+  public void handleList(ClientHandler clientHandler) {
     clientHandler.sendList(listOfClients);
   }
 
-  public synchronized void addInQueue(ClientHandler clientHandler) {
-    inQueueClients.add(clientHandler);
-    clientHandler.sendQeued();
-    if (inQueueClients.size() > 1) {
-      startGame();
-    }
-  }
-
-  private void startGame() {
-    ClientHandler player1 = inQueueClients.poll();
-    ClientHandler player2 = inQueueClients.poll();
-    listOfGames.add(new ServerGameAdapter(player1, player2, this, boardDim));
-    player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
-    player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
-  }
-
-  public synchronized void removeFromQueue(ClientHandler clientHandler) {
-    inQueueClients.remove(clientHandler);
-  }
-
-  private ServerGameAdapter findGame(ClientHandler clientHandler) {
-    for (ServerGameAdapter game : listOfGames) {
-      if (game.getClients().contains(clientHandler)) {
-        return game;
-      }
-    }
-    return null;
-  }
-
+  /**
+   * Method that handles a move based on a single index.
+   *
+   * @param clientHandler The clientHandler of the client sending the move.
+   * @param moveIndex     The index of the move.
+   */
   public void handleMove(ClientHandler clientHandler, int moveIndex) {
-    ServerGameAdapter game = findGame(clientHandler);
-    if (game != null) {
       try {
+        ServerGameAdapter game = findGame(clientHandler);
         GoMove move = game.newMove(moveIndex, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
         sendTurn(game.getClients(), game.getTurn());
@@ -190,14 +194,21 @@ public class GameServer extends SocketServer {
         sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
         sendError(clientHandler, e.getMessage());
+      } catch (GameNotFoundException e) {
+        sendError(clientHandler, e.getMessage());
       }
-    }
   }
 
+  /**
+   * Method that handles the row, column type moves.
+   *
+   * @param clientHandler The client handler of the client sending the move.
+   * @param row           The row index of the move.
+   * @param col           The column index of the move.
+   */
   public void handleMove(ClientHandler clientHandler, int row, int col) {
-    ServerGameAdapter game = findGame(clientHandler);
-    if (game != null) {
       try {
+        ServerGameAdapter game = findGame(clientHandler);
         GoMove move = game.newMove(row, col, clientHandler);
         sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
         sendTurn(game.getClients(), game.getTurn());
@@ -205,30 +216,50 @@ public class GameServer extends SocketServer {
         sendError(clientHandler, e.getMessage());
       } catch (NotYourTurnException e) {
         sendError(clientHandler, e.getMessage());
+      } catch (GameNotFoundException e) {
+        throw new RuntimeException(e);
       }
-    }
   }
 
+  /**
+   * Handle passing moves
+   *
+   * @param clientHandler The handler of the client sending the move.
+   */
   public void handlePass(ClientHandler clientHandler) {
-    ServerGameAdapter game = findGame(clientHandler);
-    if (game != null) {
-      try {
-        GoMove move = game.passMove(clientHandler);
-        sendPass(game.getClients(), move.getPlayer().getStone());
-        if(game.isGameOver()){
-          game.endGame();
-        }else{
-          sendTurn(game.getClients(), game.getTurn());
-        }
-
-      } catch (InvalidMoveException e) {
-        sendError(clientHandler, e.getMessage());
-      } catch (NotYourTurnException e) {
-        sendError(clientHandler, e.getMessage());
+    try {
+      ServerGameAdapter game = findGame(clientHandler);
+      GoMove move = game.passMove(clientHandler);
+      sendPass(game.getClients(), move.getPlayer().getStone());
+      if (game.isGameOver()) {
+        game.endGame();
+      } else {
+        sendTurn(game.getClients(), game.getTurn());
       }
+    } catch (InvalidMoveException e) {
+      sendError(clientHandler, e.getMessage());
+    } catch (NotYourTurnException e) {
+      sendError(clientHandler, e.getMessage());
+    } catch (GameNotFoundException e) {
+      sendError(clientHandler, e.getMessage());
     }
   }
 
+  /**
+   * Handle a resignation from a game.
+   *
+   * @param clientHandler The handler of the client giving the resignation command
+   */
+  public void handleResign(ClientHandler clientHandler) {
+    try {
+      ServerGameAdapter game = findGame(clientHandler);
+      game.endGame(clientHandler);
+    } catch (GameNotFoundException e) {
+      sendError(clientHandler, e.getMessage());
+    }
+  }
+
+//--------------------MESSAGE SENDERS
   private void sendPass(List<ClientHandler> clients, Stone stone) {
     for (ClientHandler clientHandler : clients) {
       try {
@@ -257,6 +288,12 @@ public class GameServer extends SocketServer {
     }
   }
 
+  /**
+   * Informs players of a game ending.
+   *
+   * @param game    The game ending.
+   * @param message The message determining the winner.
+   */
   public void gameOver(ServerGameAdapter game, String message) {
     for (ClientHandler clientHandler : game.getClients()) {
       clientHandler.sendGameOver(message);
@@ -264,14 +301,31 @@ public class GameServer extends SocketServer {
     listOfGames.remove(game);
   }
 
+  /**
+   * Sends errors
+   *
+   * @param clientHandler The Clients handler provoking the error.
+   * @param errorMessage  The message describing the error.
+   */
   public void sendError(ClientHandler clientHandler, String errorMessage) {
     clientHandler.sendError(errorMessage);
   }
+  //--------------------UTILITY METHODS
+  private void startGame() {
+    ClientHandler player1 = inQueueClients.poll();
+    ClientHandler player2 = inQueueClients.poll();
+    listOfGames.add(new ServerGameAdapter(player1, player2, this, boardDim));
+    player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
+    player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
+  }
 
-  public void handleResign(ClientHandler clientHandler) {
-    ServerGameAdapter game = findGame(clientHandler);
-    if (game != null) {
-      game.endGame(clientHandler);
+  private ServerGameAdapter findGame(ClientHandler clientHandler)
+      throws GameNotFoundException {
+    for (ServerGameAdapter game : listOfGames) {
+      if (game.getClients().contains(clientHandler)) {
+        return game;
+      }
     }
+    throw new GameNotFoundException();
   }
 }

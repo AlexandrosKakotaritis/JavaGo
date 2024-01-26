@@ -8,8 +8,8 @@ import java.net.Socket;
 import java.util.List;
 
 /**
- * The class responsible for decoding messages. For decoding receiving messages
- * it delegates to a MessageHandler object.
+ * The class responsible for decoding messages. For decoding receiving messages it delegates to a
+ * MessageHandler object.
  */
 public class ServerConnection extends SocketConnection {
 
@@ -40,9 +40,13 @@ public class ServerConnection extends SocketConnection {
     super.start();
   }
 
+  /**
+   * Send hello message to client.
+   *
+   * @return true if sent successfully
+   */
   public boolean sayHello() {
-    return sendMessage(Protocol.HELLO + Protocol.SEPARATOR
-        + Protocol.SERVER_DESCRIPTION);
+    return sendMessage(Protocol.HELLO + Protocol.SEPARATOR + Protocol.SERVER_DESCRIPTION);
   }
 
 
@@ -73,8 +77,14 @@ public class ServerConnection extends SocketConnection {
     clientHandler.handleDisconnect();
   }
 
-  public void sendLogin(boolean nameOK, String username) {
-    if (nameOK) {
+  /**
+   * Sends login message.
+   *
+   * @param nameOk   true if name accepted.
+   * @param username The username used for login.
+   */
+  public void sendLogin(boolean nameOk, String username) {
+    if (nameOk) {
       sendMessage(Protocol.ACCEPTED + Protocol.SEPARATOR + username);
       messageHandler.setPlayerState(PlayerState.PREGAME);
     } else {
@@ -82,6 +92,11 @@ public class ServerConnection extends SocketConnection {
     }
   }
 
+  /**
+   * Send the list of players.
+   *
+   * @param listOfClients The list of clients.
+   */
   public void sendList(List<ClientHandler> listOfClients) {
     StringBuilder sb = new StringBuilder(Protocol.LIST);
 
@@ -92,17 +107,36 @@ public class ServerConnection extends SocketConnection {
     super.sendMessage(sb.toString());
   }
 
+  /**
+   * Send the initiation message for a new game to the client.
+   *
+   * @param usernamePlayer1 The username of the player with the black stones.
+   * @param usernamePlayer2 The username of the player with the white stones.
+   * @param boardDim        The dimension of the board.
+   */
   public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
     sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1 + Protocol.SEPARATOR
         + usernamePlayer2 + Protocol.SEPARATOR + boardDim);
     messageHandler.setPlayerState(PlayerState.IN_GAME);
   }
 
+  /**
+   * Send the played move back to the client.
+   *
+   * @param moveIndex The index of the move.
+   * @param stone     The stone used for the move.
+   * @throws NotAppropriateStoneException If an empty stone is given.
+   */
   public void sendMove(int moveIndex, Stone stone) throws NotAppropriateStoneException {
-    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex
-        + Protocol.SEPARATOR + getStoneName(stone));
+    sendMessage(
+        Protocol.MOVE + Protocol.SEPARATOR + moveIndex + Protocol.SEPARATOR + getStoneName(stone));
   }
 
+  /**
+   * Send the message that the game is over.
+   *
+   * @param message The message determining the outcome of the game.
+   */
   public void sendGameOver(String message) {
     messageHandler.setPlayerState(PlayerState.PREGAME);
     sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + message);
@@ -114,7 +148,7 @@ public class ServerConnection extends SocketConnection {
 
   private String getStoneName(Stone stone) throws NotAppropriateStoneException {
 
-    return switch(stone){
+    return switch (stone) {
       case Stone.BLACK -> Protocol.BLACK;
       case Stone.WHITE -> Protocol.WHITE;
       default -> throw new NotAppropriateStoneException("Your stones are broken");
