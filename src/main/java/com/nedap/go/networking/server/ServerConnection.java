@@ -60,7 +60,12 @@ public class ServerConnection extends SocketConnection {
    */
   @Override
   public void handleMessage(String message) {
-    messageHandler.handleMessage(message);
+    try {
+      messageHandler.handleMessage(message);
+    } catch (ImproperMessageException e) {
+      System.out.println("Improper command skipped");
+      sendError("Improper command");
+    }
   }
 
   public void sendError(String errorMessage) {
@@ -97,7 +102,7 @@ public class ServerConnection extends SocketConnection {
   public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
     sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1 + Protocol.SEPARATOR
         + usernamePlayer2 + Protocol.SEPARATOR + boardDim);
-    messageHandler.setPlayerState(PlayerState.INGAME);
+    messageHandler.setPlayerState(PlayerState.IN_GAME);
   }
 
   public void sendMove(int moveIndex) {
@@ -107,10 +112,6 @@ public class ServerConnection extends SocketConnection {
   public void sendGameOver(String message) {
     messageHandler.setPlayerState(PlayerState.PREGAME);
     sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + message);
-  }
-
-  public void sendMove(int row, int col) {
-    sendMessage(Protocol.MOVE + Protocol.SEPARATOR + row + Protocol.ROW_COL_SEPARATOR + col);
   }
 
   public void sendPass() {
