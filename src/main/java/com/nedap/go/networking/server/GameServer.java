@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
-
+/**
+ * Class handling and answering requests from clients playing a game.
+ */
 public class GameServer extends SocketServer {
 
   private static int boardDim;
@@ -40,7 +42,7 @@ public class GameServer extends SocketServer {
   }
 
   /**
-   * The main method of the server
+   * The main method of the server.
    *
    * @param args command line arguments
    */
@@ -66,6 +68,7 @@ public class GameServer extends SocketServer {
     }
   }
   //        CONNECTION METHODS
+
   /**
    * Returns the port on which this server is listening for connections.
    *
@@ -96,7 +99,8 @@ public class GameServer extends SocketServer {
   public synchronized void close() {
     super.close();
   }
-//--------------------LIST HANDLING
+  //--------------------LIST HANDLING
+
   /**
    * Adds a ClientHandler to the list of clients.
    *
@@ -155,7 +159,8 @@ public class GameServer extends SocketServer {
       }
     }
   }
-//--------------------RECEIVED MESSAGE HANDLERS
+  //--------------------RECEIVED MESSAGE HANDLERS
+
   /**
    * Creates a new connection handler for the given socket.
    *
@@ -190,14 +195,14 @@ public class GameServer extends SocketServer {
    * @param moveIndex     The index of the move.
    */
   public void handleMove(ClientHandler clientHandler, int moveIndex) {
-      try {
-        ServerGameAdapter game = findGame(clientHandler);
-        GoMove move = game.newMove(moveIndex, clientHandler);
-        sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
-        sendTurn(game.getClients(), game.getTurn());
-      } catch (InvalidMoveException | GameNotFoundException | NotYourTurnException e) {
-        sendError(clientHandler, e.getMessage());
-      }
+    try {
+      ServerGameAdapter game = findGame(clientHandler);
+      GoMove move = game.newMove(moveIndex, clientHandler);
+      sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
+      sendTurn(game.getClients(), game.getTurn());
+    } catch (InvalidMoveException | GameNotFoundException | NotYourTurnException e) {
+      sendError(clientHandler, e.getMessage());
+    }
   }
 
   /**
@@ -208,18 +213,18 @@ public class GameServer extends SocketServer {
    * @param col           The column index of the move.
    */
   public void handleMove(ClientHandler clientHandler, int row, int col) {
-      try {
-        ServerGameAdapter game = findGame(clientHandler);
-        GoMove move = game.newMove(row, col, clientHandler);
-        sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
-        sendTurn(game.getClients(), game.getTurn());
-      } catch (InvalidMoveException | NotYourTurnException | GameNotFoundException e) {
-        sendError(clientHandler, e.getMessage());
-      }
+    try {
+      ServerGameAdapter game = findGame(clientHandler);
+      GoMove move = game.newMove(row, col, clientHandler);
+      sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
+      sendTurn(game.getClients(), game.getTurn());
+    } catch (InvalidMoveException | NotYourTurnException | GameNotFoundException e) {
+      sendError(clientHandler, e.getMessage());
+    }
   }
 
   /**
-   * Handle passing moves
+   * Handle passing moves.
    *
    * @param clientHandler The handler of the client sending the move.
    */
@@ -252,7 +257,7 @@ public class GameServer extends SocketServer {
     }
   }
 
-//--------------------MESSAGE SENDERS
+  //--------------------MESSAGE SENDERS
   private void sendPass(List<ClientHandler> clients, Stone stone) {
     for (ClientHandler clientHandler : clients) {
       try {
@@ -284,7 +289,7 @@ public class GameServer extends SocketServer {
   /**
    * Informs players of a game ending with a winner.
    *
-   * @param game    The game ending.
+   * @param game   The game ending.
    * @param winner The winner player.
    */
   public void sendWinner(ServerGameAdapter game, OnlinePlayer winner) {
@@ -307,7 +312,7 @@ public class GameServer extends SocketServer {
   }
 
   /**
-   * Sends errors
+   * Sends errors.
    *
    * @param clientHandler The Clients handler provoking the error.
    * @param errorMessage  The message describing the error.
@@ -315,20 +320,20 @@ public class GameServer extends SocketServer {
   public void sendError(ClientHandler clientHandler, String errorMessage) {
     clientHandler.sendError(errorMessage);
   }
+
   //--------------------UTILITY METHODS
   private void startGame() throws PlayerNotFoundException {
     ClientHandler player1 = inQueueClients.poll();
     ClientHandler player2 = inQueueClients.poll();
     listOfGames.add(new ServerGameAdapter(player1, player2, this, boardDim));
-    if(player1 == null || player2 == null){
+    if (player1 == null || player2 == null) {
       throw new PlayerNotFoundException("Could not find enough players in queue");
     }
     player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
     player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
   }
 
-  private ServerGameAdapter findGame(ClientHandler clientHandler)
-      throws GameNotFoundException {
+  private ServerGameAdapter findGame(ClientHandler clientHandler) throws GameNotFoundException {
     for (ServerGameAdapter game : listOfGames) {
       if (game.getClients().contains(clientHandler)) {
         return game;

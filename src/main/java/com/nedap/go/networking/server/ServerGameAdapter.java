@@ -10,6 +10,9 @@ import com.nedap.go.networking.server.utils.NotYourTurnException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Connecting the server to the Go game model.
+ */
 public class ServerGameAdapter {
 
   private final GameServer server;
@@ -20,6 +23,14 @@ public class ServerGameAdapter {
   private OnlinePlayer player2;
   private GoGame game;
 
+  /**
+   * Construct a game server adapter object.
+   *
+   * @param client1  The client representing the first player.
+   * @param client2  The client representing the second player.
+   * @param server   The server handling the clients.
+   * @param boardDim The dimension of the board of the game.
+   */
   public ServerGameAdapter(ClientHandler client1, ClientHandler client2, GameServer server,
       int boardDim) {
     this.client1 = client1;
@@ -41,9 +52,18 @@ public class ServerGameAdapter {
     return Arrays.asList(client1, client2);
   }
 
+  /**
+   * Checks and plays a new move from a client using the index format.
+   *
+   * @param index         The index of the move.
+   * @param clientHandler The handler of the client playing the move.
+   * @return The move played
+   * @throws InvalidMoveException If a move that cannot be player occurs
+   * @throws NotYourTurnException If a client tries to play when not their turn.
+   */
   public GoMove newMove(int index, ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
-    if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
+    if (isYourTurn(clientHandler)) {
       GoMove move = new GoMove(game.getTurn(), index);
       game.doMove(move);
       return move;
@@ -52,9 +72,19 @@ public class ServerGameAdapter {
     }
   }
 
+  /**
+   * Checks and plays a new move from a client using the row column format.
+   *
+   * @param row           The row index of the move.
+   * @param col           The column index of the move
+   * @param clientHandler The handler of the client playing the move.
+   * @return The move played
+   * @throws InvalidMoveException If a move that cannot be player occurs
+   * @throws NotYourTurnException If a client tries to play when not their turn.
+   */
   public GoMove newMove(int row, int col, ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
-    if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
+    if (isYourTurn(clientHandler)) {
       GoMoveRowColumn move = new GoMoveRowColumn(game.getTurn(), row, col);
       game.doMove(move);
       return new GoMove(move.getPlayer(), rowColumnToIndex(move.getRow(), move.getColumn()));
@@ -63,9 +93,17 @@ public class ServerGameAdapter {
     }
   }
 
+  /**
+   * Checks and plays a new pass move from a client.
+   *
+   * @param clientHandler The handler of the client playing the move.
+   * @return The move played
+   * @throws InvalidMoveException If a move that cannot be player occurs.
+   * @throws NotYourTurnException If a client tries to play when not their turn.
+   */
   public GoMove passMove(ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
-    if (((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler)) {
+    if (isYourTurn(clientHandler)) {
       GoMove move = new GoMove(game.getTurn());
       game.doMove(move);
       return move;
@@ -85,6 +123,10 @@ public class ServerGameAdapter {
     game = new GoGame(player1, player2, boardDim);
   }
 
+  /**
+   * Queries the terms of a finished games and propagates the information
+   * to the server.
+   */
   public void endGame() {
     OnlinePlayer winner = (OnlinePlayer) game.getWinner();
     if (winner == null) {
@@ -108,6 +150,10 @@ public class ServerGameAdapter {
 
   public OnlinePlayer getOtherPlayer(ClientHandler clientHandler) {
     return clientHandler.equals(player1.getClientHandler()) ? player2 : player1;
+  }
+
+  private boolean isYourTurn(ClientHandler clientHandler) {
+    return ((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler);
   }
 
 }
