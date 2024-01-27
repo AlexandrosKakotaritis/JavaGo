@@ -21,4 +21,6 @@ public final class Protocol {
   public static final String BLACK = "BLACK";
   public static final String WHITE = "WHITE";
   public static final String RESIGN = "RESIGN";
+  public static final String WINNER = "WINNER";
+  public static final String DRAW = "DRAW";
 }
