@@ -12,37 +12,43 @@ import java.util.Queue;
 public class Board {
 
   private static final String DELIM = "      ";
-  private static final int DIM = 9;
+  private final int dim;
   private final Stone[] fields;
 
   /**
    * Constructs a new board with every intersection empty.
    */
   public Board() {
-    fields = new Stone[DIM * DIM];
-    reset();
+    this(9);
   }
 
   public Board(Stone[] fields) {
     this.fields = fields;
+    this.dim = (int) Math.sqrt(fields.length);
   }
 
-  private static String numberLine(int line) {
+  public Board(int dim){
+    this.dim = dim;
+    fields = new Stone[dim * dim];
+    reset();
+  }
+
+  private String numberLine(int line) {
     StringBuilder numberLine = new StringBuilder();
-    for (int i = 0; i < DIM - 1; i++) {
-      int number = line * DIM + i;
+    for (int i = 0; i < dim - 1; i++) {
+      int number = line * dim + i;
       if (number < 10) {
         numberLine.append(number).append("----");
       } else {
         numberLine.append(number).append("---");
       }
     }
-    numberLine.append(line * DIM + DIM - 1);
+    numberLine.append(line * dim + dim - 1);
     return numberLine.toString();
   }
 
-  private static String boxLine() {
-    return "|    ".repeat(DIM - 1) + "|";
+  private String boxLine() {
+    return "|    ".repeat(dim - 1) + "|";
   }
 
   /**
@@ -51,7 +57,7 @@ public class Board {
    * @return The one side dimension as an integer.
    */
   public int getDim() {
-    return DIM;
+    return dim;
   }
 
   /**
@@ -62,7 +68,7 @@ public class Board {
    * @return The corresponding index.
    */
   public int index(int row, int col) {
-    return row * DIM + col;
+    return row * dim + col;
   }
 
   /**
@@ -72,7 +78,7 @@ public class Board {
    * @return An integer array {row, column}
    */
   public int[] rowCol(int index) {
-    return new int[]{index / DIM, index % DIM};
+    return new int[]{index / dim, index % dim};
   }
 
   /**
@@ -82,7 +88,7 @@ public class Board {
    * @return True if the given index is within the limits of the board.
    */
   public boolean isField(int index) {
-    return 0 <= index && index < DIM * DIM;
+    return 0 <= index && index < dim * dim;
   }
 
   /**
@@ -93,7 +99,7 @@ public class Board {
    * @return True if the given index is within the limits of the board.
    */
   public boolean isField(int row, int col) {
-    return 0 <= row && row < DIM && 0 <= col && col < DIM;
+    return 0 <= row && row < dim && 0 <= col && col < dim;
   }
 
   /**
@@ -151,7 +157,7 @@ public class Board {
    * Resets the board in a state where all the intersections are empty.
    */
   void reset() {
-    for (int i = 0; i < DIM * DIM; i++) {
+    for (int i = 0; i < dim * dim; i++) {
       fields[i] = Stone.EMPTY;
     }
   }
@@ -162,8 +168,8 @@ public class Board {
    * @return The copy of the board.
    */
   public Board deepCopy() {
-    Stone[] copiedFields = new Stone[DIM * DIM];
-    System.arraycopy(fields, 0, copiedFields, 0, DIM * DIM);
+    Stone[] copiedFields = new Stone[dim * dim];
+    System.arraycopy(fields, 0, copiedFields, 0, dim * dim);
     return new Board(copiedFields);
   }
 
@@ -238,7 +244,7 @@ public class Board {
     int areaScore = 0;
     List<List<Integer>> listOfEmptyChains = getStoneChains(Stone.EMPTY);
     if(listOfEmptyChains.size() == 1
-        && listOfEmptyChains.get(0).size() == DIM * DIM){
+        && listOfEmptyChains.get(0).size() == dim * dim){
       return 0;
     }
     for (List<Integer> listOfEmpty : getStoneChains(Stone.EMPTY)) {
@@ -315,10 +321,10 @@ public class Board {
     int[] deltaY = new int[]{+1, -1, 0, 0};
     List<Integer> neighbours = new ArrayList<>();
     for (int i = 0; i < deltaX.length; i++) {
-      int nextX = integer % DIM + deltaX[i];
-      int nextY = integer / DIM + deltaY[i];
+      int nextX = integer % dim + deltaX[i];
+      int nextY = integer / dim + deltaY[i];
       if (isField(nextY, nextX)) {
-        int next = nextY * DIM + nextX;
+        int next = nextY * dim + nextX;
         neighbours.add(next);
       }
     }
@@ -327,22 +333,22 @@ public class Board {
 
   private String intersectionLine(int line) {
     StringBuilder intersectionLine = new StringBuilder();
-    for (int i = 0; i < DIM - 1; i++) {
-      int index = line * DIM + i;
+    for (int i = 0; i < dim - 1; i++) {
+      int index = line * dim + i;
       intersectionLine.append(fields[index].toString()).append("----");
     }
-    intersectionLine.append(fields[line * DIM + DIM - 1].toString());
+    intersectionLine.append(fields[line * dim + dim - 1].toString());
     return intersectionLine.toString();
   }
 
   @Override
   public String toString() {
     StringBuilder boardString = new StringBuilder();
-    for (int i = 0; i < DIM - 1; i++) {
+    for (int i = 0; i < dim - 1; i++) {
       boardString.append(intersectionLine(i)).append(DELIM).append(numberLine(i)).append("\n");
       boardString.append(boxLine()).append(DELIM).append(boxLine()).append("\n");
     }
-    int finalLine = DIM - 1;
+    int finalLine = dim - 1;
     boardString.append(intersectionLine(finalLine)).append(DELIM).append(numberLine(finalLine))
         .append("\n");
     return boardString.toString();

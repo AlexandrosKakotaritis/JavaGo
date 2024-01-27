@@ -1,5 +1,6 @@
 package com.nedap.go.model;
 
+import com.nedap.go.Go;
 import com.nedap.go.model.utils.BoardList;
 import com.nedap.go.model.utils.InvalidMoveException;
 import java.util.ArrayList;
@@ -19,13 +20,24 @@ public class GoGame implements Game {
   private boolean isPlayer1Turn;
 
   /**
-   * Constructor for creating a new game.
+   * Constructor for creating a new game with a 9x9 board.
    *
    * @param player1 The player with the black stones.
    * @param player2 The player with the white stones.
    */
   public GoGame(Player player1, Player player2) {
     this(player1, player2, new Board(), true, new BoardList(),
+        new LinkedList<>());
+  }
+  /**
+   * Constructor for creating a new game with a chosen dimensions board.
+   *
+   * @param player1 The player with the black stones.
+   * @param player2 The player with the white stones.
+   * @param dim The dimensions of the board.
+   */
+  public GoGame(Player player1, Player player2, int dim) {
+    this(player1, player2, new Board(dim), true, new BoardList(),
         new LinkedList<>());
   }
 
@@ -36,6 +48,9 @@ public class GoGame implements Game {
    * @param player2       The player with the white stones.
    * @param board         The board of the new game object
    * @param isPlayer1Turn The boolean signifying the players turn.
+   * @param last2Moves A list of the last 2 moves.
+   * @param possibleKoBoards A list of boards that is possible that they can
+   *                         be repeated in game.
    */
   public GoGame(Player player1, Player player2, Board board, boolean isPlayer1Turn,
       BoardList possibleKoBoards, List<GoMove> last2Moves) {
@@ -45,6 +60,14 @@ public class GoGame implements Game {
     this.isPlayer1Turn = isPlayer1Turn;
     this.possibleKoBoards = possibleKoBoards;
     this.last2Moves = last2Moves;
+  }
+
+  /**
+   * Getter for board
+   * @return The board of the game.
+   */
+  public Board getBoard(){
+    return board;
   }
 
   /**
@@ -112,8 +135,31 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isValidMove(Move move) {
-    GoMove goMove = (GoMove) move;
-    return goMove.getPass() || board.isField(goMove.getIndex()) && board.isEmpty(goMove.getIndex())
+    if(move instanceof GoMoveRowColumn) {
+      return isValidGoMove((GoMoveRowColumn) move);
+    }else if (move instanceof GoMove) {
+      return isValidGoMove((GoMove) move);
+    } else {
+      return false;
+    }
+  }
+
+  private boolean isValidGoMove(GoMove move) {
+    GoMove goMove = move;
+    return goMove.getPass() || board.isField(goMove.getIndex())
+        && board.isEmpty(goMove.getIndex())
+        && goMove.getPlayer() == this.getTurn() && isKoRuleOk(goMove);
+  }
+
+  private boolean isValidGoMove(GoMoveRowColumn move) {
+    GoMove goMove;
+    boolean isFieldOrPass;
+    GoMoveRowColumn goMoveRowColumn = move;
+    isFieldOrPass = board.isField(goMoveRowColumn.getRow(), goMoveRowColumn.getColumn())
+        || goMoveRowColumn.getPass();
+    goMove = new GoMove(goMoveRowColumn.getPlayer(),
+        board.index(goMoveRowColumn.getRow(), goMoveRowColumn.getColumn()));
+    return goMove.getPass() || isFieldOrPass && board.isEmpty(goMove.getIndex())
         && goMove.getPlayer() == this.getTurn() && isKoRuleOk(goMove);
   }
 
@@ -133,8 +179,8 @@ public class GoGame implements Game {
    */
   @Override
   public void doMove(Move move) throws InvalidMoveException {
-    GoMove goMove = (GoMove) move;
     if (isValidMove(move)) {
+      GoMove goMove = moveConversion(move);
       if (!goMove.getPass()) {
         Board previousBoard = board.deepCopy();
         board.setField(goMove.getIndex(), goMove.getPlayer().getStone());
@@ -146,6 +192,15 @@ public class GoGame implements Game {
       isPlayer1Turn = !isPlayer1Turn;
     } else {
       throw new InvalidMoveException();
+    }
+  }
+
+  private GoMove moveConversion(Move move) {
+    if (move instanceof GoMoveRowColumn){
+      GoMoveRowColumn goMove = (GoMoveRowColumn) move;
+     return new GoMove(goMove.getPlayer(), board.index(goMove.getRow(), goMove.getColumn()));
+    }else{
+      return (GoMove) move;
     }
   }
 

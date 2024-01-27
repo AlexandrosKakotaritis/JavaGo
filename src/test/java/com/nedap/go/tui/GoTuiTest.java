@@ -201,6 +201,9 @@ public class GoTuiTest {
 
       pw.println("quit");
       pw.println(3);
+
+      s=br.readLine();
+      t.join();
     }
   }
   @Test
