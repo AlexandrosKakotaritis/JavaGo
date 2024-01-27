@@ -29,23 +29,15 @@ public class ClientHandler {
     this.serverConnection = serverConnection;
   }
 
-  /**
-   * Get the username set by the client.
-   *
-   * @return The username as a string.
-   */
   public String getUsername() {
     return username;
   }
 
-  public boolean receiveLogin(String username) {
+  public void receiveLogin(String username) {
     this.username = username;
-    return server.addClient(this);
+    server.addClient(this);
   }
 
-  /**
-   * Inform the server of the disconnection of the client.
-   */
   public void handleDisconnect() {
     server.removeClient(this);
   }
