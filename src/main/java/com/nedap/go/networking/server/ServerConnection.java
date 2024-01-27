@@ -18,7 +18,7 @@ public class ServerConnection extends SocketConnection {
 
   private final ClientHandler clientHandler;
 
-  private final MessageHandler messageHandler;
+  private final MessageHandlerServer messageHandler;
 
 
   /**
@@ -32,7 +32,7 @@ public class ServerConnection extends SocketConnection {
   public ServerConnection(Socket socket, ClientHandler clientHandler) throws IOException {
     super(socket);
     this.clientHandler = clientHandler;
-    messageHandler = new MessageHandler(clientHandler);
+    messageHandler = new MessageHandlerServer(clientHandler);
   }
 
 
