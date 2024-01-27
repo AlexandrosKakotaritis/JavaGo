@@ -133,18 +133,34 @@ public class ServerConnection extends SocketConnection {
         Protocol.MOVE + Protocol.SEPARATOR + moveIndex + Protocol.SEPARATOR + getStoneName(stone));
   }
 
-  /**
-   * Send the message that the game is over.
-   *
-   * @param message The message determining the outcome of the game.
-   */
-  public void sendGameOver(String message) {
-    messageHandler.setPlayerState(PlayerState.PREGAME);
-    sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + message);
-  }
-
   public void sendPass(Stone stone) throws NotAppropriateStoneException {
     sendMessage(Protocol.PASS + Protocol.SEPARATOR + getStoneName(stone));
+  }
+
+
+
+  public void sendQueued() {
+    sendMessage(Protocol.QUEUED);
+  }
+
+  public void sendTurn(String name) {
+    sendMessage(Protocol.MAKE_MOVE + Protocol.SEPARATOR + name);
+  }
+
+  /**
+   * Send the message that the game is over with a winner.
+   *
+   * @param winner The winner of the game.
+   */
+  public void sendWinner(OnlinePlayer winner) {
+    messageHandler.setPlayerState(PlayerState.PREGAME);
+    sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + Protocol.WINNER
+        + winner.getName());
+  }
+
+  public void sendDraw() {
+    messageHandler.setPlayerState(PlayerState.PREGAME);
+    sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + Protocol.DRAW);
   }
 
   private String getStoneName(Stone stone) throws NotAppropriateStoneException {
@@ -154,13 +170,5 @@ public class ServerConnection extends SocketConnection {
       case Stone.WHITE -> Protocol.WHITE;
       default -> throw new NotAppropriateStoneException("Your stones are broken");
     };
-  }
-
-  public void sendQueued() {
-    sendMessage(Protocol.QUEUED);
-  }
-
-  public void sendTurn(String name) {
-    sendMessage(Protocol.MAKE_MOVE + Protocol.SEPARATOR + name);
   }
 }

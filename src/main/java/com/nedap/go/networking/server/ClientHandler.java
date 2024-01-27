@@ -103,8 +103,8 @@ public class ClientHandler {
     serverConnection.sendPass(stone);
   }
 
-  public void sendGameOver(String message) {
-    serverConnection.sendGameOver(message);
+  public void sendWinner(OnlinePlayer winner) {
+    serverConnection.sendWinner(winner);
   }
 
   public void sendQueued() {
@@ -113,6 +113,10 @@ public class ClientHandler {
 
   public void sendTurn(String name) {
     serverConnection.sendTurn(name);
+  }
+
+  public void sendDraw() {
+    serverConnection.sendDraw();
   }
 }
 

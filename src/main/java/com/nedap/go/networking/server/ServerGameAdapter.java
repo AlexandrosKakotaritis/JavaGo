@@ -88,31 +88,26 @@ public class ServerGameAdapter {
   public void endGame() {
     OnlinePlayer winner = (OnlinePlayer) game.getWinner();
     if (winner == null) {
-      server.gameOver(this, "It's a tie");
+      server.sendDraw(this);
     } else {
-      server.gameOver(this, "Winner is: " + winner.getName() + " GG!");
+      server.sendWinner(this, winner);
     }
   }
 
-  public void endGame(ClientHandler clientHandler) {
-    server.gameOver(this, getQuitMessage(clientHandler));
+  public void endGameOnResign(ClientHandler clientHandler) {
+    server.sendWinner(this, getWinnerOnResign(clientHandler));
   }
 
   private OnlinePlayer createPlayer(ClientHandler clientHandler, Stone mark) {
     return new OnlinePlayer(clientHandler, mark);
   }
 
-  private String getQuitMessage(ClientHandler clientHandler) {
-    OnlinePlayer winner = clientHandler.equals(player1.getClientHandler()) ? player2 : player1;
-    return clientHandler.getUsername() + " forfeited the match. " + winner.getName() + " wins";
+  private OnlinePlayer getWinnerOnResign(ClientHandler clientHandler) {
+    return getOtherPlayer(clientHandler);
   }
 
-  public ClientHandler getOtherPlayer(ClientHandler clientHandler) {
-    if (client1.equals(clientHandler)) {
-      return client2;
-    } else {
-      return client1;
-    }
+  public OnlinePlayer getOtherPlayer(ClientHandler clientHandler) {
+    return clientHandler.equals(player1.getClientHandler()) ? player2 : player1;
   }
 
 }

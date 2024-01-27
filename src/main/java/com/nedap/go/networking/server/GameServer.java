@@ -8,6 +8,7 @@ import com.nedap.go.networking.SocketServer;
 import com.nedap.go.networking.server.utils.GameNotFoundException;
 import com.nedap.go.networking.server.utils.NotAppropriateStoneException;
 import com.nedap.go.networking.server.utils.NotYourTurnException;
+import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -125,19 +126,15 @@ public class GameServer extends SocketServer {
   public synchronized void removeClient(ClientHandler clientHandler) {
     listOfClients.remove(clientHandler);
     boolean inGame = !inQueueClients.remove(clientHandler);
-    ServerGameAdapter gameToEnd = null;
+    ServerGameAdapter gameToEnd;
     if (inGame) {
-      for (ServerGameAdapter game : listOfGames) {
-        if (game.getClients().contains(clientHandler)) {
-          gameToEnd = game;
-          break;
-        }
+      try {
+        gameToEnd = findGame(clientHandler);
+        sendWinner(gameToEnd, gameToEnd.getOtherPlayer(clientHandler));
+      } catch (GameNotFoundException e) {
+        System.out.println(e.getMessage());
       }
-      if (gameToEnd != null) {
-        gameOver(gameToEnd,
-            clientHandler.getUsername() + " disconnected. " + gameToEnd.getOtherPlayer(
-                clientHandler).getUsername() + " is the Winner!");
-      }
+
     }
   }
 
@@ -150,7 +147,12 @@ public class GameServer extends SocketServer {
     inQueueClients.add(clientHandler);
     clientHandler.sendQueued();
     if (inQueueClients.size() > 1) {
-      startGame();
+      try {
+        startGame();
+      } catch (PlayerNotFoundException e) {
+        sendError(clientHandler, e.getMessage());
+        System.out.println(e.getMessage());
+      }
     }
   }
 //--------------------RECEIVED MESSAGE HANDLERS
@@ -244,7 +246,7 @@ public class GameServer extends SocketServer {
   public void handleResign(ClientHandler clientHandler) {
     try {
       ServerGameAdapter game = findGame(clientHandler);
-      game.endGame(clientHandler);
+      game.endGameOnResign(clientHandler);
     } catch (GameNotFoundException e) {
       sendError(clientHandler, e.getMessage());
     }
@@ -280,14 +282,26 @@ public class GameServer extends SocketServer {
   }
 
   /**
-   * Informs players of a game ending.
+   * Informs players of a game ending with a winner.
    *
    * @param game    The game ending.
-   * @param message The message determining the winner.
+   * @param winner The winner player.
    */
-  public void gameOver(ServerGameAdapter game, String message) {
+  public void sendWinner(ServerGameAdapter game, OnlinePlayer winner) {
     for (ClientHandler clientHandler : game.getClients()) {
-      clientHandler.sendGameOver(message);
+      clientHandler.sendWinner(winner);
+    }
+    listOfGames.remove(game);
+  }
+
+  /**
+   * Informs the players of a game ending in a draw.
+   *
+   * @param game The game being finished.
+   */
+  public void sendDraw(ServerGameAdapter game) {
+    for (ClientHandler clientHandler : game.getClients()) {
+      clientHandler.sendDraw();
     }
     listOfGames.remove(game);
   }
@@ -302,10 +316,13 @@ public class GameServer extends SocketServer {
     clientHandler.sendError(errorMessage);
   }
   //--------------------UTILITY METHODS
-  private void startGame() {
+  private void startGame() throws PlayerNotFoundException {
     ClientHandler player1 = inQueueClients.poll();
     ClientHandler player2 = inQueueClients.poll();
     listOfGames.add(new ServerGameAdapter(player1, player2, this, boardDim));
+    if(player1 == null || player2 == null){
+      throw new PlayerNotFoundException("Could not find enough players in queue");
+    }
     player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
     player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
   }
