@@ -38,7 +38,7 @@ public class ClientConnection extends SocketConnection {
      * @param username The username to be sent
      */
     public void sendUsername(String username){
-        super.sendMessage(Protocol.LOGIN + Protocol.SEPARATOR + username);
+        sendMessage(Protocol.LOGIN + Protocol.SEPARATOR + username);
     }
 
 
@@ -71,5 +71,9 @@ public class ClientConnection extends SocketConnection {
     @Override
     protected void close(){
         super.close();
+    }
+
+    public void sendQueue() {
+        sendMessage(Protocol.QUEUE);
     }
 }

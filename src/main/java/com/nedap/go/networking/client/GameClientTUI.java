@@ -42,19 +42,51 @@ public class GameClientTUI implements ClientListener {
     /**
      * The run method of the TUI
      */
-    public void runTUI(){
-        mainMenu();
+    public void initializeConnection(){
         initializeClient(serverName, portNumber);
         sendUsername();
+        String playerType = selectPlayerType();
+        matchMakingMenu();
         boolean run = true;
         while(run){
             String message = sc.nextLine();
             if (message.equals(QUIT))
                 run = false;
-            client.sendChatMessage(message);
             log.yourMessage(message);
         }
         client.close();
+    }
+
+    private void matchMakingMenu() {
+        String matchmaking = """
+            Get ready for a Game:
+                    1. Find a Game.
+                    2. Quit.
+            """;
+        switch (sc.nextInt()) {
+            case 1 -> startQueueing();
+            case 2 -> System.exit(0);
+            default -> {
+                println("Not a valid choice");
+                println("");
+                matchMakingMenu();
+            }
+        }
+    }
+
+    private void startQueueing() {
+        client.sendQueue();
+    }
+
+    private String selectPlayerType() {
+        String selectPlayerText = """
+            Select your player type:\s
+                -H for human player via the TUI.\s
+                -N for Naive AI player.\s
+            """;
+        println(selectPlayerText);
+
+        return sc.nextLine();
     }
 
     private void mainMenu() {
@@ -65,6 +97,7 @@ public class GameClientTUI implements ClientListener {
                 getHelp();
                 mainMenu();
             }
+            case 3 -> System.exit(0);
             default -> {
                 println("Not a valid choice");
                 println("");
@@ -108,10 +141,6 @@ public class GameClientTUI implements ClientListener {
         sc.nextLine();
         println("");
     }
-
-    private void initializeConnection() {
-    }
-
     private int menu() {
         String menu = """
         Welcome to JavaGO!\s
@@ -267,6 +296,6 @@ public class GameClientTUI implements ClientListener {
 
     public static void main(String[] args) {
         GameClientTUI tui = new GameClientTUI();
-        tui.runTUI();
+
     }
 }

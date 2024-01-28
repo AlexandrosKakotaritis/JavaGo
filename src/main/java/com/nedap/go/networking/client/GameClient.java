@@ -68,4 +68,8 @@ public class GameClient {
     public void newGame(String player1Name, String player2Name, int boardDim) {
 
     }
+
+    public void sendQueue() {
+        clientConnection.sendQueue();
+    }
 }
