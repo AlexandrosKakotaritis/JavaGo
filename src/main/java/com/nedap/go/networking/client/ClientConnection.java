@@ -3,7 +3,6 @@ package com.nedap.go.networking.client;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
-import com.nedap.go.networking.server.utils.PlayerState;
 import java.io.IOException;
 import java.net.InetAddress;
 import com.nedap.go.networking.SocketConnection;

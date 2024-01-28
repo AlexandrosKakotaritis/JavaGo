@@ -2,6 +2,7 @@ package com.nedap.go.networking.server;
 
 import com.nedap.go.model.Stone;
 import com.nedap.go.networking.server.utils.NotAppropriateStoneException;
+import com.nedap.go.networking.server.utils.PlayerState;
 import java.util.List;
 
 /**
@@ -111,6 +112,9 @@ public class ClientHandler {
     serverConnection.sendDraw();
   }
 
+  public PlayerState getPlayerState() {
+    return serverConnection.getPlayerState();
+  }
 }
 
 

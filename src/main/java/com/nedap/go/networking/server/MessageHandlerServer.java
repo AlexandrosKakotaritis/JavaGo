@@ -105,4 +105,8 @@ public class MessageHandlerServer {
   private String[] splitMessage(String message) {
     return message.split(Protocol.SEPARATOR);
   }
+
+  public PlayerState getPlayerState() {
+    return playerState;
+  }
 }

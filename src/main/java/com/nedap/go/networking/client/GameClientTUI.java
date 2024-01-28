@@ -28,6 +28,7 @@ public class GameClientTUI implements ClientListener {
   private boolean logInSuccessful;
   private boolean isSystemOut;
   private boolean isGameStarted;
+  private boolean isConnected;
   private ClientGameAdapter game;
 
 
@@ -37,28 +38,25 @@ public class GameClientTUI implements ClientListener {
   }
 
   public GameClientTUI() {
-    this(new InputStreamReader(System.in), new PrintWriter(System.out));
+//    this(new InputStreamReader(System.in), new PrintWriter(System.out));
     isSystemOut = true;
+    sc = new Scanner(System.in);
+    output = null;
   }
 
   public static void main(String[] args) {
     GameClientTUI tui = new GameClientTUI();
-
+    tui.run();
   }
 
   public void initializeConnection() {
     initializeClient(serverName, portNumber);
     sendUsername();
     selectPlayerType();
-    play();
-    if (matchMakingMenu()) {
 
-      boolean run = true;
-      while (run) {
-        String message = sc.nextLine();
-        if (message.equals(QUIT)) {
-          run = false;
-        }
+    if (matchMakingMenu()) {
+      while (true) {
+        play();
       }
     }
     client.close();
@@ -77,7 +75,6 @@ public class GameClientTUI implements ClientListener {
       game.play();
     } catch (MoveMismatchException e) {
       print(e.getMessage());
-      throw new RuntimeException();
     }
   }
 
@@ -186,7 +183,15 @@ public class GameClientTUI implements ClientListener {
   /**
    * username is assigned by the user and communicated to the server.
    */
-  private void sendUsername() {
+  private synchronized void sendUsername() {
+    while(!isConnected){
+      try {
+        this.wait();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
     print("Provide a username: ");
     String username = sc.nextLine();
     client.sendUsername(username);
@@ -286,11 +291,13 @@ public class GameClientTUI implements ClientListener {
    * @param message The server's hello message.
    */
   @Override
-  public void successfulConnection(String message) {
+  public synchronized void successfulConnection(String message) {
     println("Connected to Server");
     if (message != null) {
       println(message);
     }
+    isConnected = true;
+    notifyAll();
   }
 
   /**
@@ -329,12 +336,15 @@ public class GameClientTUI implements ClientListener {
       print(e.getMessage());
     }
     isGameStarted = true;
+    println("New game between " + player1Name + " "
+        + Stone.BLACK + " - " + Stone.WHITE + " " + player2Name
+        + " in a " + boardDim + "x" + boardDim + " board!");
     notifyAll();
   }
 
   @Override
   public void printError(String message) {
-
+    println(message);
   }
 
   /**
@@ -359,12 +369,14 @@ public class GameClientTUI implements ClientListener {
   }
 
   private void println(Object o) {
-    output.println(o);
-    output.flush();
+    System.out.println(o);
+//    output.println(o);
+//    output.flush();
   }
 
   private void print(Object o) {
-    output.print(o);
-    output.flush();
+    System.out.println(o);
+//    output.print(o);
+//    output.flush();
   }
 }

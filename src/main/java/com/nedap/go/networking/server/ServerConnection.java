@@ -171,4 +171,14 @@ public class ServerConnection extends SocketConnection {
       default -> throw new NotAppropriateStoneException("Your stones are broken");
     };
   }
+
+  public PlayerState getPlayerState() {
+    return messageHandler.getPlayerState();
+  }
+
+  public boolean sendMessage(String message){
+    super.sendMessage(message);
+    System.out.println(message);
+    return true;
+  }
 }

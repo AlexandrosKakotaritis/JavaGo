@@ -2,6 +2,7 @@ package com.nedap.go.networking.server;
 
 
 import com.nedap.go.model.GoMove;
+import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.SocketServer;
@@ -9,6 +10,7 @@ import com.nedap.go.networking.server.utils.GameNotFoundException;
 import com.nedap.go.networking.server.utils.NotAppropriateStoneException;
 import com.nedap.go.networking.server.utils.NotYourTurnException;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
+import com.nedap.go.networking.server.utils.PlayerState;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -128,9 +130,11 @@ public class GameServer extends SocketServer {
    */
   public synchronized void removeClient(ClientHandler clientHandler) {
     listOfClients.remove(clientHandler);
-    boolean inGame = !inQueueClients.remove(clientHandler);
+    if(clientHandler.getPlayerState() == PlayerState.IN_QUEUE){
+      inQueueClients.remove(clientHandler);
+    }
     ServerGameAdapter gameToEnd;
-    if (inGame) {
+    if (clientHandler.getPlayerState() == PlayerState.IN_GAME) {
       try {
         gameToEnd = findGame(clientHandler);
         sendWinner(gameToEnd, gameToEnd.getOtherPlayer(clientHandler));
@@ -168,13 +172,17 @@ public class GameServer extends SocketServer {
   @Override
   protected void handleConnection(Socket socket) {
     try {
+      System.out.println("New connection");
       ClientHandler clientHandler = new ClientHandler(this);
       ServerConnection serverConnection = new ServerConnection(socket, clientHandler);
       clientHandler.setServerConnection(serverConnection);
       serverConnection.start();
+      Thread.sleep(500);
       clientHandler.sayHello();
     } catch (IOException e) {
       System.out.println("Sorry! Could not connect.");
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 
