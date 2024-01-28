@@ -95,7 +95,7 @@ public class ClientHandler {
     serverConnection.sendPass(stone);
   }
 
-  public void sendWinner(ServerPlayer winner) {
+  public void sendWinner(OnlinePlayer winner) {
     serverConnection.sendWinner(winner);
   }
 
