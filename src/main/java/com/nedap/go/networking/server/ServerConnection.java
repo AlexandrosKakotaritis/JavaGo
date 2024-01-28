@@ -152,7 +152,7 @@ public class ServerConnection extends SocketConnection {
    *
    * @param winner The winner of the game.
    */
-  public void sendWinner(OnlinePlayer winner) {
+  public void sendWinner(ServerPlayer winner) {
     messageHandler.setPlayerState(PlayerState.PREGAME);
     sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + Protocol.WINNER
         + winner.getName());

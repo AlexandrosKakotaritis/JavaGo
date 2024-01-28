@@ -280,7 +280,7 @@ public class GameServer extends SocketServer {
     }
   }
 
-  private void sendTurn(List<ClientHandler> clients, OnlinePlayer turn) {
+  private void sendTurn(List<ClientHandler> clients, ServerPlayer turn) {
     for (ClientHandler clientHandler : clients) {
       clientHandler.sendTurn(turn.getName());
     }
@@ -292,7 +292,7 @@ public class GameServer extends SocketServer {
    * @param game   The game ending.
    * @param winner The winner player.
    */
-  public void sendWinner(ServerGameAdapter game, OnlinePlayer winner) {
+  public void sendWinner(ServerGameAdapter game, ServerPlayer winner) {
     for (ClientHandler clientHandler : game.getClients()) {
       clientHandler.sendWinner(winner);
     }

@@ -19,8 +19,8 @@ public class ServerGameAdapter {
   private final ClientHandler client1;
   private final ClientHandler client2;
   private final int boardDim;
-  private OnlinePlayer player1;
-  private OnlinePlayer player2;
+  private ServerPlayer player1;
+  private ServerPlayer player2;
   private GoGame game;
 
   /**
@@ -112,8 +112,8 @@ public class ServerGameAdapter {
     }
   }
 
-  public OnlinePlayer getTurn() {
-    return (OnlinePlayer) game.getTurn();
+  public ServerPlayer getTurn() {
+    return (ServerPlayer) game.getTurn();
   }
 
 
@@ -128,7 +128,7 @@ public class ServerGameAdapter {
    * to the server.
    */
   public void endGame() {
-    OnlinePlayer winner = (OnlinePlayer) game.getWinner();
+    ServerPlayer winner = (ServerPlayer) game.getWinner();
     if (winner == null) {
       server.sendDraw(this);
     } else {
@@ -140,20 +140,20 @@ public class ServerGameAdapter {
     server.sendWinner(this, getWinnerOnResign(clientHandler));
   }
 
-  private OnlinePlayer createPlayer(ClientHandler clientHandler, Stone mark) {
-    return new OnlinePlayer(clientHandler, mark);
+  private ServerPlayer createPlayer(ClientHandler clientHandler, Stone mark) {
+    return new ServerPlayer(clientHandler, mark);
   }
 
-  private OnlinePlayer getWinnerOnResign(ClientHandler clientHandler) {
+  private ServerPlayer getWinnerOnResign(ClientHandler clientHandler) {
     return getOtherPlayer(clientHandler);
   }
 
-  public OnlinePlayer getOtherPlayer(ClientHandler clientHandler) {
+  public ServerPlayer getOtherPlayer(ClientHandler clientHandler) {
     return clientHandler.equals(player1.getClientHandler()) ? player2 : player1;
   }
 
   private boolean isYourTurn(ClientHandler clientHandler) {
-    return ((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler);
+    return ((ServerPlayer) game.getTurn()).getClientHandler().equals(clientHandler);
   }
 
 }
