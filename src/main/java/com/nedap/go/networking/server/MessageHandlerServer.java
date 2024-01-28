@@ -36,8 +36,19 @@ public class MessageHandlerServer {
     switch (playerState) {
       case FRESH -> handleInitialization(message);
       case PREGAME -> handlePreGame(message);
+      case IN_QUEUE -> handleInQueue(message);
       case IN_GAME -> handleGame(message);
       default -> setPlayerState(PlayerState.FRESH);
+    }
+  }
+
+  private void handleInQueue(String message) throws ImproperMessageException {
+    if(message.equals(Protocol.LIST)){
+      clientHandler.listReceived();
+    }
+    else{
+      throw new ImproperMessageException(message
+          + ": Not appropriate at this moment");
     }
   }
 
