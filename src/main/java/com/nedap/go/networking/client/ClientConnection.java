@@ -1,6 +1,7 @@
 package com.nedap.go.networking.client;
 
 import com.nedap.go.networking.server.utils.ImproperMessageException;
+import com.nedap.go.networking.server.utils.PlayerState;
 import java.io.IOException;
 import java.net.InetAddress;
 import com.nedap.go.networking.SocketConnection;
@@ -27,7 +28,7 @@ public class ClientConnection extends SocketConnection {
      * Set the chatClient object.
      * @param gameClient The chatClient object.
      */
-    protected void setChatClient(GameClient gameClient){
+    protected void setGameClient(GameClient gameClient){
         this.gameClient = gameClient;
         messageHandler = new MessageHandlerClient(gameClient);
     }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class GameClient {
 
-    private ClientConnection clientConnection;
+    private final ClientConnection clientConnection;
 
     private String username;
 
@@ -15,7 +15,7 @@ public class GameClient {
 
     public GameClient(InetAddress address, int port) throws IOException {
             clientConnection = new ClientConnection(address, port);
-            clientConnection.setChatClient(this);
+            clientConnection.setGameClient(this);
             listOfListeners = new ArrayList<>();
     }
 
@@ -39,7 +39,7 @@ public class GameClient {
     }
 
     public void handleDisconnect() {
-        listOfListeners.forEach(listener -> logInStatus(true, "he"));
+        listOfListeners.forEach(ClientListener::connectionLost);
     }
 
     public void close(){
@@ -62,7 +62,10 @@ public class GameClient {
     }
 
     public void receiveInQueue() {
-        listOfListeners.forEach(listener ->
-            listener.receiveInQueue());
+        listOfListeners.forEach(ClientListener::receiveInQueue);
+    }
+
+    public void newGame(String player1Name, String player2Name, int boardDim) {
+
     }
 }

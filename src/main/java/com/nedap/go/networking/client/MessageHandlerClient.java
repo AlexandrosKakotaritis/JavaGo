@@ -34,7 +34,10 @@ public class MessageHandlerClient {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.HELLO -> client.successfulConnection(messageArray[1]);
-      case Protocol.ACCEPTED -> client.logInStatus(true, messageArray[1]);
+      case Protocol.ACCEPTED -> {
+        client.logInStatus(true, messageArray[1]);
+        setPlayerState(PlayerState.PREGAME);
+      }
       case Protocol.REJECTED -> client.logInStatus(false, messageArray[1]);
       default -> throw new ImproperMessageException(message
           + ": Not appropriate at this moment");
@@ -45,7 +48,10 @@ public class MessageHandlerClient {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
-      case Protocol.QUEUED -> client.receiveInQueue();
+      case Protocol.QUEUED -> {
+        client.receiveInQueue();
+        setPlayerState(PlayerState.IN_QUEUE);
+      }
       default -> throw new ImproperMessageException(message
           + ": Not appropriate at this moment");
     }
@@ -56,17 +62,32 @@ public class MessageHandlerClient {
     return listOfPlayersWithCommand.subList(1, listOfPlayersWithCommand.size() - 1);
   }
 
-  private void handleInQueue(String message) {
+  private void handleInQueue(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
-      case Protocol.NEW_GAME -> handleNewGame(messageArray);
+      case Protocol.NEW_GAME -> {
+        handleNewGame(messageArray);
+        setPlayerState(PlayerState.IN_GAME);
+      }
     }
   }
 
-  private void handleNewGame(String[] messageArray) {
-    if(messageArray.length == 3){
-
+  private void handleNewGame(String[] messageArray) throws ImproperMessageException {
+    if(messageArray.length == 4){
+      String player1Name = messageArray[1];
+      String player2Name = messageArray[2];
+      try {
+        int boardDim = Integer.parseInt(messageArray[3]);
+        client.newGame(player1Name, player2Name, boardDim);
+      } catch (NumberFormatException e) {
+        throw new ImproperMessageException(messageArray[0]
+            + ": Argument 3 must be integer");
+      }
+    }
+    else{
+      throw new ImproperMessageException(messageArray[0]
+          + ": Needs 3 arguments");
     }
   }
 

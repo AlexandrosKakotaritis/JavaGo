@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface ClientListener {
     /**
-     * Confirms that log in was successfull with the server.
+     * Confirms that log in was successful with the server.
      * @param status The status. True if successful
      * @param username The username used.
      */
@@ -24,9 +24,23 @@ public interface ClientListener {
      */
     void connectionLost();
 
+    /**
+     * Notify listeners of successful connection with the server
+     * and propagates server's message.
+     *
+     * @param message The server's hello message.
+     */
     void successfulConnection(String message);
 
+    /**
+     * Receive the playerList.
+     *
+     * @param playerList The list of players.
+     */
     void receiveList(List<String> playerList);
 
+    /**
+     * Receive confirmation of entering matchmaking queue.
+     */
     void receiveInQueue();
 }
