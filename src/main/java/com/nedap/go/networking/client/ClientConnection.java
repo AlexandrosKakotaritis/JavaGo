@@ -76,4 +76,8 @@ public class ClientConnection extends SocketConnection {
     public void sendQueue() {
         sendMessage(Protocol.QUEUE);
     }
+
+    public void sendError(String message) {
+        sendMessage(Protocol.ERROR + Protocol.SEPARATOR + message);
+    }
 }

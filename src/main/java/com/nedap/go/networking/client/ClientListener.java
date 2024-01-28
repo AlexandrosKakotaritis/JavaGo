@@ -43,4 +43,14 @@ public interface ClientListener {
      * Receive confirmation of entering matchmaking queue.
      */
     void receiveInQueue();
+
+    /**
+     * Starts new game.
+     * @param player1Name The name of the first player with black
+     * @param player2Name The name of the second player with white.
+     * @param boardDim The dimension of the board.
+     */
+    void newGame(String player1Name, String player2Name, int boardDim);
+
+    void printError(String message);
 }

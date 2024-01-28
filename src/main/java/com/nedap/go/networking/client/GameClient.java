@@ -1,5 +1,6 @@
 package com.nedap.go.networking.client;
 
+import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class GameClient {
     private String username;
 
     private final List<ClientListener> listOfListeners;
+    private String playerType;
 
     public GameClient(InetAddress address, int port) throws IOException {
             clientConnection = new ClientConnection(address, port);
@@ -66,10 +68,27 @@ public class GameClient {
     }
 
     public void newGame(String player1Name, String player2Name, int boardDim) {
+        listOfListeners.forEach(listener
+            -> listener.newGame(player1Name, player2Name, boardDim));
+    }
 
+    public void sendError(String message) {
+        clientConnection.sendError(message);
     }
 
     public void sendQueue() {
         clientConnection.sendQueue();
+    }
+
+    public void setPlayerType(String playerType) {
+        this.playerType = playerType;
+    }
+
+    public String getPlayerType() {
+        return playerType;
+    }
+
+    public void sendResign() {
+
     }
 }
