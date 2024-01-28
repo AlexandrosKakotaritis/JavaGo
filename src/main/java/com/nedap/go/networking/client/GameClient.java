@@ -100,4 +100,9 @@ public class GameClient {
         listOfListeners.forEach(listener
             -> listener.receiveMove(moveIndex, moveColor));
     }
+
+    public void printError(String message) {
+        listOfListeners.forEach(listener
+            -> listener.printError(message));
+    }
 }

@@ -7,6 +7,7 @@ import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
+import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.protocol.Protocol;
 import com.nedap.go.networking.server.OnlinePlayer;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
@@ -70,9 +71,14 @@ public class ClientGameAdapter {
         throw new RuntimeException(e);
       }
     }
-
     if(isMyMove() && !myMove.equals(serverMove)){
       throw new MoveMismatchException("Server move not matching client's move");
+    }
+    try {
+      game.doMove(serverMove);
+    } catch (InvalidMoveException e) {
+      client.sendError(e.getMessage());
+      client.printError(e.getMessage());
     }
     isMoveReceived = false;
   }
