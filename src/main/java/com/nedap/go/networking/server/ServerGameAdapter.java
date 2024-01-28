@@ -19,8 +19,8 @@ public class ServerGameAdapter {
   private final ClientHandler client1;
   private final ClientHandler client2;
   private final int boardDim;
-  private ServerPlayer player1;
-  private ServerPlayer player2;
+  private OnlinePlayer player1;
+  private OnlinePlayer player2;
   private GoGame game;
 
   /**
@@ -112,14 +112,14 @@ public class ServerGameAdapter {
     }
   }
 
-  public ServerPlayer getTurn() {
-    return (ServerPlayer) game.getTurn();
+  public OnlinePlayer getTurn() {
+    return (OnlinePlayer) game.getTurn();
   }
 
 
   private void createGame() {
-    player1 = createPlayer(client1, Stone.BLACK);
-    player2 = createPlayer(client2, Stone.WHITE);
+    player1 = createPlayer(client1.getUsername(), Stone.BLACK);
+    player2 = createPlayer(client2.getUsername(), Stone.WHITE);
     game = new GoGame(player1, player2, boardDim);
   }
 
@@ -128,7 +128,7 @@ public class ServerGameAdapter {
    * to the server.
    */
   public void endGame() {
-    ServerPlayer winner = (ServerPlayer) game.getWinner();
+    OnlinePlayer winner = (OnlinePlayer) game.getWinner();
     if (winner == null) {
       server.sendDraw(this);
     } else {
@@ -140,20 +140,21 @@ public class ServerGameAdapter {
     server.sendWinner(this, getWinnerOnResign(clientHandler));
   }
 
-  private ServerPlayer createPlayer(ClientHandler clientHandler, Stone mark) {
-    return new ServerPlayer(clientHandler, mark);
+  private OnlinePlayer createPlayer(String username, Stone mark) {
+    return new OnlinePlayer(username, mark);
   }
 
-  private ServerPlayer getWinnerOnResign(ClientHandler clientHandler) {
+  private OnlinePlayer getWinnerOnResign(ClientHandler clientHandler) {
     return getOtherPlayer(clientHandler);
   }
 
-  public ServerPlayer getOtherPlayer(ClientHandler clientHandler) {
-    return clientHandler.equals(player1.getClientHandler()) ? player2 : player1;
+  public OnlinePlayer getOtherPlayer(ClientHandler clientHandler) {
+    return clientHandler.getUsername().equals(player1.getName()) ? player2 : player1;
   }
 
   private boolean isYourTurn(ClientHandler clientHandler) {
-    return ((ServerPlayer) game.getTurn()).getClientHandler().equals(clientHandler);
+    return ((OnlinePlayer) game.getTurn()).getName()
+        .equals(clientHandler.getUsername());
   }
 
 }

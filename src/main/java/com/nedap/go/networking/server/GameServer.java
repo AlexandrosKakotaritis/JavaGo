@@ -106,7 +106,7 @@ public class GameServer extends SocketServer {
    *
    * @param clientHandler the ClientHandler object to be added.
    */
-  public synchronized boolean addClient(ClientHandler clientHandler) {
+  public synchronized void addClient(ClientHandler clientHandler) {
     boolean nameOk = true;
     for (ClientHandler handler : listOfClients) {
       if (clientHandler.getUsername() != null && clientHandler.getUsername()
@@ -119,7 +119,6 @@ public class GameServer extends SocketServer {
       listOfClients.add(clientHandler);
     }
     clientHandler.sendLogin(nameOk, clientHandler.getUsername());
-    return nameOk;
   }
 
   /**
@@ -280,7 +279,7 @@ public class GameServer extends SocketServer {
     }
   }
 
-  private void sendTurn(List<ClientHandler> clients, ServerPlayer turn) {
+  private void sendTurn(List<ClientHandler> clients, OnlinePlayer turn) {
     for (ClientHandler clientHandler : clients) {
       clientHandler.sendTurn(turn.getName());
     }
@@ -292,7 +291,7 @@ public class GameServer extends SocketServer {
    * @param game   The game ending.
    * @param winner The winner player.
    */
-  public void sendWinner(ServerGameAdapter game, ServerPlayer winner) {
+  public void sendWinner(ServerGameAdapter game, OnlinePlayer winner) {
     for (ClientHandler clientHandler : game.getClients()) {
       clientHandler.sendWinner(winner);
     }
