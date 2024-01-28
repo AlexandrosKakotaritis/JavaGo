@@ -73,7 +73,12 @@ public class GameClientTUI implements ClientListener {
       }
     }
     isGameStarted = false;
-    game.play();
+    try {
+      game.play();
+    } catch (MoveMismatchException e) {
+      print(e.getMessage());
+      throw new RuntimeException();
+    }
   }
 
   private boolean matchMakingMenu() {
@@ -330,6 +335,17 @@ public class GameClientTUI implements ClientListener {
   @Override
   public void printError(String message) {
 
+  }
+
+  /**
+   * Receiving moves from the server.
+   *
+   * @param moveIndex The index of the move.
+   * @param moveColor The color of the stone.
+   */
+  @Override
+  public void receiveMove(int moveIndex, String moveColor) {
+    game.moveReceived(moveIndex, moveColor);
   }
 
   private void println(Object o) {

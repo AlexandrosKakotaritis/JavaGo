@@ -7,6 +7,7 @@ import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
+import com.nedap.go.networking.protocol.Protocol;
 import com.nedap.go.networking.server.OnlinePlayer;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 import com.nedap.go.tui.HumanPlayer;
@@ -17,7 +18,7 @@ public class ClientGameAdapter {
   private final int boardDim;
   private boolean isMoveReceived;
   private GoGame game;
-  private GoMove moveReceived;
+  private GoMove serverMove;
   private Player myPlayer;
   private Player otherPlayer;
   private GameClient client;
@@ -39,7 +40,7 @@ public class ClientGameAdapter {
     } else if (client.getUsername().equals(player2Name)) {
       createMyPlayer(player2Name, Stone.WHITE);
       otherPlayer = new OnlinePlayer(player1Name, Stone.BLACK);
-      game = new GoGame(myPlayer, otherPlayer, boardDim);
+      game = new GoGame(otherPlayer, myPlayer, boardDim);
     } else {
       throw new PlayerNotFoundException("Neither "
           + player1Name + " nor " + player2Name
@@ -56,8 +57,8 @@ public class ClientGameAdapter {
     }
   }
 
-  public void play() {
-    GoMove myMove;
+  public synchronized void play() throws MoveMismatchException {
+    GoMove myMove = null;
     if (isMyMove()) {
       myMove = myMove();
       client.sendMove(myMove);
@@ -69,6 +70,11 @@ public class ClientGameAdapter {
         throw new RuntimeException(e);
       }
     }
+
+    if(isMyMove() && !myMove.equals(serverMove)){
+      throw new MoveMismatchException("Server move not matching client's move");
+    }
+    isMoveReceived = false;
   }
 
   private boolean isMyMove() {
@@ -83,5 +89,13 @@ public class ClientGameAdapter {
       client.sendResign();
     }
     return myMove;
+  }
+
+  public synchronized void moveReceived(int moveIndex, String moveColor){
+    Stone stone = moveColor.equals(Protocol.BLACK)? Stone.BLACK: Stone.WHITE;
+    Player player = myPlayer.getStone().equals(stone)?
+        myPlayer: otherPlayer;
+    serverMove = new GoMove(player, moveIndex);
+    isMoveReceived = true;
   }
 }

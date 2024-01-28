@@ -1,5 +1,6 @@
 package com.nedap.go.networking.client;
 
+import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.protocol.Protocol;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
 import com.nedap.go.networking.server.utils.PlayerState;
@@ -20,7 +21,8 @@ public class MessageHandlerClient {
     this.playerState = playerState;
   }
 
-  void handleMessage(String message) throws ImproperMessageException {
+  void handleMessage(String message)
+      throws ImproperMessageException, InvalidMoveException {
     switch (playerState) {
       case FRESH -> handleHandshake(message);
       case PREGAME -> handlePreGame(message);
@@ -93,8 +95,33 @@ public class MessageHandlerClient {
     }
   }
 
-  private void handleGame(String message) {
+  private void handleGame(String message) throws InvalidMoveException {
+    String[] messageArray = splitMessage(message);
+    switch (messageArray[0]){
+      case Protocol.MOVE -> handleMove(messageArray);
+    }
+  }
 
+  private void handleMove(String[] messageArray) throws InvalidMoveException {
+    if (messageArray.length != 3){
+      throw new InvalidMoveException("Server sent invalid move");
+    }
+    try {
+      int moveIndex = Integer.parseInt(messageArray[1]);
+      String moveColor = messageArray[2];
+      checkColor(moveColor);
+      client.receiveMove(moveIndex, moveColor);
+    } catch (NumberFormatException e){
+      throw new InvalidMoveException();
+    }
+
+  }
+
+  private void checkColor(String moveColor) throws InvalidMoveException {
+    if(!moveColor.equals(Protocol.BLACK)
+        && !moveColor.equals(Protocol.WHITE)){
+      throw new InvalidMoveException("Invalid stone color");
+    }
   }
 
   private String[] splitMessage(String message) {

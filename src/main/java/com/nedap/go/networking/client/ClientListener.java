@@ -52,5 +52,16 @@ public interface ClientListener {
      */
     void newGame(String player1Name, String player2Name, int boardDim);
 
+    /**
+     * Prints error messages.
+     * @param message The error message.
+     */
     void printError(String message);
+
+    /**
+     * Receiving moves from the server.
+     * @param moveIndex The index of the move.
+     * @param moveColor The color of the stone.
+     */
+    void receiveMove(int moveIndex, String moveColor);
 }

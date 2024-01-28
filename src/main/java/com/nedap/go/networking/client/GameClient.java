@@ -1,6 +1,7 @@
 package com.nedap.go.networking.client;
 
 import com.nedap.go.model.GoMove;
+import com.nedap.go.networking.protocol.Protocol;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -89,10 +90,14 @@ public class GameClient {
     }
 
     public void sendResign() {
-
+        clientConnection.sendResign();
     }
-
     public void sendMove(GoMove myMove) {
         clientConnection.sendMove(myMove);
+    }
+
+    public void receiveMove(int moveIndex, String moveColor) {
+        listOfListeners.forEach(listener
+            -> listener.receiveMove(moveIndex, moveColor));
     }
 }

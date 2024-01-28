@@ -1,6 +1,7 @@
 package com.nedap.go.networking.client;
 
 import com.nedap.go.model.GoMove;
+import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
 import com.nedap.go.networking.server.utils.PlayerState;
 import java.io.IOException;
@@ -53,7 +54,9 @@ public class ClientConnection extends SocketConnection {
       try {
         messageHandler.handleMessage(message);
       } catch (ImproperMessageException e) {
-          System.out.println(e.getMessage());
+          sendError(e.getMessage());
+      }catch (InvalidMoveException e){
+          sendError(e.getMessage());
       }
     }
 
@@ -84,5 +87,9 @@ public class ClientConnection extends SocketConnection {
 
     public void sendMove(GoMove myMove) {
         sendMessage(Protocol.MOVE + Protocol.SEPARATOR + myMove.getIndex());
+    }
+
+    public void sendResign() {
+        sendMessage(Protocol.RESIGN);
     }
 }
