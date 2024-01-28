@@ -64,4 +64,10 @@ public interface ClientListener {
      * @param moveColor The color of the stone.
      */
     void receiveMove(int moveIndex, String moveColor);
+
+    /**
+     * Receive a pass
+     * @param color The color of the player passing
+     */
+    void receivePass(String color);
 }

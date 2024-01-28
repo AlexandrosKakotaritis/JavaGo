@@ -348,6 +348,16 @@ public class GameClientTUI implements ClientListener {
     game.moveReceived(moveIndex, moveColor);
   }
 
+  /**
+   * Receive a pass
+   *
+   * @param color The color of the player passing
+   */
+  @Override
+  public void receivePass(String color) {
+    game.passReceived(color);
+  }
+
   private void println(Object o) {
     output.println(o);
     output.flush();

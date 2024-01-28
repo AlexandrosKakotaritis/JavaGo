@@ -98,10 +98,23 @@ public class ClientGameAdapter {
   }
 
   public synchronized void moveReceived(int moveIndex, String moveColor){
+    Player player = getPlayerFromColor(moveColor);
+    serverMove = new GoMove(player, moveIndex);
+    isMoveReceived = true;
+    notifyAll();
+  }
+
+  public synchronized void passReceived(String color) {
+    Player player = getPlayerFromColor(color);
+    serverMove = new GoMove(player);
+    isMoveReceived = true;
+    notifyAll();
+  }
+
+  private Player getPlayerFromColor(String moveColor) {
     Stone stone = moveColor.equals(Protocol.BLACK)? Stone.BLACK: Stone.WHITE;
     Player player = myPlayer.getStone().equals(stone)?
         myPlayer: otherPlayer;
-    serverMove = new GoMove(player, moveIndex);
-    isMoveReceived = true;
+    return player;
   }
 }

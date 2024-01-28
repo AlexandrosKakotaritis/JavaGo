@@ -105,4 +105,9 @@ public class GameClient {
         listOfListeners.forEach(listener
             -> listener.printError(message));
     }
+
+    public void receivePass(String color) {
+        listOfListeners.forEach(listener
+            -> listener.receivePass(color));
+    }
 }

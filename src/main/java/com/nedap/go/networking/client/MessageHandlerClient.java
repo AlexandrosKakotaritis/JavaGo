@@ -99,7 +99,14 @@ public class MessageHandlerClient {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]){
       case Protocol.MOVE -> handleMove(messageArray);
+      case Protocol.PASS -> handlePass(messageArray);
     }
+  }
+
+  private void handlePass(String[] messageArray) throws InvalidMoveException {
+    String color = messageArray[1];
+    checkColor(color);
+    client.receivePass(color);
   }
 
   private void handleMove(String[] messageArray) throws InvalidMoveException {
