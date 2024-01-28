@@ -34,14 +34,16 @@ public class MessageHandlerClient {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.HELLO -> client.successfulConnection(messageArray[1]);
-      case Protocol.ACCEPTED -> {
-        client.logInStatus(true, messageArray[1]);
-        setPlayerState(PlayerState.PREGAME);
-      }
+      case Protocol.ACCEPTED -> handleAccept(messageArray);
       case Protocol.REJECTED -> client.logInStatus(false, messageArray[1]);
       default -> throw new ImproperMessageException(message
           + ": Not appropriate at this moment");
     }
+  }
+
+  private void handleAccept(String[] messageArray) {
+    client.logInStatus(true, messageArray[1]);
+    setPlayerState(PlayerState.PREGAME);
   }
 
   private void handlePreGame(String message) throws ImproperMessageException {
