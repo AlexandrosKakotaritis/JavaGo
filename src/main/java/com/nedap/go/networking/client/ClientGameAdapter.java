@@ -60,6 +60,7 @@ public class ClientGameAdapter {
     GoMove myMove;
     if (isMyMove()) {
       myMove = myMove();
+      client.sendMove(myMove);
     }
     while (!isMoveReceived) {
       try {

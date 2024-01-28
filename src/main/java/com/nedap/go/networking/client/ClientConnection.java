@@ -1,5 +1,6 @@
 package com.nedap.go.networking.client;
 
+import com.nedap.go.model.GoMove;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
 import com.nedap.go.networking.server.utils.PlayerState;
 import java.io.IOException;
@@ -79,5 +80,9 @@ public class ClientConnection extends SocketConnection {
 
     public void sendError(String message) {
         sendMessage(Protocol.ERROR + Protocol.SEPARATOR + message);
+    }
+
+    public void sendMove(GoMove myMove) {
+        sendMessage(Protocol.MOVE + Protocol.SEPARATOR + myMove.getIndex());
     }
 }
