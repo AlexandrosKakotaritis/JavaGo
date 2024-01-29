@@ -30,6 +30,7 @@ public class GameClientTUI implements ClientListener {
   private boolean isGameStarted;
   private boolean isConnected;
   private ClientGameAdapter game;
+  private boolean isGameOver;
 
 
   public GameClientTUI(Reader input, PrintWriter output) {
@@ -38,10 +39,8 @@ public class GameClientTUI implements ClientListener {
   }
 
   public GameClientTUI() {
-//    this(new InputStreamReader(System.in), new PrintWriter(System.out));
+    this(new InputStreamReader(System.in), new PrintWriter(System.out));
     isSystemOut = true;
-    sc = new Scanner(System.in);
-    output = null;
   }
 
   public static void main(String[] args) {
@@ -55,9 +54,9 @@ public class GameClientTUI implements ClientListener {
     selectPlayerType();
 
     if (matchMakingMenu()) {
-      while (true) {
-        play();
-      }
+
+      play();
+
     }
     client.close();
   }
@@ -71,10 +70,12 @@ public class GameClientTUI implements ClientListener {
       }
     }
     isGameStarted = false;
-    try {
-      game.play();
-    } catch (MoveMismatchException e) {
-      print(e.getMessage());
+    while(!isGameOver) {
+      try {
+        game.play();
+      } catch (MoveMismatchException e) {
+        print(e.getMessage());
+      }
     }
   }
 
@@ -369,14 +370,12 @@ public class GameClientTUI implements ClientListener {
   }
 
   private void println(Object o) {
-    System.out.println(o);
-//    output.println(o);
-//    output.flush();
+    output.println(o);
+    output.flush();
   }
 
   private void print(Object o) {
-    System.out.println(o);
-//    output.print(o);
-//    output.flush();
+    output.print(o);
+    output.flush();
   }
 }

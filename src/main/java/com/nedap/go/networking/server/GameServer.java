@@ -2,7 +2,6 @@ package com.nedap.go.networking.server;
 
 
 import com.nedap.go.model.GoMove;
-import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.SocketServer;
@@ -130,7 +129,7 @@ public class GameServer extends SocketServer {
    */
   public synchronized void removeClient(ClientHandler clientHandler) {
     listOfClients.remove(clientHandler);
-    if(clientHandler.getPlayerState() == PlayerState.IN_QUEUE){
+    if (clientHandler.getPlayerState() == PlayerState.IN_QUEUE) {
       inQueueClients.remove(clientHandler);
     }
     ServerGameAdapter gameToEnd;
@@ -332,12 +331,15 @@ public class GameServer extends SocketServer {
   private void startGame() throws PlayerNotFoundException {
     ClientHandler player1 = inQueueClients.poll();
     ClientHandler player2 = inQueueClients.poll();
-    listOfGames.add(new ServerGameAdapter(player1, player2, this, boardDim));
+    ServerGameAdapter game = new ServerGameAdapter(player1, player2, this, boardDim);
+    listOfGames.add(game);
     if (player1 == null || player2 == null) {
       throw new PlayerNotFoundException("Could not find enough players in queue");
     }
     player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
     player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
+
+    sendTurn(game.getClients(), game.getTurn());
   }
 
   private ServerGameAdapter findGame(ClientHandler clientHandler) throws GameNotFoundException {

@@ -85,7 +85,11 @@ public class ClientConnection extends SocketConnection {
     }
 
     public void sendMove(GoMove myMove) {
-        sendMessage(Protocol.MOVE + Protocol.SEPARATOR + myMove.getIndex());
+        if(myMove.isPass()){
+            sendMessage(Protocol.PASS);
+        }else {
+            sendMessage(Protocol.MOVE + Protocol.SEPARATOR + myMove.getIndex());
+        }
     }
 
     public void sendResign() {

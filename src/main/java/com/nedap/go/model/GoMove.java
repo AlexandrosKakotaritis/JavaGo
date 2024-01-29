@@ -1,8 +1,5 @@
 package com.nedap.go.model;
 
-import com.nedap.go.Go;
-import org.junit.jupiter.api.Test;
-
 /**
  * A class that stores the information needed for a move.
  */
@@ -70,12 +67,9 @@ public class GoMove implements Move {
    */
   @Override
   public boolean equals(Object o){
-    if(o instanceof GoMove){
-      GoMove move = (GoMove) o;
-      if(player.equals(move.getPlayer())
-          && index == move.getIndex()){
-        return true;
-      }
+    if(o instanceof GoMove move){
+      return player.equals(move.getPlayer())
+          && index == move.getIndex();
     }
     return false;
   }

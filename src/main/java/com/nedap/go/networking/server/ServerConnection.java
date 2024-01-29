@@ -155,7 +155,7 @@ public class ServerConnection extends SocketConnection {
   public void sendWinner(OnlinePlayer winner) {
     messageHandler.setPlayerState(PlayerState.PREGAME);
     sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + Protocol.WINNER
-        + winner.getName());
+        + Protocol.SEPARATOR + winner.getName());
   }
 
   public void sendDraw() {
@@ -178,7 +178,8 @@ public class ServerConnection extends SocketConnection {
 
   public boolean sendMessage(String message){
     super.sendMessage(message);
-    System.out.println(message);
+    System.out.println("TO: " + clientHandler.getUsername() + " --> "
+        +message);
     return true;
   }
 }
