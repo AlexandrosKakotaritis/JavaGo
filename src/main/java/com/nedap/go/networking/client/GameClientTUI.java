@@ -53,6 +53,8 @@ public class GameClientTUI implements ClientListener {
     if (matchMakingMenu()) {
       play();
     }
+    println(game.getGameEndMessage());
+    runGame();
   }
 
 
@@ -69,19 +71,13 @@ public class GameClientTUI implements ClientListener {
       try {
         game.playMove();
         println(game.displayState());
-      } catch (GameMismatchException e) {
+      } catch (GameMismatchException | InvalidMoveException e) {
         printError(e.getMessage());
         client.sendError(e.getMessage());
       } catch (QuitGameException e) {
         client.sendResign();
-        client.sendError("a test error");
-      } catch (InvalidMoveException e) {
-        printError(e.getMessage());
-        client.sendError(e.getMessage());
       }
     }
-    println(game.getGameEndMessage());
-    runGame();
   }
 
   private boolean matchMakingMenu() {
@@ -112,7 +108,8 @@ public class GameClientTUI implements ClientListener {
             -N for Naive AI player.\s
         """;
     println(selectPlayerText);
-    client.setPlayerType(sc.nextLine());
+    String playerType = sc.nextLine();
+    client.setPlayerType(playerType);
   }
 
   private void run() {

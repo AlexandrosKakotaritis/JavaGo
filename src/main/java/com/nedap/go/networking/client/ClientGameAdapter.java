@@ -67,7 +67,7 @@ public class ClientGameAdapter {
       myMove = myMove();
       client.sendMove(myMove);
     }
-    while (!isMoveReceived) {
+    while (!isMoveReceived && !game.isGameover()) {
       try {
         this.wait();
       } catch (InterruptedException e) {
@@ -86,7 +86,7 @@ public class ClientGameAdapter {
   }
 
   private boolean isMyMove() {
-    return game.getTurn().equals(myPlayer);
+    return game.getTurn().equals(myPlayer) && !game.isGameover();
   }
 
   private GoMove myMove() throws QuitGameException {
@@ -133,9 +133,10 @@ public class ClientGameAdapter {
       throw new GameMismatchException("Game ended for server and not "
           + "for client");
     }
+    notifyAll();
   }
 
-  public void receiveWinner(String winner) throws GameMismatchException {
+  public synchronized void receiveWinner(String winner) throws GameMismatchException {
     if (game.isGameover()
         && game.getWinner().equals(getPlayerFromName(winner))){
       gameEndingMessage = game.getWinner().equals(myPlayer)
@@ -153,6 +154,7 @@ public class ClientGameAdapter {
       throw new GameMismatchException("Game ended for server and not "
           + "for client");
     }
+    notifyAll();
   }
 
   public boolean isGameOver() {
@@ -163,7 +165,14 @@ public class ClientGameAdapter {
     return game.toString();
   }
 
-  public String getGameEndMessage() {
+  public synchronized String getGameEndMessage() {
+    while(gameEndingMessage == null){
+      try {
+        this.wait();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
     return gameEndingMessage;
   }
 }
