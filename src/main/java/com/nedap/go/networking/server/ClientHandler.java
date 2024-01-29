@@ -41,6 +41,7 @@ public class ClientHandler {
   }
 
   public void handleDisconnect() {
+    System.out.println("Client " + this.getUsername() + " disconnected");
     server.removeClient(this);
   }
 
