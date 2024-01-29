@@ -119,6 +119,7 @@ public class MessageHandlerClient {
       default -> throw new ImproperMessageException("Only DRAW or WINNER "
           + "are allowed as arguments to GAME OVER!");
     }
+    playerState = PlayerState.PREGAME;
   }
 
   private void handlePass(String[] messageArray) throws InvalidMoveException {
