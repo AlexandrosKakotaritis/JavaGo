@@ -14,7 +14,7 @@ public class GameClient {
   private final ClientConnection clientConnection;
   private final List<ClientListener> listOfListeners;
   private String username;
-  private String playerType;
+  private int playerType;
 
   /**
    * While constructed constructs a new connection to the specified address\
@@ -86,11 +86,11 @@ public class GameClient {
     clientConnection.sendQueue();
   }
 
-  public String getPlayerType() {
+  public int getPlayerType() {
     return playerType;
   }
 
-  public void setPlayerType(String playerType) {
+  public void setPlayerType(int playerType) {
     this.playerType = playerType;
   }
 

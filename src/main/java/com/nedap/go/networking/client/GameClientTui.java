@@ -29,6 +29,7 @@ public class GameClientTui implements ClientListener {
   private boolean isSystemOut;
   private boolean isGameStarted;
   private boolean isConnected;
+  private boolean hasResigned;
   private ClientGameAdapter game;
 
 
@@ -71,13 +72,15 @@ public class GameClientTui implements ClientListener {
     isGameStarted = false;
     while (!game.isGameOver()) {
       try {
-        game.playMove();
         println(game.displayState());
+        game.playMove();
       } catch (GameMismatchException | InvalidMoveException e) {
         printError(e.getMessage());
         client.sendError(e.getMessage());
       } catch (QuitGameException e) {
         client.sendResign();
+        hasResigned = true;
+        runGame();
       }
     }
   }
@@ -96,9 +99,6 @@ public class GameClientTui implements ClientListener {
             3. Quit\s
         """;
     println(menu);
-    if (isSystemOut) {
-      print("-->");
-    }
   }
 
   private void matchMakingMenu() {
@@ -129,19 +129,18 @@ public class GameClientTui implements ClientListener {
             2. for Naive AI player.\s
         """;
     println(selectPlayerText);
-    print("-->");
     String playerType;
     if ((playerType = sc.nextLine()).isEmpty()) {
       playerType = sc.nextLine();
     }
-    client.setPlayerType(playerType);
+    client.setPlayerType(Integer.parseInt(playerType));
   }
 
   private void run() {
     menu();
     switch (getIntMenuChoice()) {
       case 1 -> {
-        initializeClient(serverName, portNumber);
+        initializeClient();
         sendUsername();
         runGame();
       }
@@ -261,7 +260,8 @@ public class GameClientTui implements ClientListener {
     portNumber = sc.nextInt();
     sc.nextLine();
     try {
-      client = new GameClient(InetAddress.getByName(serverName), portNumber);
+      client = new GameClient(InetAddress
+          .getByAddress(serverName.getBytes()), portNumber);
       client.addListener(this);
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
@@ -288,7 +288,7 @@ public class GameClientTui implements ClientListener {
   public synchronized void connectionLost() {
     println("Disconnected from the server");
     println("Restart client to try and reconnect");
-    System.exit(1);
+    System.exit(0);
   }
 
   /**
@@ -337,7 +337,7 @@ public class GameClientTui implements ClientListener {
       game = new ClientGameAdapter(player1Name, player2Name, boardDim, client);
     } catch (PlayerNotFoundException e) {
       client.sendError(e.getMessage());
-      print(e.getMessage());
+      println(e.getMessage());
     }
     isGameStarted = true;
     println("New game between " + player1Name + " " + Stone.BLACK + " - " + Stone.WHITE + " "
@@ -386,7 +386,11 @@ public class GameClientTui implements ClientListener {
    */
   @Override
   public void receiveWinner(String winner) throws GameMismatchException {
-    game.receiveWinner(winner);
+    if(hasResigned){
+      println("You forfeited the game!");
+    } else {
+      game.receiveWinner(winner);
+    }
   }
 
   private void println(Object o) {
