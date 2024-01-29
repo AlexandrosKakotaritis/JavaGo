@@ -2,9 +2,9 @@ package com.nedap.go.networking.client;
 
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
-import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
+import com.nedap.go.networking.server.OnlinePlayer;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 
 import com.nedap.go.tui.QuitGameException;
@@ -26,7 +26,7 @@ public class GameClientTUI implements ClientListener {
   private GameClient client;
   private String serverName = "localhost";
   private int portNumber = 8888;
-  private boolean logInSuccessful;
+  private boolean isLogIn;
   private boolean isSystemOut;
   private boolean isGameStarted;
   private boolean isConnected;
@@ -50,12 +50,10 @@ public class GameClientTUI implements ClientListener {
 
   public void runGame() {
     selectPlayerType();
-    if (matchMakingMenu()) {
-      play();
-    }
+    matchMakingMenu();
+    play();
     println(game.getGameEndMessage());
     println(game.displayState());
-    sc.nextLine();
     runGame();
   }
 
@@ -92,7 +90,8 @@ public class GameClientTUI implements ClientListener {
     switch (sc.nextInt()) {
       case 1 -> client.sendQueue();
       case 2 -> {
-        return false;
+        client.close();
+        exit();
       }
       default -> {
         println("Not a valid choice");
@@ -103,6 +102,11 @@ public class GameClientTUI implements ClientListener {
     return true;
   }
 
+  private void exit() {
+    println("Goodbye!");
+    System.exit(0);
+  }
+
   private void selectPlayerType() {
     String selectPlayerText = """
         Select your player type:\s
@@ -111,7 +115,10 @@ public class GameClientTUI implements ClientListener {
         """;
     println(selectPlayerText);
     print("-->");
-    String playerType = sc.nextLine();
+    String playerType;
+    if((playerType = sc.nextLine()).isEmpty()){
+      playerType = sc.nextLine();
+    }
     client.setPlayerType(playerType);
   }
 
@@ -128,7 +135,7 @@ public class GameClientTUI implements ClientListener {
         //TODO: Why exception
         run();
       }
-      case 3 -> client.close();
+      case 3 -> exit();
       default -> {
         println("Not a valid choice");
         println("");
@@ -138,8 +145,8 @@ public class GameClientTUI implements ClientListener {
   }
 
   private void getHelp() {
-    Player player1Help = () -> Stone.BLACK;
-    Player player2Help = () -> Stone.WHITE;
+    OnlinePlayer player1Help = new OnlinePlayer("Player 1", Stone.BLACK);
+    OnlinePlayer player2Help = new OnlinePlayer("Player 2", Stone.WHITE);
     GoGame helpGame = new GoGame(player1Help, player2Help);
     try {
       helpGame.doMove(new GoMove(player1Help, 6));
@@ -213,9 +220,9 @@ public class GameClientTUI implements ClientListener {
       throw new RuntimeException(e);
     }
 
-    if (logInSuccessful) {
+    if (isLogIn) {
       println("Your new username is: " + username);
-      logInSuccessful = true;
+      isLogIn = true;
     } else {
       println("Username: " + username
           + " already exists. Choose a new one.");
@@ -265,7 +272,7 @@ public class GameClientTUI implements ClientListener {
    */
   @Override
   public synchronized void logInStatus(boolean status, String username) {
-    logInSuccessful = status;
+    isLogIn = status;
     this.notifyAll();
   }
 
