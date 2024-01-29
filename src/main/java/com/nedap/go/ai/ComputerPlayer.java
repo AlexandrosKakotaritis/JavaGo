@@ -28,7 +28,7 @@ public class ComputerPlayer extends AbstractPlayer {
   }
 
   public ComputerPlayer(String name, Strategy strategy, Stone stone) {
-    super(name + "-" + strategy.getName() + "-" + stone);
+    super(name);
     this.strategy = strategy;
     this.stone = stone;
   }
