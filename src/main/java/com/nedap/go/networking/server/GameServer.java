@@ -336,8 +336,8 @@ public class GameServer extends SocketServer {
     if (player1 == null || player2 == null) {
       throw new PlayerNotFoundException("Could not find enough players in queue");
     }
-    player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
-    player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
+    player1.sendStartGame(player1.getUsername(), player2.getUsername(), boardDim);
+    player2.sendStartGame(player1.getUsername(), player2.getUsername(), boardDim);
 
     sendTurn(game.getClients(), game.getTurn());
   }

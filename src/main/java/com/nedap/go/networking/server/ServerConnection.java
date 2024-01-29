@@ -116,7 +116,7 @@ public class ServerConnection extends SocketConnection {
    * @param usernamePlayer2 The username of the player with the white stones.
    * @param boardDim        The dimension of the board.
    */
-  public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
+  public void sendStartGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
     sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1 + Protocol.SEPARATOR
         + usernamePlayer2 + Protocol.SEPARATOR + boardDim);
     messageHandler.setPlayerState(PlayerState.IN_GAME);

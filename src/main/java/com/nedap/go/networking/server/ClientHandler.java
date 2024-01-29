@@ -80,8 +80,8 @@ public class ClientHandler {
     serverConnection.sendList(listOfClients);
   }
 
-  public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
-    serverConnection.startGame(usernamePlayer1, usernamePlayer2, boardDim);
+  public void sendStartGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
+    serverConnection.sendStartGame(usernamePlayer1, usernamePlayer2, boardDim);
   }
 
 
