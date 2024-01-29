@@ -22,7 +22,8 @@ public class MessageHandlerClient {
   }
 //TODO ERROR MESSAGE HANDLING.
   void handleMessage(String message)
-      throws ImproperMessageException, InvalidMoveException {
+      throws ImproperMessageException, InvalidMoveException,
+      ErrorReceivedException {
     switch (playerState) {
       case FRESH -> handleHandshake(message);
       case PREGAME -> handlePreGame(message);
@@ -32,12 +33,14 @@ public class MessageHandlerClient {
     }
   }
 
-  private void handleHandshake(String message) throws ImproperMessageException {
+  private void handleHandshake(String message)
+      throws ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.HELLO -> client.successfulConnection(messageArray[1]);
       case Protocol.ACCEPTED -> handleAccept(messageArray);
       case Protocol.REJECTED -> client.logInStatus(false, messageArray[1]);
+      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
       default -> throw new ImproperMessageException(message
           + ": Not appropriate at this moment");
     }
@@ -48,7 +51,8 @@ public class MessageHandlerClient {
     setPlayerState(PlayerState.PREGAME);
   }
 
-  private void handlePreGame(String message) throws ImproperMessageException {
+  private void handlePreGame(String message) throws ImproperMessageException,
+      ErrorReceivedException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
@@ -56,6 +60,7 @@ public class MessageHandlerClient {
         client.receiveInQueue();
         setPlayerState(PlayerState.IN_QUEUE);
       }
+      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
       default -> throw new ImproperMessageException(message
           + ": Not appropriate at this moment");
     }
@@ -66,7 +71,8 @@ public class MessageHandlerClient {
     return listOfPlayersWithCommand.subList(1, listOfPlayersWithCommand.size() - 1);
   }
 
-  private void handleInQueue(String message) throws ImproperMessageException {
+  private void handleInQueue(String message) throws ImproperMessageException,
+      ErrorReceivedException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
@@ -74,6 +80,7 @@ public class MessageHandlerClient {
         handleNewGame(messageArray);
         setPlayerState(PlayerState.IN_GAME);
       }
+      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
       default -> throw new ImproperMessageException(message
           + ": Not appropriate at this moment");
     }
@@ -98,12 +105,13 @@ public class MessageHandlerClient {
   }
 
   private void handleGame(String message) throws InvalidMoveException,
-      ImproperMessageException {
+      ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]){
       case Protocol.MOVE -> handleMove(messageArray);
       case Protocol.PASS -> handlePass(messageArray);
       case Protocol.GAME_OVER -> handleGameOver(messageArray);
+      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
       case Protocol.MAKE_MOVE -> {
         // Not used in this implementation. Just ignored.
       }
@@ -112,10 +120,12 @@ public class MessageHandlerClient {
     }
   }
 
-  private void handleGameOver(String[] messageArray) throws ImproperMessageException {
+  private void handleGameOver(String[] messageArray)
+      throws ImproperMessageException, ErrorReceivedException {
     switch(messageArray[1]){
       case Protocol.DRAW -> client.receiveDraw();
       case Protocol.WINNER -> client.receiveWinner(messageArray[2]);
+      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
       default -> throw new ImproperMessageException("Only DRAW or WINNER "
           + "are allowed as arguments to GAME OVER!");
     }

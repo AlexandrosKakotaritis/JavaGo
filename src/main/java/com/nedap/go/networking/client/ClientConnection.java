@@ -52,10 +52,11 @@ public class ClientConnection extends SocketConnection {
     protected void handleMessage(String message) {
       try {
         messageHandler.handleMessage(message);
-      } catch (ImproperMessageException e) {
+      } catch (ImproperMessageException | InvalidMoveException e) {
           sendError(e.getMessage());
-      }catch (InvalidMoveException e){
-          sendError(e.getMessage());
+          gameClient.printError(e.getMessage());
+      } catch (ErrorReceivedException e) {
+        gameClient.printError(e.getMessage());
       }
     }
 

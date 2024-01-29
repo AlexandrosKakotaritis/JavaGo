@@ -79,9 +79,9 @@ public class GameClientTUI implements ClientListener {
         printError(e.getMessage());
         client.sendError(e.getMessage());
       }
-      println(game.getGameEndMessage());
-      runGame();
     }
+    println(game.getGameEndMessage());
+    runGame();
   }
 
   private boolean matchMakingMenu() {
