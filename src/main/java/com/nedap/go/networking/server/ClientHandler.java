@@ -28,6 +28,7 @@ public class ClientHandler {
    */
   public void setServerConnection(ServerConnection serverConnection) {
     this.serverConnection = serverConnection;
+    username = this.toString();
   }
 
   public String getUsername() {
