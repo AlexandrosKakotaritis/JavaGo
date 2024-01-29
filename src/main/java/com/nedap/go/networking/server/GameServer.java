@@ -176,7 +176,7 @@ public class GameServer extends SocketServer {
       ServerConnection serverConnection = new ServerConnection(socket, clientHandler);
       clientHandler.setServerConnection(serverConnection);
       serverConnection.start();
-      Thread.sleep(500);
+      Thread.sleep(100);
       clientHandler.sayHello();
     } catch (IOException e) {
       System.out.println("Sorry! Could not connect.");

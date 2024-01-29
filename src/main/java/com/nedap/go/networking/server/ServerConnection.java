@@ -59,10 +59,11 @@ public class ServerConnection extends SocketConnection {
   @Override
   public void handleMessage(String message) {
     try {
+      System.out.println("FROM " + clientHandler.getUsername() + " : "
+          + message);
       messageHandler.handleMessage(message);
     } catch (ImproperMessageException e) {
-      System.out.println("Improper command skipped");
-      sendError("Improper command");
+      sendError(e.getMessage());
     }
   }
 
@@ -178,8 +179,8 @@ public class ServerConnection extends SocketConnection {
 
   public boolean sendMessage(String message){
     super.sendMessage(message);
-    System.out.println("TO: " + clientHandler.getUsername() + " --> "
-        +message);
+    System.out.println("TO " + clientHandler.getUsername() + " : "
+        + message);
     return true;
   }
 }
