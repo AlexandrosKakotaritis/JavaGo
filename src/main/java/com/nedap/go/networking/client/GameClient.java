@@ -109,4 +109,28 @@ public class GameClient {
         listOfListeners.forEach(listener
             -> listener.receivePass(color));
     }
+
+    public void receiveDraw() {
+        listOfListeners.forEach(listener
+            -> {
+          try {
+            listener.receiveDraw();
+          } catch (GameMismatchException e) {
+            sendError(e.getMessage());
+            printError(e.getMessage());
+          }
+        });
+    }
+
+    public void receiveWinner(String winner) {
+        listOfListeners.forEach(listener
+            -> {
+          try {
+            listener.receiveWinner(winner);
+          } catch (GameMismatchException e) {
+              sendError(e.getMessage());
+              printError(e.getMessage());
+          }
+        });
+    }
 }

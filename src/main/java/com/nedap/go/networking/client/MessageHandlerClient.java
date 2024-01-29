@@ -20,7 +20,7 @@ public class MessageHandlerClient {
   void setPlayerState(PlayerState playerState) {
     this.playerState = playerState;
   }
-
+//TODO ERROR MESSAGE HANDLING.
   void handleMessage(String message)
       throws ImproperMessageException, InvalidMoveException {
     switch (playerState) {
@@ -74,6 +74,8 @@ public class MessageHandlerClient {
         handleNewGame(messageArray);
         setPlayerState(PlayerState.IN_GAME);
       }
+      default -> throw new ImproperMessageException(message
+          + ": Not appropriate at this moment");
     }
   }
 
@@ -95,11 +97,27 @@ public class MessageHandlerClient {
     }
   }
 
-  private void handleGame(String message) throws InvalidMoveException {
+  private void handleGame(String message) throws InvalidMoveException,
+      ImproperMessageException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]){
       case Protocol.MOVE -> handleMove(messageArray);
       case Protocol.PASS -> handlePass(messageArray);
+      case Protocol.GAME_OVER -> handleGameOver(messageArray);
+      case Protocol.MAKE_MOVE -> {
+        // Not used in this implementation. Just ignored.
+      }
+      default -> throw new ImproperMessageException(message
+          + ": Not appropriate at this moment");
+    }
+  }
+
+  private void handleGameOver(String[] messageArray) throws ImproperMessageException {
+    switch(messageArray[1]){
+      case Protocol.DRAW -> client.receiveDraw();
+      case Protocol.WINNER -> client.receiveWinner(messageArray[2]);
+      default -> throw new ImproperMessageException("Only DRAW or WINNER "
+          + "are allowed as arguments to GAME OVER!");
     }
   }
 

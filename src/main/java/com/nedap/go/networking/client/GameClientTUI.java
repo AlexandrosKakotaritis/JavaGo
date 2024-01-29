@@ -6,6 +6,8 @@ import com.nedap.go.model.Player;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
+
+import com.nedap.go.tui.QuitGameException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -19,7 +21,6 @@ import java.util.Scanner;
  */
 public class GameClientTUI implements ClientListener {
 
-  private static final String QUIT = "quit";
   private final Scanner sc;
   private final PrintWriter output;
   private GameClient client;
@@ -30,7 +31,6 @@ public class GameClientTUI implements ClientListener {
   private boolean isGameStarted;
   private boolean isConnected;
   private ClientGameAdapter game;
-  private boolean isGameOver;
 
 
   public GameClientTUI(Reader input, PrintWriter output) {
@@ -48,18 +48,13 @@ public class GameClientTUI implements ClientListener {
     tui.run();
   }
 
-  public void initializeConnection() {
-    initializeClient(serverName, portNumber);
-    sendUsername();
+  public void runGame() {
     selectPlayerType();
-
     if (matchMakingMenu()) {
-
       play();
-
     }
-    client.close();
   }
+
 
   private synchronized void play() {
     while (!isGameStarted) {
@@ -70,12 +65,22 @@ public class GameClientTUI implements ClientListener {
       }
     }
     isGameStarted = false;
-    while(!isGameOver) {
+    while(!game.isGameOver()) {
       try {
-        game.play();
-      } catch (MoveMismatchException e) {
-        print(e.getMessage());
+        game.playMove();
+        println(game.displayState());
+      } catch (GameMismatchException e) {
+        printError(e.getMessage());
+        client.sendError(e.getMessage());
+      } catch (QuitGameException e) {
+        client.sendResign();
+        client.sendError("a test error");
+      } catch (InvalidMoveException e) {
+        printError(e.getMessage());
+        client.sendError(e.getMessage());
       }
+      println(game.getGameEndMessage());
+      runGame();
     }
   }
 
@@ -87,7 +92,7 @@ public class GameClientTUI implements ClientListener {
         """;
     println(matchmaking);
     switch (sc.nextInt()) {
-      case 1 -> startQueueing();
+      case 1 -> client.sendQueue();
       case 2 -> {
         return false;
       }
@@ -98,10 +103,6 @@ public class GameClientTUI implements ClientListener {
       }
     }
     return true;
-  }
-
-  private void startQueueing() {
-    client.sendQueue();
   }
 
   private void selectPlayerType() {
@@ -117,12 +118,17 @@ public class GameClientTUI implements ClientListener {
   private void run() {
     int choice = menu();
     switch (choice) {
-      case 1 -> initializeConnection();
+      case 1 -> {
+        initializeClient(serverName, portNumber);
+        sendUsername();
+        runGame();
+      }
       case 2 -> {
         getHelp();
+        //TODO: Why exception
         run();
       }
-      case 3 -> System.exit(0);
+      case 3 -> client.close();
       default -> {
         println("Not a valid choice");
         println("");
@@ -264,19 +270,6 @@ public class GameClientTUI implements ClientListener {
   }
 
   /**
-   * Print out the message
-   *
-   * @param sender  The username of the sender
-   * @param message The message
-   */
-  @Override
-  public void chatMessage(String sender, String message) {
-    if (!sender.equals(client.getUsername())) {
-      System.out.println(sender + ": " + message);
-    }
-  }
-
-  /**
    * Disconnect notification
    */
   @Override
@@ -356,7 +349,7 @@ public class GameClientTUI implements ClientListener {
    */
   @Override
   public void receiveMove(int moveIndex, String moveColor) {
-    game.moveReceived(moveIndex, moveColor);
+    game.receiveMove(moveIndex, moveColor);
   }
 
   /**
@@ -366,7 +359,25 @@ public class GameClientTUI implements ClientListener {
    */
   @Override
   public void receivePass(String color) {
-    game.passReceived(color);
+    game.receivePass(color);
+  }
+
+  /**
+   * Receive the game over with result draw.
+   */
+  @Override
+  public void receiveDraw() throws GameMismatchException {
+    game.receiveDraw();
+  }
+
+  /**
+   * Receive the game over with result winner.
+   *
+   * @param winner The name of the winner.
+   */
+  @Override
+  public void receiveWinner(String winner) throws GameMismatchException {
+    game.receiveWinner(winner);
   }
 
   private void println(Object o) {

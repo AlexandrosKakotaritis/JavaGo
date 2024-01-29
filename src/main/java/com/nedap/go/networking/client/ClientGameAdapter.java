@@ -20,9 +20,11 @@ public class ClientGameAdapter {
   private boolean isMoveReceived;
   private GoGame game;
   private GoMove serverMove;
-  private Player myPlayer;
+  private  Player myPlayer;
   private Player otherPlayer;
-  private GameClient client;
+  private final GameClient client;
+  private boolean isGameover;
+  private String gameEndingMessage;
 
   public ClientGameAdapter(String player1Name, String player2Name, int boardDim,
       GameClient client)
@@ -58,7 +60,8 @@ public class ClientGameAdapter {
     }
   }
 
-  public synchronized void play() throws MoveMismatchException {
+  public synchronized void playMove()
+      throws GameMismatchException, QuitGameException, InvalidMoveException {
     GoMove myMove = null;
     if (isMyMove()) {
       myMove = myMove();
@@ -72,14 +75,13 @@ public class ClientGameAdapter {
       }
     }
     if(isMyMove() && !myMove.equals(serverMove)){
-      throw new MoveMismatchException("Server move not matching client's move");
+      throw new GameMismatchException("Server move not matching client's move");
     }
-    try {
-      game.doMove(serverMove);
-    } catch (InvalidMoveException e) {
-      client.sendError(e.getMessage());
-      client.printError(e.getMessage());
-    }
+    doMove();
+  }
+
+  private void doMove() throws InvalidMoveException {
+    game.doMove(serverMove);
     isMoveReceived = false;
   }
 
@@ -87,24 +89,22 @@ public class ClientGameAdapter {
     return game.getTurn().equals(myPlayer);
   }
 
-  private GoMove myMove() {
-    GoMove myMove = null;
-    try {
-      myMove = (GoMove) ((AbstractPlayer) myPlayer).determineMove(game);
-    } catch (QuitGameException e) {
-      client.sendResign();
-    }
+  private GoMove myMove() throws QuitGameException {
+    GoMove myMove;
+
+    myMove = (GoMove) ((AbstractPlayer) myPlayer).determineMove(game);
+
     return myMove;
   }
 
-  public synchronized void moveReceived(int moveIndex, String moveColor){
+  public synchronized void receiveMove(int moveIndex, String moveColor){
     Player player = getPlayerFromColor(moveColor);
     serverMove = new GoMove(player, moveIndex);
     isMoveReceived = true;
     notifyAll();
   }
 
-  public synchronized void passReceived(String color) {
+  public synchronized void receivePass(String color) {
     Player player = getPlayerFromColor(color);
     serverMove = new GoMove(player);
     isMoveReceived = true;
@@ -113,8 +113,57 @@ public class ClientGameAdapter {
 
   private Player getPlayerFromColor(String moveColor) {
     Stone stone = moveColor.equals(Protocol.BLACK)? Stone.BLACK: Stone.WHITE;
-    Player player = myPlayer.getStone().equals(stone)?
+    return myPlayer.getStone().equals(stone)?
         myPlayer: otherPlayer;
-    return player;
+  }
+
+  private Player getPlayerFromName(String name) {
+    return ((AbstractPlayer) myPlayer).getName().equals(name)?
+        myPlayer: otherPlayer;
+  }
+
+  public void receiveDraw() throws GameMismatchException {
+    if (game.isGameover() && game.getWinner() == null){
+      isGameover = true;
+      gameEndingMessage = "It is a draw";
+    } else if(isGameover && game.getWinner() != null) {
+      throw new GameMismatchException("Server decides DRAW "
+          + "while client decides WINNER: " + game.getWinner());
+    } else{
+      throw new GameMismatchException("Game ended for server and not "
+          + "for client");
+    }
+  }
+
+  public void receiveWinner(String winner) throws GameMismatchException {
+    if (game.isGameover()
+        && game.getWinner().equals(getPlayerFromName(winner))){
+      gameEndingMessage = game.getWinner().equals(myPlayer)
+          ? "You win!": "You lose!";
+      isGameover = true;
+    } else if (game.isGameover()
+        && !game.getWinner().equals(getPlayerFromName(winner))) {
+      throw new GameMismatchException("Server decides WINNER: "
+          + game.getWinner() + "while client decides WINNER: "
+          + game.getWinner());
+    } else if (!game.isGameover() && myPlayer
+        .equals(getPlayerFromName(winner))) {
+      gameEndingMessage = "You win, opponent forfeited!";
+    } else{
+      throw new GameMismatchException("Game ended for server and not "
+          + "for client");
+    }
+  }
+
+  public boolean isGameOver() {
+    return isGameover;
+  }
+
+  public String displayState() {
+    return game.toString();
+  }
+
+  public String getGameEndMessage() {
+    return gameEndingMessage;
   }
 }
