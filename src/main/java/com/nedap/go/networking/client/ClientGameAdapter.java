@@ -122,7 +122,7 @@ public class ClientGameAdapter {
         myPlayer: otherPlayer;
   }
 
-  public void receiveDraw() throws GameMismatchException {
+  public synchronized void receiveDraw() throws GameMismatchException {
     if (game.isGameover() && game.getWinner() == null){
       isGameover = true;
       gameEndingMessage = "It is a draw";

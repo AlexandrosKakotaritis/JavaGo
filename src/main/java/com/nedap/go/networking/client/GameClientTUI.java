@@ -54,6 +54,8 @@ public class GameClientTUI implements ClientListener {
       play();
     }
     println(game.getGameEndMessage());
+    println(game.displayState());
+    sc.nextLine();
     runGame();
   }
 
@@ -108,6 +110,7 @@ public class GameClientTUI implements ClientListener {
             -N for Naive AI player.\s
         """;
     println(selectPlayerText);
+    print("-->");
     String playerType = sc.nextLine();
     client.setPlayerType(playerType);
   }
