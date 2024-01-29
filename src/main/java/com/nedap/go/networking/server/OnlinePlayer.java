@@ -21,4 +21,9 @@ public class OnlinePlayer implements Player {
     public String getName(){
         return name;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
