@@ -32,7 +32,6 @@ public class MessageHandlerServer {
     this.playerState = playerState;
   }
 
-  //TODO ERROR MESSAGE HANDLING.
   void handleMessage(String message) throws ImproperMessageException {
     switch (playerState) {
       case FRESH -> handleInitialization(message);

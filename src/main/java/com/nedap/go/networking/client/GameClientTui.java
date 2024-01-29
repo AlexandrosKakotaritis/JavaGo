@@ -6,7 +6,6 @@ import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.server.OnlinePlayer;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
-
 import com.nedap.go.tui.QuitGameException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,9 +16,9 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * The class of the TUI used for the chat application
+ * The class of the TUI used for the chat application.
  */
-public class GameClientTUI implements ClientListener {
+public class GameClientTui implements ClientListener {
 
   private final Scanner sc;
   private final PrintWriter output;
@@ -33,21 +32,24 @@ public class GameClientTUI implements ClientListener {
   private ClientGameAdapter game;
 
 
-  public GameClientTUI(Reader input, PrintWriter output) {
+  public GameClientTui(Reader input, PrintWriter output) {
     this.output = output;
     sc = new Scanner(input);
   }
 
-  public GameClientTUI() {
+  public GameClientTui() {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
     isSystemOut = true;
   }
 
   public static void main(String[] args) {
-    GameClientTUI tui = new GameClientTUI();
+    GameClientTui tui = new GameClientTui();
     tui.run();
   }
 
+  /**
+   * Runs the Matchmaking and the game instance.
+   */
   public void runGame() {
     selectPlayerType();
     matchMakingMenu();
@@ -67,7 +69,7 @@ public class GameClientTUI implements ClientListener {
       }
     }
     isGameStarted = false;
-    while(!game.isGameOver()) {
+    while (!game.isGameOver()) {
       try {
         game.playMove();
         println(game.displayState());
@@ -80,14 +82,33 @@ public class GameClientTUI implements ClientListener {
     }
   }
 
-  private boolean matchMakingMenu() {
+  private void exit() {
+    println("Goodbye!");
+    System.exit(0);
+  }
+
+  private void menu() {
+    String menu = """
+        Welcome to JavaGO!\s
+               Main Menu\s
+            1. Play Game\s
+            2. Help\s
+            3. Quit\s
+        """;
+    println(menu);
+    if (isSystemOut) {
+      print("-->");
+    }
+  }
+
+  private void matchMakingMenu() {
     String matchmaking = """
         Get ready for a Game:\s
                 1. Find a Game.\s
                 2. Quit.\s
         """;
     println(matchmaking);
-    switch (sc.nextInt()) {
+    switch (getIntMenuChoice()) {
       case 1 -> client.sendQueue();
       case 2 -> {
         client.close();
@@ -99,32 +120,26 @@ public class GameClientTUI implements ClientListener {
         matchMakingMenu();
       }
     }
-    return true;
-  }
-
-  private void exit() {
-    println("Goodbye!");
-    System.exit(0);
   }
 
   private void selectPlayerType() {
     String selectPlayerText = """
         Select your player type:\s
-            -H for human player via the TUI.\s
-            -N for Naive AI player.\s
+            1. for human player via the TUI.\s
+            2. for Naive AI player.\s
         """;
     println(selectPlayerText);
     print("-->");
     String playerType;
-    if((playerType = sc.nextLine()).isEmpty()){
+    if ((playerType = sc.nextLine()).isEmpty()) {
       playerType = sc.nextLine();
     }
     client.setPlayerType(playerType);
   }
 
   private void run() {
-    int choice = menu();
-    switch (choice) {
+    menu();
+    switch (getIntMenuChoice()) {
       case 1 -> {
         initializeClient(serverName, portNumber);
         sendUsername();
@@ -132,7 +147,6 @@ public class GameClientTUI implements ClientListener {
       }
       case 2 -> {
         getHelp();
-        //TODO: Why exception
         run();
       }
       case 3 -> exit();
@@ -142,6 +156,16 @@ public class GameClientTUI implements ClientListener {
         run();
       }
     }
+  }
+
+  private int getIntMenuChoice() {
+    int choice;
+    try {
+      choice = Integer.parseInt(sc.nextLine());
+    } catch (NumberFormatException e) {
+      choice = 10;
+    }
+    return choice;
   }
 
   private void getHelp() {
@@ -179,26 +203,11 @@ public class GameClientTUI implements ClientListener {
     println("");
   }
 
-  private int menu() {
-    String menu = """
-        Welcome to JavaGO!\s
-               Main Menu\s
-            1. Play Game\s
-            2. Help\s
-            3. Quit\s
-        """;
-    println(menu);
-    if (isSystemOut) {
-      print("-->");
-    }
-    return Integer.parseInt(sc.nextLine());
-  }
-
   /**
    * username is assigned by the user and communicated to the server.
    */
   private synchronized void sendUsername() {
-    while(!isConnected){
+    while (!isConnected) {
       try {
         this.wait();
       } catch (InterruptedException e) {
@@ -224,8 +233,7 @@ public class GameClientTUI implements ClientListener {
       println("Your new username is: " + username);
       isLogIn = true;
     } else {
-      println("Username: " + username
-          + " already exists. Choose a new one.");
+      println("Username: " + username + " already exists. Choose a new one.");
       sendUsername();
     }
   }
@@ -234,13 +242,11 @@ public class GameClientTUI implements ClientListener {
    * Initialise the client - server connection.
    */
   private void initializeClient(String serverName, int portNumber) {
-
     try {
       client = new GameClient(InetAddress.getByName(serverName), portNumber);
       client.addListener(this);
     } catch (IOException e) {
-      println("Could not find host " + serverName
-          + " @ port: " + portNumber);
+      println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();
     }
   }
@@ -258,8 +264,7 @@ public class GameClientTUI implements ClientListener {
       client = new GameClient(InetAddress.getByName(serverName), portNumber);
       client.addListener(this);
     } catch (IOException e) {
-      println("Could not find host " + serverName
-          + " @ port: " + portNumber);
+      println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();
     }
   }
@@ -277,7 +282,7 @@ public class GameClientTUI implements ClientListener {
   }
 
   /**
-   * Disconnect notification
+   * Disconnect notification.
    */
   @Override
   public synchronized void connectionLost() {
@@ -327,19 +332,16 @@ public class GameClientTUI implements ClientListener {
    * @param boardDim    The dimension of the board.
    */
   @Override
-  public synchronized void newGame(String player1Name,
-      String player2Name, int boardDim) {
+  public synchronized void newGame(String player1Name, String player2Name, int boardDim) {
     try {
-      game = new ClientGameAdapter(player1Name, player2Name,
-          boardDim, client);
+      game = new ClientGameAdapter(player1Name, player2Name, boardDim, client);
     } catch (PlayerNotFoundException e) {
       client.sendError(e.getMessage());
       print(e.getMessage());
     }
     isGameStarted = true;
-    println("New game between " + player1Name + " "
-        + Stone.BLACK + " - " + Stone.WHITE + " " + player2Name
-        + " in a " + boardDim + "x" + boardDim + " board!");
+    println("New game between " + player1Name + " " + Stone.BLACK + " - " + Stone.WHITE + " "
+        + player2Name + " in a " + boardDim + "x" + boardDim + " board!");
     notifyAll();
   }
 
@@ -360,7 +362,7 @@ public class GameClientTUI implements ClientListener {
   }
 
   /**
-   * Receive a pass
+   * Receive a pass.
    *
    * @param color The color of the player passing
    */

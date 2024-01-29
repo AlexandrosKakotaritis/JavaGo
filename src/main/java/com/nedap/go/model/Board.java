@@ -244,7 +244,7 @@ public class Board {
     int areaScore = 0;
     List<List<Integer>> listOfEmptyChains = getStoneChains(Stone.EMPTY);
     if(listOfEmptyChains.size() == 1
-        && listOfEmptyChains.get(0).size() == dim * dim){
+        && listOfEmptyChains.getFirst().size() == dim * dim){
       return 0;
     }
     for (List<Integer> listOfEmpty : getStoneChains(Stone.EMPTY)) {
