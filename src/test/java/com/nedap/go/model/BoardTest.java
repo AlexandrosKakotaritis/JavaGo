@@ -94,6 +94,14 @@ public class BoardTest {
   }
 
   @Test
+  public void testScoreSimple(){
+    board.setField(0, Stone.BLACK);
+    board.setField(1,Stone.WHITE);
+    System.out.println(board);
+    assertEquals(1, board.getScore(Stone.BLACK));
+    assertEquals(1, board.getScore(Stone.WHITE));
+  }
+  @Test
   public void testScore() {
     board.setField(10, Stone.BLACK);
     System.out.println(board);

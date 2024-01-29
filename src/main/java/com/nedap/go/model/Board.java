@@ -259,7 +259,7 @@ public class Board {
     List<Integer> borders = getAreaBorder(chain);
     Stone owner = fields[borders.getFirst()];
     if (borders.size() > 1) {
-      for (Integer index : borders.subList(1, borders.size() - 1)) {
+      for (Integer index : borders.subList(1, borders.size())) {
         if (fields[index] != owner) {
           owner = Stone.EMPTY;
           break;
