@@ -1,6 +1,5 @@
 package com.nedap.go.networking.server;
 
-import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.protocol.Protocol;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
 import com.nedap.go.networking.server.utils.PlayerState;

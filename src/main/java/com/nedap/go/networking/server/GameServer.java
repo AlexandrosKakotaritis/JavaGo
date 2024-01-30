@@ -29,8 +29,6 @@ public class GameServer extends SocketServer {
   private final List<ClientHandler> listOfClients;
   private final Queue<ClientHandler> inQueueClients;
   private final List<ServerGameAdapter> listOfGames;
-  private long startTime;
-  private long timeLimit;
 
   /**
    * Constructs a new GameServer.
@@ -230,9 +228,7 @@ public class GameServer extends SocketServer {
       ServerGameAdapter game = findGame(clientHandler);
       GoMove move = game.newMove(row, col, clientHandler);
       sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
-      startTime = currentTimeMillis();
       sendTurn(game.getOtherClient(clientHandler));
-
     } catch (InvalidMoveException | GameNotFoundException e) {
       sendError(clientHandler, e.getMessage());
       sendTurn(clientHandler);

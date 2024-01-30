@@ -70,7 +70,7 @@ public class ClientGameAdapter {
         throw new RuntimeException(e);
       }
     }
-    if (isMyMove() && !myMove.equals(serverMove)) {
+    if (isMyMove() && myMove != null  && !myMove.equals(serverMove)) {
       throw new GameMismatchException("Server move not matching client's move");
     }
     doMove();

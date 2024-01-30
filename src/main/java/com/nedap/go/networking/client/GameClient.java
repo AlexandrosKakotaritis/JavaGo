@@ -134,8 +134,4 @@ public class GameClient {
       }
     });
   }
-
-  public void sendHello() {
-    clientConnection.sendHello();
-  }
 }

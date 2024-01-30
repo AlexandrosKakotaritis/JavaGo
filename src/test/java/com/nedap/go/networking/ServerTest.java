@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 public class ServerTest {
     private GameServer server;
-    private long time = currentTimeMillis();
     @BeforeEach
     void setUp() throws IOException {
 

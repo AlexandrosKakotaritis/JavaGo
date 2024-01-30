@@ -27,7 +27,6 @@ public class GameClientTui implements ClientListener {
   private String serverName = "127.0.0.1";
   private int portNumber = 8080;
   private boolean isLogIn;
-  private boolean isSystemOut;
   private boolean isGameStarted;
   private boolean isConnected;
   private boolean hasResigned;
@@ -41,7 +40,6 @@ public class GameClientTui implements ClientListener {
 
   public GameClientTui() {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
-    isSystemOut = true;
   }
 
   public static void main(String[] args) {

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GoGuiClient implements ClientListener {
 
-  private GoGuiIntegrator gogui;
+  private final GoGuiIntegrator gogui;
   private GoGame game;
   private Player player1;
   private Player player2;
