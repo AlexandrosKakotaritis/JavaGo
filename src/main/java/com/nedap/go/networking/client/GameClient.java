@@ -17,13 +17,12 @@ public class GameClient {
   private int playerType;
 
   /**
-   * While constructed constructs a new connection to the specified address\
-   * and port.
+   * While constructed constructs a new connection to the specified address\ and port.
    *
    * @param address The address to connect to.
-   * @param port The port to connect to.
-   * @throws IOException if there is an I/O exception while
-   *      initializing the Reader/Writer objects of the socket.
+   * @param port    The port to connect to.
+   * @throws IOException if there is an I/O exception while initializing the Reader/Writer objects
+   *                     of the socket.
    */
   public GameClient(InetAddress address, int port) throws IOException {
     clientConnection = new ClientConnection(address, port);
@@ -111,8 +110,7 @@ public class GameClient {
   }
 
   /**
-   * Receive a draw and handle when server and client state
-   * of the game do not agree on the draw.
+   * Receive a draw and handle when server and client state of the game do not agree on the draw.
    */
   public void receiveDraw() {
     listOfListeners.forEach(listener -> {
@@ -125,8 +123,7 @@ public class GameClient {
   }
 
   /**
-   * Receive a winner and handle when server and client state
-   * of the game do not agree on the draw.
+   * Receive a winner and handle when server and client state of the game do not agree on the draw.
    */
   public void receiveWinner(String winner) {
     listOfListeners.forEach(listener -> {

@@ -24,9 +24,6 @@ public class GameClientTui implements ClientListener {
   private final Scanner sc;
   private final PrintWriter output;
   private GameClient client;
-//  private String serverName = "145.126.78.149"; //Renske
-//  private String serverName = "145.126.10.26"; //Kasper
-//private String serverName = "145.126.84.96"; //Niels
   private String serverName = "127.0.0.1";
   private int portNumber = 8080;
   private boolean isLogIn;
@@ -82,8 +79,8 @@ public class GameClientTui implements ClientListener {
       }
     }
     while (!game.isGameOver()) {
-        println(game.displayState());
-        game.playMove();
+      println(game.displayState());
+      game.playMove();
     }
   }
 
@@ -91,8 +88,6 @@ public class GameClientTui implements ClientListener {
     client.sendResign();
     hasResigned = true;
     println("You resigned!");
-//    game = null;
-//    runGame();
   }
 
   private void exit() {
@@ -277,12 +272,10 @@ public class GameClientTui implements ClientListener {
     portNumber = sc.nextInt();
     sc.nextLine();
     try {
-      client = new GameClient(InetAddress
-          .getByName(serverName), portNumber);
+      client = new GameClient(InetAddress.getByName(serverName), portNumber);
       client.addListener(this);
     } catch (IOException e) {
-      println("Could not find host " + serverName + " @ port: "
-          + portNumber);
+      println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();
     }
   }
@@ -402,7 +395,7 @@ public class GameClientTui implements ClientListener {
    */
   @Override
   public void receiveWinner(String winner) throws GameMismatchException {
-    if(!hasResigned){
+    if (!hasResigned) {
       game.receiveWinner(winner);
     }
   }

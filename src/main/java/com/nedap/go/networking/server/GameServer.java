@@ -213,7 +213,7 @@ public class GameServer extends SocketServer {
     } catch (InvalidMoveException | GameNotFoundException e) {
       sendError(clientHandler, e.getMessage());
       sendTurn(clientHandler);
-    } catch (NotYourTurnException e){
+    } catch (NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }
@@ -236,7 +236,7 @@ public class GameServer extends SocketServer {
     } catch (InvalidMoveException | GameNotFoundException e) {
       sendError(clientHandler, e.getMessage());
       sendTurn(clientHandler);
-    } catch (NotYourTurnException e){
+    } catch (NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }
@@ -259,7 +259,7 @@ public class GameServer extends SocketServer {
     } catch (InvalidMoveException | GameNotFoundException e) {
       sendError(clientHandler, e.getMessage());
       sendTurn(clientHandler);
-    } catch (NotYourTurnException e){
+    } catch (NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }

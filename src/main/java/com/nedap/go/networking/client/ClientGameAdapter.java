@@ -77,7 +77,7 @@ public class ClientGameAdapter {
   }
 
   private void doMove() throws InvalidMoveException {
-    if(!isGameover) {
+    if (!isGameover) {
       game.doMove(serverMove);
     }
     isMoveReceived = false;

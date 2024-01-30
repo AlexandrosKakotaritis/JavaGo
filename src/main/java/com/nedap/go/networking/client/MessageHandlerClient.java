@@ -44,9 +44,9 @@ public class MessageHandlerClient {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
       case Protocol.HELLO -> {
-        if(messageArray.length > 1){
+        if (messageArray.length > 1) {
           client.successfulConnection(messageArray[1]);
-        } else{
+        } else {
           client.successfulConnection("No message");
         }
       }
@@ -115,7 +115,6 @@ public class MessageHandlerClient {
   }
 
 
-
   private void handleNewGame(String[] messageArray) throws ImproperMessageException {
     if (messageArray.length == 3) {
       String[] players = messageArray[1].split(",");
@@ -131,7 +130,6 @@ public class MessageHandlerClient {
       throw new ImproperMessageException(messageArray[0] + ": Needs 3 arguments");
     }
   }
-
 
 
   private void handleGameOver(String[] messageArray)

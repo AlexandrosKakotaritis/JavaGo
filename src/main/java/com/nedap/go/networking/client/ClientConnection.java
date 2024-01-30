@@ -59,7 +59,6 @@ public class ClientConnection extends SocketConnection {
     try {
       messageHandler.handleMessage(message);
     } catch (ImproperMessageException | InvalidMoveException e) {
-//      sendError(e.getMessage());
       gameClient.printError(message);
     } catch (ErrorReceivedException e) {
       gameClient.printError(e.getMessage());
