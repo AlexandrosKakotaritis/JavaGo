@@ -106,8 +106,8 @@ public class ClientHandler {
     serverConnection.sendQueued();
   }
 
-  public void sendTurn(String name) {
-    serverConnection.sendTurn(name);
+  public void sendTurn() {
+    serverConnection.sendTurn();
   }
 
   public void sendDraw() {

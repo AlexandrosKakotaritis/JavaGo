@@ -129,6 +129,7 @@ public class ServerGameAdapter {
    */
   public void endGame() {
     OnlinePlayer winner = (OnlinePlayer) game.getWinner();
+    System.out.println(game);
     if (winner == null) {
       server.sendDraw(this);
     } else {
@@ -157,4 +158,7 @@ public class ServerGameAdapter {
         .equals(clientHandler.getUsername());
   }
 
+  public ClientHandler getOtherClient(ClientHandler clientHandler) {
+    return clientHandler.equals(client1)? client2: client1;
+  }
 }

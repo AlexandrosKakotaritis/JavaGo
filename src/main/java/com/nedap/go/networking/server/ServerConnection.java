@@ -142,10 +142,11 @@ public class ServerConnection extends SocketConnection {
 
   public void sendQueued() {
     sendMessage(Protocol.QUEUED);
+    messageHandler.setPlayerState(PlayerState.IN_QUEUE);
   }
 
-  public void sendTurn(String name) {
-    sendMessage(Protocol.MAKE_MOVE + Protocol.SEPARATOR + name);
+  public void sendTurn() {
+    sendMessage(Protocol.MAKE_MOVE);
   }
 
   /**

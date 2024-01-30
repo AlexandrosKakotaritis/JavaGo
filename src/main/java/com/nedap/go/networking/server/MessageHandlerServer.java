@@ -1,5 +1,6 @@
 package com.nedap.go.networking.server;
 
+import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.protocol.Protocol;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
 import com.nedap.go.networking.server.utils.PlayerState;
@@ -48,6 +49,7 @@ public class MessageHandlerServer {
       clientHandler.listReceived();
     } else if (messageArray[0].equals(Protocol.QUEUE)) {
       clientHandler.deQueueReceived();
+      setPlayerState(PlayerState.PREGAME);
     } else{
       throw new ImproperMessageException(message);
     }
@@ -64,15 +66,21 @@ public class MessageHandlerServer {
       }
   }
 
-  private void handleMove(String s) {
-    String[] moveSplits = s.split(Protocol.ROW_COL_SEPARATOR);
-    if (moveSplits.length > 1) {
-      int column = Integer.parseInt(moveSplits[0]);
-      int row = Integer.parseInt(moveSplits[1]);
-      clientHandler.receiveMove(row, column);
-    } else {
-      int index = Integer.parseInt(moveSplits[0]);
-      clientHandler.receiveMove(index);
+  private void handleMove(String message) {
+    String[] moveSplits = message.split(Protocol.ROW_COL_SEPARATOR);
+    try{
+      if (moveSplits.length > 1) {
+        int column = Integer.parseInt(moveSplits[0]);
+        int row = Integer.parseInt(moveSplits[1]);
+        clientHandler.receiveMove(row, column);
+      } else {
+        int index = Integer.parseInt(moveSplits[0]);
+        clientHandler.receiveMove(index);
+      }
+    }catch (NumberFormatException e){
+      //just send and invalid move
+      clientHandler.receiveMove(10000000);
+
     }
   }
 
