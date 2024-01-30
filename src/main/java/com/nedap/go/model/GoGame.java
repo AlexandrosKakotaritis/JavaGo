@@ -181,11 +181,10 @@ public class GoGame implements Game {
     if (isValidMove(move)) {
       GoMove goMove = moveConversion(move);
       if (!goMove.isPass()) {
-        Board previousBoard = board.deepCopy();
         board.setField(goMove.getIndex(), goMove.getPlayer().getStone());
-        if (checkCaptures(goMove.getPlayer().getStone())) {
-          possibleKoBoards.add(previousBoard);
-        }
+        checkCaptures(goMove.getPlayer().getStone());
+        Board previousBoard = board.deepCopy();
+        possibleKoBoards.add(previousBoard);
       }
       recordLastMove(goMove);
       isPlayer1Turn = !isPlayer1Turn;

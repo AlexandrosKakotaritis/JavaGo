@@ -174,6 +174,18 @@ public class GameTest {
   }
 
   @Test
+  public void testSingleSuicideKoRule() throws InvalidMoveException {
+    int[] white = new int[]{30, 38, 40, 48};
+    for (int i = 0; i < white.length; i++) {
+      game.doMove(new GoMove(player1));
+      game.doMove(new GoMove(player2, white[i]));
+    }
+    System.out.println(game);
+    GoMove move = new GoMove(player1, 39);
+    assertFalse(game.isValidMove(move));
+    assertThrows(InvalidMoveException.class, () -> game.doMove(move));
+  }
+  @Test
   public void testKoRule() throws InvalidMoveException {
     int[] black = new int[]{29, 37, 47, 39};
     int[] white = new int[]{30, 40, 48, 38};
@@ -194,6 +206,7 @@ public class GameTest {
 
     for (int i = 0; i < black.length - 1; i++) {
       game.doMove(new GoMove(player1, black[i]));
+      System.out.println(game);
       game.doMove(new GoMove(player2, white[i]));
     }
     game.doMove(new GoMove(player1, black[black.length - 1]));
