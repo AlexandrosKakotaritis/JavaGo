@@ -42,6 +42,7 @@ public class MessageHandlerClient {
   private void handleHandshake(String message)
       throws ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
       case Protocol.HELLO -> {
         if (messageArray.length > 1) {
@@ -60,6 +61,7 @@ public class MessageHandlerClient {
   private void handlePreGame(String message)
       throws ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
       case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
       case Protocol.QUEUED -> {
@@ -91,6 +93,7 @@ public class MessageHandlerClient {
   private void handleGame(String message)
       throws InvalidMoveException, ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
       case Protocol.MOVE -> handleMove(messageArray);
       case Protocol.PASS -> handlePass(messageArray);
@@ -134,6 +137,7 @@ public class MessageHandlerClient {
 
   private void handleGameOver(String[] messageArray)
       throws ImproperMessageException, ErrorReceivedException {
+    messageArray[1] = messageArray[1].toUpperCase();
     switch (messageArray[1]) {
       case Protocol.DRAW -> client.receiveDraw();
       case Protocol.WINNER -> client.receiveWinner(messageArray[2]);

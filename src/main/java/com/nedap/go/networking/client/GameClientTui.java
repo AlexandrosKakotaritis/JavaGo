@@ -24,7 +24,7 @@ public class GameClientTui implements ClientListener {
   private final Scanner sc;
   private final PrintWriter output;
   private GameClient client;
-  private String serverName = "127.0.0.1";
+  private String serverName = "145.126.84.96";
   private int portNumber = 8080;
   private boolean isLogIn;
   private boolean isGameStarted;

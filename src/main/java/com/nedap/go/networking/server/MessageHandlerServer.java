@@ -44,6 +44,7 @@ public class MessageHandlerServer {
 
   private void handleInQueue(String message) throws ImproperMessageException {
     String[] messageArray = message.split(Protocol.SEPARATOR);
+    messageArray[0] = messageArray[0].toUpperCase();
     if(messageArray[0].equals(Protocol.LIST)){
       clientHandler.listReceived();
     } else if (messageArray[0].equals(Protocol.QUEUE)) {
@@ -56,6 +57,7 @@ public class MessageHandlerServer {
 
   private void handleGame(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
       switch (messageArray[0]) {
         case Protocol.MOVE -> handleMove(messageArray[1]);
         case Protocol.PASS -> clientHandler.receivePass();
@@ -85,6 +87,7 @@ public class MessageHandlerServer {
 
   private void handlePreGame(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
       switch (messageArray[0]) {
         case Protocol.LIST -> clientHandler.listReceived();
         case Protocol.QUEUE -> clientHandler.queueReceived();
@@ -97,6 +100,7 @@ public class MessageHandlerServer {
 
   private void handleInitialization(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
       switch (messageArray[0]){
         case Protocol.LOGIN -> clientHandler.receiveLogin(messageArray[1]);
         case Protocol.ERROR -> {}
