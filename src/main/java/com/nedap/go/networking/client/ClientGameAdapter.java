@@ -26,6 +26,8 @@ public class ClientGameAdapter {
   private boolean isGameover;
   private String gameEndingMessage;
 
+  private long moveTimer = 10000;
+
   public ClientGameAdapter(String player1Name, String player2Name, int boardDim, GameClient client)
       throws PlayerNotFoundException {
     this.client = client;
@@ -84,14 +86,12 @@ public class ClientGameAdapter {
   }
 
   private boolean isMyMove() {
-    return game.getTurn().equals(myPlayer) && !game.isGameover();
+    return game.getTurn().equals(myPlayer) && !isGameover;
   }
 
   private GoMove myMove() throws QuitGameException {
     GoMove myMove;
-
     myMove = (GoMove) ((AbstractPlayer) myPlayer).determineMove(game);
-
     return myMove;
   }
 
@@ -143,7 +143,8 @@ public class ClientGameAdapter {
       gameEndingMessage = "You win, opponent forfeited!";
       isGameover = true;
     } else {
-      throw new GameMismatchException("Game ended for server and not for client");
+      gameEndingMessage = "You forfeited";
+      isGameover = true;
     }
     notifyAll();
   }
