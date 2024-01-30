@@ -63,21 +63,23 @@ public class ClientGameAdapter {
       myMove = myMove();
       client.sendMove(myMove);
     }
-    while (!isMoveReceived && !game.isGameover()) {
+    while (!isMoveReceived && !isGameover) {
       try {
         this.wait();
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
     }
-    if (isMyMove() && !myMove.equals(serverMove)) {
+    if (isMyMove() && myMove != null  && !myMove.equals(serverMove)) {
       throw new GameMismatchException("Server move not matching client's move");
     }
     doMove();
   }
 
   private void doMove() throws InvalidMoveException {
-    game.doMove(serverMove);
+    if (!isGameover) {
+      game.doMove(serverMove);
+    }
     isMoveReceived = false;
   }
 
@@ -139,6 +141,7 @@ public class ClientGameAdapter {
               + game.getWinner());
     } else if (isMyPlayerAndGameNotOver(winner)) {
       gameEndingMessage = "You win, opponent forfeited!";
+      isGameover = true;
     } else {
       throw new GameMismatchException("Game ended for server and not for client");
     }

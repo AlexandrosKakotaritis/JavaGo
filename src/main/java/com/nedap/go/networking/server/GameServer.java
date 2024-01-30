@@ -1,6 +1,8 @@
 package com.nedap.go.networking.server;
 
 
+import static java.lang.System.currentTimeMillis;
+
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
@@ -129,14 +131,13 @@ public class GameServer extends SocketServer {
    */
   public synchronized void removeClient(ClientHandler clientHandler) {
     listOfClients.remove(clientHandler);
-    if (clientHandler.getPlayerState() == PlayerState.IN_QUEUE) {
-      inQueueClients.remove(clientHandler);
-    }
+    inQueueClients.remove(clientHandler);
     ServerGameAdapter gameToEnd;
     if (clientHandler.getPlayerState() == PlayerState.IN_GAME) {
       try {
         gameToEnd = findGame(clientHandler);
         sendWinner(gameToEnd, gameToEnd.getOtherPlayer(clientHandler));
+        listOfGames.remove(gameToEnd);
       } catch (GameNotFoundException e) {
         System.out.println(e.getMessage());
       }
@@ -171,11 +172,12 @@ public class GameServer extends SocketServer {
   @Override
   protected void handleConnection(Socket socket) {
     try {
-      System.out.println("New connection");
+
       ClientHandler clientHandler = new ClientHandler(this);
       ServerConnection serverConnection = new ServerConnection(socket, clientHandler);
       clientHandler.setServerConnection(serverConnection);
       serverConnection.start();
+      System.out.println("New connection");
       Thread.sleep(100);
       clientHandler.sayHello();
     } catch (IOException e) {
@@ -205,8 +207,11 @@ public class GameServer extends SocketServer {
       ServerGameAdapter game = findGame(clientHandler);
       GoMove move = game.newMove(moveIndex, clientHandler);
       sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
-      sendTurn(game.getClients(), game.getTurn());
-    } catch (InvalidMoveException | GameNotFoundException | NotYourTurnException e) {
+      sendTurn(game.getOtherClient(clientHandler));
+    } catch (InvalidMoveException | GameNotFoundException e) {
+      sendError(clientHandler, e.getMessage());
+      sendTurn(clientHandler);
+    } catch (NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }
@@ -223,8 +228,11 @@ public class GameServer extends SocketServer {
       ServerGameAdapter game = findGame(clientHandler);
       GoMove move = game.newMove(row, col, clientHandler);
       sendMove(game.getClients(), move.getIndex(), move.getPlayer().getStone());
-      sendTurn(game.getClients(), game.getTurn());
-    } catch (InvalidMoveException | NotYourTurnException | GameNotFoundException e) {
+      sendTurn(game.getOtherClient(clientHandler));
+    } catch (InvalidMoveException | GameNotFoundException e) {
+      sendError(clientHandler, e.getMessage());
+      sendTurn(clientHandler);
+    } catch (NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }
@@ -242,9 +250,12 @@ public class GameServer extends SocketServer {
       if (game.isGameOver()) {
         game.endGame();
       } else {
-        sendTurn(game.getClients(), game.getTurn());
+        sendTurn(game.getOtherClient(clientHandler));
       }
-    } catch (InvalidMoveException | GameNotFoundException | NotYourTurnException e) {
+    } catch (InvalidMoveException | GameNotFoundException e) {
+      sendError(clientHandler, e.getMessage());
+      sendTurn(clientHandler);
+    } catch (NotYourTurnException e) {
       sendError(clientHandler, e.getMessage());
     }
   }
@@ -286,10 +297,8 @@ public class GameServer extends SocketServer {
     }
   }
 
-  private void sendTurn(List<ClientHandler> clients, OnlinePlayer turn) {
-    for (ClientHandler clientHandler : clients) {
-      clientHandler.sendTurn(turn.getName());
-    }
+  private void sendTurn(ClientHandler clientHandler) {
+    clientHandler.sendTurn();
   }
 
   /**
@@ -339,7 +348,7 @@ public class GameServer extends SocketServer {
     player1.sendStartGame(player1.getUsername(), player2.getUsername(), boardDim);
     player2.sendStartGame(player1.getUsername(), player2.getUsername(), boardDim);
 
-    sendTurn(game.getClients(), game.getTurn());
+    sendTurn(player1);
   }
 
   private ServerGameAdapter findGame(ClientHandler clientHandler) throws GameNotFoundException {
@@ -349,5 +358,9 @@ public class GameServer extends SocketServer {
       }
     }
     throw new GameNotFoundException();
+  }
+
+  public synchronized void removeFromQueue(ClientHandler clientHandler) {
+    inQueueClients.remove(clientHandler);
   }
 }

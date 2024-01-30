@@ -117,7 +117,7 @@ public class ServerConnection extends SocketConnection {
    * @param boardDim        The dimension of the board.
    */
   public void sendStartGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
-    sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1 + Protocol.SEPARATOR
+    sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1 + Protocol.ROW_COL_SEPARATOR
         + usernamePlayer2 + Protocol.SEPARATOR + boardDim);
     messageHandler.setPlayerState(PlayerState.IN_GAME);
   }
@@ -142,10 +142,11 @@ public class ServerConnection extends SocketConnection {
 
   public void sendQueued() {
     sendMessage(Protocol.QUEUED);
+    messageHandler.setPlayerState(PlayerState.IN_QUEUE);
   }
 
-  public void sendTurn(String name) {
-    sendMessage(Protocol.MAKE_MOVE + Protocol.SEPARATOR + name);
+  public void sendTurn() {
+    sendMessage(Protocol.MAKE_MOVE);
   }
 
   /**

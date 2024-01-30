@@ -12,7 +12,7 @@ public final class Protocol {
   public static final String ROW_COL_SEPARATOR = ",";
   public static final String ACCEPTED = "ACCEPTED";
   public static final String REJECTED = "REJECTED";
-  public static final String NEW_GAME = "NEW GAME";
+  public static final String NEW_GAME = "GAME STARTED";
   public static final String GAME_OVER = "GAME OVER";
   public static final String MAKE_MOVE = "MAKE MOVE";
   public static final String ERROR = "ERROR";

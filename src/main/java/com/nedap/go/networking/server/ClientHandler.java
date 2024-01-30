@@ -106,8 +106,8 @@ public class ClientHandler {
     serverConnection.sendQueued();
   }
 
-  public void sendTurn(String name) {
-    serverConnection.sendTurn(name);
+  public void sendTurn() {
+    serverConnection.sendTurn();
   }
 
   public void sendDraw() {
@@ -116,6 +116,10 @@ public class ClientHandler {
 
   public PlayerState getPlayerState() {
     return serverConnection.getPlayerState();
+  }
+
+  public void deQueueReceived() {
+    server.removeFromQueue(this);
   }
 }
 

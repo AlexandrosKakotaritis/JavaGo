@@ -43,65 +43,69 @@ public class MessageHandlerServer {
   }
 
   private void handleInQueue(String message) throws ImproperMessageException {
-    if(message.equals(Protocol.LIST)){
+    String[] messageArray = message.split(Protocol.SEPARATOR);
+    messageArray[0] = messageArray[0].toUpperCase();
+    if(messageArray[0].equals(Protocol.LIST)){
       clientHandler.listReceived();
-    }
-    else{
-      throw new ImproperMessageException(message
-          + ": Not appropriate at this moment");
+    } else if (messageArray[0].equals(Protocol.QUEUE)) {
+      clientHandler.deQueueReceived();
+      setPlayerState(PlayerState.PREGAME);
+    } else{
+      throw new ImproperMessageException(message);
     }
   }
 
   private void handleGame(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length >= 1) {
+    messageArray[0] = messageArray[0].toUpperCase();
       switch (messageArray[0]) {
         case Protocol.MOVE -> handleMove(messageArray[1]);
         case Protocol.PASS -> clientHandler.receivePass();
         case Protocol.RESIGN -> clientHandler.handleResign();
         case Protocol.ERROR -> {}
-        default -> throw new ImproperMessageException(message
-            + ": Not appropriate at this moment");
+        default -> throw new ImproperMessageException(message);
       }
-    }
   }
 
-  private void handleMove(String s) {
-    String[] moveSplits = s.split(Protocol.ROW_COL_SEPARATOR);
-    if (moveSplits.length > 1) {
-      int column = Integer.parseInt(moveSplits[0]);
-      int row = Integer.parseInt(moveSplits[1]);
-      clientHandler.receiveMove(row, column);
-    } else {
-      int index = Integer.parseInt(moveSplits[0]);
-      clientHandler.receiveMove(index);
+  private void handleMove(String message) {
+    String[] moveSplits = message.split(Protocol.ROW_COL_SEPARATOR);
+    try{
+      if (moveSplits.length > 1) {
+        int column = Integer.parseInt(moveSplits[0]);
+        int row = Integer.parseInt(moveSplits[1]);
+        clientHandler.receiveMove(row, column);
+      } else {
+        int index = Integer.parseInt(moveSplits[0]);
+        clientHandler.receiveMove(index);
+      }
+    }catch (NumberFormatException e){
+      //just send and invalid move
+      clientHandler.receiveMove(10000000);
+
     }
   }
 
   private void handlePreGame(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length == 1) {
+    messageArray[0] = messageArray[0].toUpperCase();
       switch (messageArray[0]) {
         case Protocol.LIST -> clientHandler.listReceived();
         case Protocol.QUEUE -> clientHandler.queueReceived();
         case Protocol.ERROR -> {}
-        default -> throw new ImproperMessageException(message
-            + ": Not appropriate at this moment");
+        default -> throw new ImproperMessageException(message);
       }
-    }
+
   }
 
 
   private void handleInitialization(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length > 1) {
+    messageArray[0] = messageArray[0].toUpperCase();
       switch (messageArray[0]){
         case Protocol.LOGIN -> clientHandler.receiveLogin(messageArray[1]);
         case Protocol.ERROR -> {}
-        default -> throw new ImproperMessageException(message
-            + ": Not appropriate at this moment");
+        default -> throw new ImproperMessageException(message);
       }
-    }
   }
 
   private String[] splitMessage(String message) {

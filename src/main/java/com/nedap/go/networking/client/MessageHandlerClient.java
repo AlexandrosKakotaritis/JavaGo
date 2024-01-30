@@ -42,18 +42,26 @@ public class MessageHandlerClient {
   private void handleHandshake(String message)
       throws ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
-      case Protocol.HELLO -> client.successfulConnection(messageArray[1]);
+      case Protocol.HELLO -> {
+        if (messageArray.length > 1) {
+          client.successfulConnection(messageArray[1]);
+        } else {
+          client.successfulConnection("No message");
+        }
+      }
       case Protocol.ACCEPTED -> handleAccept(messageArray);
       case Protocol.REJECTED -> client.logInStatus(false, messageArray[1]);
       case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
-      default -> throw new ImproperMessageException(message + ": Not appropriate at this moment");
+      default -> throw new ImproperMessageException(message);
     }
   }
 
   private void handlePreGame(String message)
       throws ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
       case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
       case Protocol.QUEUED -> {
@@ -61,8 +69,7 @@ public class MessageHandlerClient {
         setPlayerState(PlayerState.IN_QUEUE);
       }
       case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
-      default -> throw new ImproperMessageException(message
-          + ": Not appropriate at this moment");
+      default -> throw new ImproperMessageException(message);
     }
   }
 
@@ -75,14 +82,18 @@ public class MessageHandlerClient {
         handleNewGame(messageArray);
         setPlayerState(PlayerState.IN_GAME);
       }
+      case Protocol.MAKE_MOVE -> {
+        // Not used in this implementation. Just ignored.
+      }
       case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
-      default -> throw new ImproperMessageException(message + ": Not appropriate at this moment");
+      default -> throw new ImproperMessageException(message);
     }
   }
 
   private void handleGame(String message)
       throws InvalidMoveException, ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
+    messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
       case Protocol.MOVE -> handleMove(messageArray);
       case Protocol.PASS -> handlePass(messageArray);
@@ -107,13 +118,13 @@ public class MessageHandlerClient {
   }
 
 
-
   private void handleNewGame(String[] messageArray) throws ImproperMessageException {
-    if (messageArray.length == 4) {
-      String player1Name = messageArray[1];
-      String player2Name = messageArray[2];
+    if (messageArray.length == 3) {
+      String[] players = messageArray[1].split(",");
+      String player1Name = players[0];
+      String player2Name = players[1];
       try {
-        int boardDim = Integer.parseInt(messageArray[3]);
+        int boardDim = Integer.parseInt(messageArray[2]);
         client.newGame(player1Name, player2Name, boardDim);
       } catch (NumberFormatException e) {
         throw new ImproperMessageException(messageArray[0] + ": Argument 3 must be integer");
@@ -124,9 +135,9 @@ public class MessageHandlerClient {
   }
 
 
-
   private void handleGameOver(String[] messageArray)
       throws ImproperMessageException, ErrorReceivedException {
+    messageArray[1] = messageArray[1].toUpperCase();
     switch (messageArray[1]) {
       case Protocol.DRAW -> client.receiveDraw();
       case Protocol.WINNER -> client.receiveWinner(messageArray[2]);
