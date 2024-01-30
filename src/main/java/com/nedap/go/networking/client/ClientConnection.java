@@ -59,8 +59,8 @@ public class ClientConnection extends SocketConnection {
     try {
       messageHandler.handleMessage(message);
     } catch (ImproperMessageException | InvalidMoveException e) {
-      sendError(e.getMessage());
-      gameClient.printError(e.getMessage());
+//      sendError(e.getMessage());
+      gameClient.printError(message);
     } catch (ErrorReceivedException e) {
       gameClient.printError(e.getMessage());
     }
@@ -87,9 +87,6 @@ public class ClientConnection extends SocketConnection {
     sendMessage(Protocol.QUEUE);
   }
 
-  public void sendError(String message) {
-    sendMessage(Protocol.ERROR + Protocol.SEPARATOR + message);
-  }
 
   /**
    * Decodes a GoMove object to adhere to the protocol and sends the move.
@@ -106,5 +103,9 @@ public class ClientConnection extends SocketConnection {
 
   public void sendResign() {
     sendMessage(Protocol.RESIGN);
+  }
+
+  public void sendHello() {
+    sendMessage(Protocol.HELLO + Protocol.SEPARATOR + "hello");
   }
 }

@@ -117,6 +117,10 @@ public class ClientHandler {
   public PlayerState getPlayerState() {
     return serverConnection.getPlayerState();
   }
+
+  public void deQueueReceived() {
+    server.removeFromQueue(this);
+  }
 }
 
 

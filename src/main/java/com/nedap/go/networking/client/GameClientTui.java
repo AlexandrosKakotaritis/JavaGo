@@ -1,5 +1,6 @@
 package com.nedap.go.networking.client;
 
+import com.nedap.go.gui.GoGuiClient;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
@@ -23,8 +24,11 @@ public class GameClientTui implements ClientListener {
   private final Scanner sc;
   private final PrintWriter output;
   private GameClient client;
-  private String serverName = "localhost";
-  private int portNumber = 8888;
+//  private String serverName = "145.126.78.149"; //Renske
+//  private String serverName = "145.126.10.26"; //Kasper
+private String serverName = "145.126.84.96"; //Niels
+//  private String serverName = "127.0.0.1";
+  private int portNumber = 8080;
   private boolean isLogIn;
   private boolean isSystemOut;
   private boolean isGameStarted;
@@ -62,21 +66,19 @@ public class GameClientTui implements ClientListener {
 
 
   private synchronized void play() {
-    while (!isGameStarted) {
+    while (game == null) {
       try {
         this.wait();
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
     }
-    isGameStarted = false;
     while (!game.isGameOver()) {
       try {
         println(game.displayState());
         game.playMove();
       } catch (GameMismatchException | InvalidMoveException e) {
         printError(e.getMessage());
-        client.sendError(e.getMessage());
       } catch (QuitGameException e) {
         client.sendResign();
         hasResigned = true;
@@ -138,9 +140,11 @@ public class GameClientTui implements ClientListener {
 
   private void run() {
     menu();
+
     switch (getIntMenuChoice()) {
       case 1 -> {
-        initializeClient();
+        initializeClient(serverName, portNumber);
+//        initializeGui();
         sendUsername();
         runGame();
       }
@@ -155,6 +159,11 @@ public class GameClientTui implements ClientListener {
         run();
       }
     }
+  }
+
+  private void initializeGui() {
+    GoGuiClient gui = new GoGuiClient();
+    client.addListener(gui);
   }
 
   private int getIntMenuChoice() {
@@ -244,6 +253,7 @@ public class GameClientTui implements ClientListener {
     try {
       client = new GameClient(InetAddress.getByName(serverName), portNumber);
       client.addListener(this);
+      client.sendHello();
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();
@@ -261,11 +271,17 @@ public class GameClientTui implements ClientListener {
     sc.nextLine();
     try {
       client = new GameClient(InetAddress
-          .getByAddress(serverName.getBytes()), portNumber);
+          .getByName(serverName), portNumber);
       client.addListener(this);
+      Thread.sleep(500);
+      client.sendHello();
+      Thread.sleep(500);
     } catch (IOException e) {
-      println("Could not find host " + serverName + " @ port: " + portNumber);
+      println("Could not find host " + serverName + " @ port: "
+          + portNumber);
       initializeClient();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -336,10 +352,8 @@ public class GameClientTui implements ClientListener {
     try {
       game = new ClientGameAdapter(player1Name, player2Name, boardDim, client);
     } catch (PlayerNotFoundException e) {
-      client.sendError(e.getMessage());
       println(e.getMessage());
     }
-    isGameStarted = true;
     println("New game between " + player1Name + " " + Stone.BLACK + " - " + Stone.WHITE + " "
         + player2Name + " in a " + boardDim + "x" + boardDim + " board!");
     notifyAll();

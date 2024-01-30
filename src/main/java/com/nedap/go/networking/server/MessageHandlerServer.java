@@ -43,27 +43,25 @@ public class MessageHandlerServer {
   }
 
   private void handleInQueue(String message) throws ImproperMessageException {
-    if(message.equals(Protocol.LIST)){
+    String[] messageArray = message.split(Protocol.SEPARATOR);
+    if(messageArray[0].equals(Protocol.LIST)){
       clientHandler.listReceived();
-    }
-    else{
-      throw new ImproperMessageException(message
-          + ": Not appropriate at this moment");
+    } else if (messageArray[0].equals(Protocol.QUEUE)) {
+      clientHandler.deQueueReceived();
+    } else{
+      throw new ImproperMessageException(message);
     }
   }
 
   private void handleGame(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length >= 1) {
       switch (messageArray[0]) {
         case Protocol.MOVE -> handleMove(messageArray[1]);
         case Protocol.PASS -> clientHandler.receivePass();
         case Protocol.RESIGN -> clientHandler.handleResign();
         case Protocol.ERROR -> {}
-        default -> throw new ImproperMessageException(message
-            + ": Not appropriate at this moment");
+        default -> throw new ImproperMessageException(message);
       }
-    }
   }
 
   private void handleMove(String s) {
@@ -80,28 +78,23 @@ public class MessageHandlerServer {
 
   private void handlePreGame(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length == 1) {
       switch (messageArray[0]) {
         case Protocol.LIST -> clientHandler.listReceived();
         case Protocol.QUEUE -> clientHandler.queueReceived();
         case Protocol.ERROR -> {}
-        default -> throw new ImproperMessageException(message
-            + ": Not appropriate at this moment");
+        default -> throw new ImproperMessageException(message);
       }
-    }
+
   }
 
 
   private void handleInitialization(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
-    if (messageArray.length > 1) {
       switch (messageArray[0]){
         case Protocol.LOGIN -> clientHandler.receiveLogin(messageArray[1]);
         case Protocol.ERROR -> {}
-        default -> throw new ImproperMessageException(message
-            + ": Not appropriate at this moment");
+        default -> throw new ImproperMessageException(message);
       }
-    }
   }
 
   private String[] splitMessage(String message) {

@@ -129,14 +129,13 @@ public class GameServer extends SocketServer {
    */
   public synchronized void removeClient(ClientHandler clientHandler) {
     listOfClients.remove(clientHandler);
-    if (clientHandler.getPlayerState() == PlayerState.IN_QUEUE) {
-      inQueueClients.remove(clientHandler);
-    }
+    inQueueClients.remove(clientHandler);
     ServerGameAdapter gameToEnd;
     if (clientHandler.getPlayerState() == PlayerState.IN_GAME) {
       try {
         gameToEnd = findGame(clientHandler);
         sendWinner(gameToEnd, gameToEnd.getOtherPlayer(clientHandler));
+        listOfGames.remove(gameToEnd);
       } catch (GameNotFoundException e) {
         System.out.println(e.getMessage());
       }
@@ -171,11 +170,12 @@ public class GameServer extends SocketServer {
   @Override
   protected void handleConnection(Socket socket) {
     try {
-      System.out.println("New connection");
+
       ClientHandler clientHandler = new ClientHandler(this);
       ServerConnection serverConnection = new ServerConnection(socket, clientHandler);
       clientHandler.setServerConnection(serverConnection);
       serverConnection.start();
+      System.out.println("New connection");
       Thread.sleep(100);
       clientHandler.sayHello();
     } catch (IOException e) {
@@ -349,5 +349,9 @@ public class GameServer extends SocketServer {
       }
     }
     throw new GameNotFoundException();
+  }
+
+  public synchronized void removeFromQueue(ClientHandler clientHandler) {
+    inQueueClients.remove(clientHandler);
   }
 }

@@ -78,10 +78,6 @@ public class GameClient {
     listOfListeners.forEach(listener -> listener.newGame(player1Name, player2Name, boardDim));
   }
 
-  public void sendError(String message) {
-    clientConnection.sendError(message);
-  }
-
   public void sendQueue() {
     clientConnection.sendQueue();
   }
@@ -123,7 +119,6 @@ public class GameClient {
       try {
         listener.receiveDraw();
       } catch (GameMismatchException e) {
-        sendError(e.getMessage());
         printError(e.getMessage());
       }
     });
@@ -138,9 +133,12 @@ public class GameClient {
       try {
         listener.receiveWinner(winner);
       } catch (GameMismatchException e) {
-        sendError(e.getMessage());
         printError(e.getMessage());
       }
     });
+  }
+
+  public void sendHello() {
+    clientConnection.sendHello();
   }
 }
