@@ -26,8 +26,8 @@ public class GameClientTui implements ClientListener {
   private GameClient client;
 //  private String serverName = "145.126.78.149"; //Renske
 //  private String serverName = "145.126.10.26"; //Kasper
-private String serverName = "145.126.84.96"; //Niels
-//  private String serverName = "127.0.0.1";
+//private String serverName = "145.126.84.96"; //Niels
+  private String serverName = "127.0.0.1";
   private int portNumber = 8080;
   private boolean isLogIn;
   private boolean isSystemOut;
@@ -58,15 +58,23 @@ private String serverName = "145.126.84.96"; //Niels
   public void runGame() {
     selectPlayerType();
     matchMakingMenu();
-    play();
-    println(game.getGameEndMessage());
-    println(game.displayState());
+    try {
+      play();
+      println(game.displayState());
+      println(game.getGameEndMessage());
+    } catch (InvalidMoveException | GameMismatchException e) {
+      printError(e.getMessage());
+    } catch (QuitGameException e) {
+      handleResignation();
+    }
+    game = null;
     runGame();
   }
 
 
-  private synchronized void play() {
-    while (game == null) {
+  private synchronized void play()
+      throws QuitGameException, GameMismatchException, InvalidMoveException {
+    while (game == null || game.isGameOver()) {
       try {
         this.wait();
       } catch (InterruptedException e) {
@@ -74,17 +82,17 @@ private String serverName = "145.126.84.96"; //Niels
       }
     }
     while (!game.isGameOver()) {
-      try {
         println(game.displayState());
         game.playMove();
-      } catch (GameMismatchException | InvalidMoveException e) {
-        printError(e.getMessage());
-      } catch (QuitGameException e) {
-        client.sendResign();
-        hasResigned = true;
-        runGame();
-      }
     }
+  }
+
+  private void handleResignation() {
+    client.sendResign();
+    hasResigned = true;
+    println("You resigned!");
+//    game = null;
+//    runGame();
   }
 
   private void exit() {
@@ -253,7 +261,6 @@ private String serverName = "145.126.84.96"; //Niels
     try {
       client = new GameClient(InetAddress.getByName(serverName), portNumber);
       client.addListener(this);
-      client.sendHello();
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();
@@ -273,15 +280,10 @@ private String serverName = "145.126.84.96"; //Niels
       client = new GameClient(InetAddress
           .getByName(serverName), portNumber);
       client.addListener(this);
-      Thread.sleep(500);
-      client.sendHello();
-      Thread.sleep(500);
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: "
           + portNumber);
       initializeClient();
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -400,9 +402,7 @@ private String serverName = "145.126.84.96"; //Niels
    */
   @Override
   public void receiveWinner(String winner) throws GameMismatchException {
-    if(hasResigned){
-      println("You forfeited the game!");
-    } else {
+    if(!hasResigned){
       game.receiveWinner(winner);
     }
   }
