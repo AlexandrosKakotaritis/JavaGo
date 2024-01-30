@@ -2,6 +2,7 @@ package com.nedap.go.networking.server;
 
 import com.nedap.go.model.Stone;
 import com.nedap.go.networking.server.utils.NotAppropriateStoneException;
+import com.nedap.go.networking.server.utils.PlayerState;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class ClientHandler {
    */
   public void setServerConnection(ServerConnection serverConnection) {
     this.serverConnection = serverConnection;
+    username = this.toString();
   }
 
   public String getUsername() {
@@ -39,6 +41,7 @@ public class ClientHandler {
   }
 
   public void handleDisconnect() {
+    System.out.println("Client " + this.getUsername() + " disconnected");
     server.removeClient(this);
   }
 
@@ -78,8 +81,8 @@ public class ClientHandler {
     serverConnection.sendList(listOfClients);
   }
 
-  public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
-    serverConnection.startGame(usernamePlayer1, usernamePlayer2, boardDim);
+  public void sendStartGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
+    serverConnection.sendStartGame(usernamePlayer1, usernamePlayer2, boardDim);
   }
 
 
@@ -109,6 +112,10 @@ public class ClientHandler {
 
   public void sendDraw() {
     serverConnection.sendDraw();
+  }
+
+  public PlayerState getPlayerState() {
+    return serverConnection.getPlayerState();
   }
 }
 

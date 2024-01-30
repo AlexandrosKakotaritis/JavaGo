@@ -27,6 +27,12 @@ public class ComputerPlayer extends AbstractPlayer {
     this.stone = stone;
   }
 
+  public ComputerPlayer(String name, Strategy strategy, Stone stone) {
+    super(name);
+    this.strategy = strategy;
+    this.stone = stone;
+  }
+
   /**
    * Getter for the strategy.
    *

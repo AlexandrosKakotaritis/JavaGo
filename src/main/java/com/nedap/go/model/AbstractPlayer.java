@@ -40,6 +40,6 @@ public abstract class AbstractPlayer implements Player {
    */
   @Override
   public String toString() {
-    return "Player " + name;
+    return name;
   }
 }

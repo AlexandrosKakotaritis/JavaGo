@@ -6,10 +6,10 @@ import com.nedap.go.model.Stone;
 
 public class OnlinePlayer implements Player {
 
-    private final ClientHandler clientHandler;
+    private final String name;
     private final Stone stone;
-    public OnlinePlayer(ClientHandler clientHandler, Stone stone) {
-        this.clientHandler = clientHandler;
+    public OnlinePlayer(String name, Stone stone) {
+        this.name = name;
         this.stone = stone;
     }
 
@@ -18,9 +18,12 @@ public class OnlinePlayer implements Player {
         return stone;
     }
 
-    public ClientHandler getClientHandler() {return clientHandler;}
-
     public String getName(){
-        return clientHandler.getUsername();
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

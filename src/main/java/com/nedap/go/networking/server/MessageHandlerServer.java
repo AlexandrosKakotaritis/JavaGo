@@ -4,6 +4,7 @@ import com.nedap.go.networking.protocol.Protocol;
 import com.nedap.go.networking.server.utils.ImproperMessageException;
 import com.nedap.go.networking.server.utils.PlayerState;
 
+
 /**
  * class for decoding incoming messages from the client.
  */
@@ -32,12 +33,22 @@ public class MessageHandlerServer {
   }
 
   void handleMessage(String message) throws ImproperMessageException {
-    System.out.println(message);
     switch (playerState) {
       case FRESH -> handleInitialization(message);
       case PREGAME -> handlePreGame(message);
+      case IN_QUEUE -> handleInQueue(message);
       case IN_GAME -> handleGame(message);
       default -> setPlayerState(PlayerState.FRESH);
+    }
+  }
+
+  private void handleInQueue(String message) throws ImproperMessageException {
+    if(message.equals(Protocol.LIST)){
+      clientHandler.listReceived();
+    }
+    else{
+      throw new ImproperMessageException(message
+          + ": Not appropriate at this moment");
     }
   }
 
@@ -48,6 +59,7 @@ public class MessageHandlerServer {
         case Protocol.MOVE -> handleMove(messageArray[1]);
         case Protocol.PASS -> clientHandler.receivePass();
         case Protocol.RESIGN -> clientHandler.handleResign();
+        case Protocol.ERROR -> {}
         default -> throw new ImproperMessageException(message
             + ": Not appropriate at this moment");
       }
@@ -72,6 +84,7 @@ public class MessageHandlerServer {
       switch (messageArray[0]) {
         case Protocol.LIST -> clientHandler.listReceived();
         case Protocol.QUEUE -> clientHandler.queueReceived();
+        case Protocol.ERROR -> {}
         default -> throw new ImproperMessageException(message
             + ": Not appropriate at this moment");
       }
@@ -82,10 +95,10 @@ public class MessageHandlerServer {
   private void handleInitialization(String message) throws ImproperMessageException {
     String[] messageArray = splitMessage(message);
     if (messageArray.length > 1) {
-      if (messageArray[0].equals(Protocol.LOGIN)) {
-        clientHandler.receiveLogin(messageArray[1]);
-      }else{
-        throw new ImproperMessageException(message
+      switch (messageArray[0]){
+        case Protocol.LOGIN -> clientHandler.receiveLogin(messageArray[1]);
+        case Protocol.ERROR -> {}
+        default -> throw new ImproperMessageException(message
             + ": Not appropriate at this moment");
       }
     }
@@ -93,5 +106,9 @@ public class MessageHandlerServer {
 
   private String[] splitMessage(String message) {
     return message.split(Protocol.SEPARATOR);
+  }
+
+  public PlayerState getPlayerState() {
+    return playerState;
   }
 }

@@ -46,7 +46,7 @@ public class GoMove implements Move {
    *
    * @return True if the move is a passing move.
    */
-  public boolean getPass() {
+  public boolean isPass() {
     return pass;
   }
 
@@ -57,5 +57,20 @@ public class GoMove implements Move {
    */
   public int getIndex() {
     return index;
+  }
+
+  /**
+   * Two moves with equal Players and equal move
+   * indices are considered equal.
+   * @param o The object to compare with
+   * @return True if equal
+   */
+  @Override
+  public boolean equals(Object o){
+    if(o instanceof GoMove move){
+      return player.equals(move.getPlayer())
+          && index == move.getIndex();
+    }
+    return false;
   }
 }

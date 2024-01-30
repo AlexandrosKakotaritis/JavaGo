@@ -118,8 +118,8 @@ public class ServerGameAdapter {
 
 
   private void createGame() {
-    player1 = createPlayer(client1, Stone.BLACK);
-    player2 = createPlayer(client2, Stone.WHITE);
+    player1 = createPlayer(client1.getUsername(), Stone.BLACK);
+    player2 = createPlayer(client2.getUsername(), Stone.WHITE);
     game = new GoGame(player1, player2, boardDim);
   }
 
@@ -140,8 +140,8 @@ public class ServerGameAdapter {
     server.sendWinner(this, getWinnerOnResign(clientHandler));
   }
 
-  private OnlinePlayer createPlayer(ClientHandler clientHandler, Stone mark) {
-    return new OnlinePlayer(clientHandler, mark);
+  private OnlinePlayer createPlayer(String username, Stone mark) {
+    return new OnlinePlayer(username, mark);
   }
 
   private OnlinePlayer getWinnerOnResign(ClientHandler clientHandler) {
@@ -149,11 +149,12 @@ public class ServerGameAdapter {
   }
 
   public OnlinePlayer getOtherPlayer(ClientHandler clientHandler) {
-    return clientHandler.equals(player1.getClientHandler()) ? player2 : player1;
+    return clientHandler.getUsername().equals(player1.getName()) ? player2 : player1;
   }
 
   private boolean isYourTurn(ClientHandler clientHandler) {
-    return ((OnlinePlayer) game.getTurn()).getClientHandler().equals(clientHandler);
+    return ((OnlinePlayer) game.getTurn()).getName()
+        .equals(clientHandler.getUsername());
   }
 
 }

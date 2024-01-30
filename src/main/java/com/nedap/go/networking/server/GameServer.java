@@ -9,6 +9,7 @@ import com.nedap.go.networking.server.utils.GameNotFoundException;
 import com.nedap.go.networking.server.utils.NotAppropriateStoneException;
 import com.nedap.go.networking.server.utils.NotYourTurnException;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
+import com.nedap.go.networking.server.utils.PlayerState;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class GameServer extends SocketServer {
    *
    * @param clientHandler the ClientHandler object to be added.
    */
-  public synchronized boolean addClient(ClientHandler clientHandler) {
+  public synchronized void addClient(ClientHandler clientHandler) {
     boolean nameOk = true;
     for (ClientHandler handler : listOfClients) {
       if (clientHandler.getUsername() != null && clientHandler.getUsername()
@@ -119,7 +120,6 @@ public class GameServer extends SocketServer {
       listOfClients.add(clientHandler);
     }
     clientHandler.sendLogin(nameOk, clientHandler.getUsername());
-    return nameOk;
   }
 
   /**
@@ -129,9 +129,11 @@ public class GameServer extends SocketServer {
    */
   public synchronized void removeClient(ClientHandler clientHandler) {
     listOfClients.remove(clientHandler);
-    boolean inGame = !inQueueClients.remove(clientHandler);
+    if (clientHandler.getPlayerState() == PlayerState.IN_QUEUE) {
+      inQueueClients.remove(clientHandler);
+    }
     ServerGameAdapter gameToEnd;
-    if (inGame) {
+    if (clientHandler.getPlayerState() == PlayerState.IN_GAME) {
       try {
         gameToEnd = findGame(clientHandler);
         sendWinner(gameToEnd, gameToEnd.getOtherPlayer(clientHandler));
@@ -169,13 +171,17 @@ public class GameServer extends SocketServer {
   @Override
   protected void handleConnection(Socket socket) {
     try {
+      System.out.println("New connection");
       ClientHandler clientHandler = new ClientHandler(this);
       ServerConnection serverConnection = new ServerConnection(socket, clientHandler);
       clientHandler.setServerConnection(serverConnection);
       serverConnection.start();
+      Thread.sleep(100);
       clientHandler.sayHello();
     } catch (IOException e) {
       System.out.println("Sorry! Could not connect.");
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -325,12 +331,15 @@ public class GameServer extends SocketServer {
   private void startGame() throws PlayerNotFoundException {
     ClientHandler player1 = inQueueClients.poll();
     ClientHandler player2 = inQueueClients.poll();
-    listOfGames.add(new ServerGameAdapter(player1, player2, this, boardDim));
+    ServerGameAdapter game = new ServerGameAdapter(player1, player2, this, boardDim);
+    listOfGames.add(game);
     if (player1 == null || player2 == null) {
       throw new PlayerNotFoundException("Could not find enough players in queue");
     }
-    player1.startGame(player1.getUsername(), player2.getUsername(), boardDim);
-    player2.startGame(player1.getUsername(), player2.getUsername(), boardDim);
+    player1.sendStartGame(player1.getUsername(), player2.getUsername(), boardDim);
+    player2.sendStartGame(player1.getUsername(), player2.getUsername(), boardDim);
+
+    sendTurn(game.getClients(), game.getTurn());
   }
 
   private ServerGameAdapter findGame(ClientHandler clientHandler) throws GameNotFoundException {

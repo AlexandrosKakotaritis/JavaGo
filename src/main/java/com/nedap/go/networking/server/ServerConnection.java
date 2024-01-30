@@ -59,10 +59,11 @@ public class ServerConnection extends SocketConnection {
   @Override
   public void handleMessage(String message) {
     try {
+      System.out.println("FROM " + clientHandler.getUsername() + " : "
+          + message);
       messageHandler.handleMessage(message);
     } catch (ImproperMessageException e) {
-      System.out.println("Improper command skipped");
-      sendError("Improper command");
+      sendError(e.getMessage());
     }
   }
 
@@ -115,7 +116,7 @@ public class ServerConnection extends SocketConnection {
    * @param usernamePlayer2 The username of the player with the white stones.
    * @param boardDim        The dimension of the board.
    */
-  public void startGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
+  public void sendStartGame(String usernamePlayer1, String usernamePlayer2, int boardDim) {
     sendMessage(Protocol.NEW_GAME + Protocol.SEPARATOR + usernamePlayer1 + Protocol.SEPARATOR
         + usernamePlayer2 + Protocol.SEPARATOR + boardDim);
     messageHandler.setPlayerState(PlayerState.IN_GAME);
@@ -155,7 +156,7 @@ public class ServerConnection extends SocketConnection {
   public void sendWinner(OnlinePlayer winner) {
     messageHandler.setPlayerState(PlayerState.PREGAME);
     sendMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + Protocol.WINNER
-        + winner.getName());
+        + Protocol.SEPARATOR + winner.getName());
   }
 
   public void sendDraw() {
@@ -170,5 +171,16 @@ public class ServerConnection extends SocketConnection {
       case Stone.WHITE -> Protocol.WHITE;
       default -> throw new NotAppropriateStoneException("Your stones are broken");
     };
+  }
+
+  public PlayerState getPlayerState() {
+    return messageHandler.getPlayerState();
+  }
+
+  public boolean sendMessage(String message){
+    super.sendMessage(message);
+    System.out.println("TO " + clientHandler.getUsername() + " : "
+        + message);
+    return true;
   }
 }

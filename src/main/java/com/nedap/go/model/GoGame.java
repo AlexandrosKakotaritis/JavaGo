@@ -1,6 +1,5 @@
 package com.nedap.go.model;
 
-import com.nedap.go.Go;
 import com.nedap.go.model.utils.BoardList;
 import com.nedap.go.model.utils.InvalidMoveException;
 import java.util.ArrayList;
@@ -77,8 +76,8 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isGameover() {
-    return last2Moves.size() == 2 && last2Moves.getLast().getPass()
-        && last2Moves.get(last2Moves.size()-2).getPass();
+    return last2Moves.size() == 2 && last2Moves.getLast().isPass()
+        && last2Moves.get(last2Moves.size()-2).isPass();
   }
 
   /**
@@ -146,7 +145,7 @@ public class GoGame implements Game {
 
   private boolean isValidGoMove(GoMove move) {
     GoMove goMove = move;
-    return goMove.getPass() || board.isField(goMove.getIndex())
+    return goMove.isPass() || board.isField(goMove.getIndex())
         && board.isEmpty(goMove.getIndex())
         && goMove.getPlayer() == this.getTurn() && isKoRuleOk(goMove);
   }
@@ -159,7 +158,7 @@ public class GoGame implements Game {
         || goMoveRowColumn.getPass();
     goMove = new GoMove(goMoveRowColumn.getPlayer(),
         board.index(goMoveRowColumn.getRow(), goMoveRowColumn.getColumn()));
-    return goMove.getPass() || isFieldOrPass && board.isEmpty(goMove.getIndex())
+    return goMove.isPass() || isFieldOrPass && board.isEmpty(goMove.getIndex())
         && goMove.getPlayer() == this.getTurn() && isKoRuleOk(goMove);
   }
 
@@ -181,7 +180,7 @@ public class GoGame implements Game {
   public void doMove(Move move) throws InvalidMoveException {
     if (isValidMove(move)) {
       GoMove goMove = moveConversion(move);
-      if (!goMove.getPass()) {
+      if (!goMove.isPass()) {
         Board previousBoard = board.deepCopy();
         board.setField(goMove.getIndex(), goMove.getPlayer().getStone());
         if (checkCaptures(goMove.getPlayer().getStone())) {

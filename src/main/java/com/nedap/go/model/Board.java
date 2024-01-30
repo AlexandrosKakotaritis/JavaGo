@@ -244,7 +244,7 @@ public class Board {
     int areaScore = 0;
     List<List<Integer>> listOfEmptyChains = getStoneChains(Stone.EMPTY);
     if(listOfEmptyChains.size() == 1
-        && listOfEmptyChains.get(0).size() == dim * dim){
+        && listOfEmptyChains.getFirst().size() == dim * dim){
       return 0;
     }
     for (List<Integer> listOfEmpty : getStoneChains(Stone.EMPTY)) {
@@ -259,7 +259,7 @@ public class Board {
     List<Integer> borders = getAreaBorder(chain);
     Stone owner = fields[borders.getFirst()];
     if (borders.size() > 1) {
-      for (Integer index : borders.subList(1, borders.size() - 1)) {
+      for (Integer index : borders.subList(1, borders.size())) {
         if (fields[index] != owner) {
           owner = Stone.EMPTY;
           break;
