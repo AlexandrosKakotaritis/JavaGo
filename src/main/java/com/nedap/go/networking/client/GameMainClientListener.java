@@ -57,12 +57,10 @@ public class GameMainClientListener implements MainClientListener {
           play();
           println(game.displayState());
           println(game.getGameEndMessage());
-          game = null;
         } catch (InvalidMoveException | GameMismatchException e) {
           printError(e.getMessage());
         } catch (QuitGameException e) {
           handleResignation();
-          game = null;
         }
       }
     }
@@ -303,9 +301,7 @@ public class GameMainClientListener implements MainClientListener {
    */
   @Override
   public void receiveWinner(String winner) throws GameMismatchException {
-    if (!hasResigned) {
       game.receiveWinner(winner);
-    }
   }
 
   private void println(Object o) {
