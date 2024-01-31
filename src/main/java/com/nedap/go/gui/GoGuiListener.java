@@ -144,7 +144,6 @@ public class GoGuiListener implements ClientListener {
     } catch (InvalidMoveException e) {
       throw new RuntimeException(e);
     }
-    setGuiBoard(getAreaMarkers());
   }
 
 
@@ -161,7 +160,6 @@ public class GoGuiListener implements ClientListener {
           case BLACK -> gogui.addStone(x, y, false);
           case WHITE -> gogui.addStone(x, y, true);
           case EMPTY -> {
-            gogui.removeStone(x, y);
             gogui.removeStone(x, y);
             setArea(owners, x, y);
           }

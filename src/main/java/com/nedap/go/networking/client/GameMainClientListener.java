@@ -120,6 +120,7 @@ public class GameMainClientListener implements MainClientListener {
         Select your player type:\s
             1. for human player via the TUI.\s
             2. for Naive AI player.\s
+            3. for Pass AI player.\s
         """;
     println(selectPlayerText);
     String playerType;
@@ -207,7 +208,7 @@ public class GameMainClientListener implements MainClientListener {
    * Disconnect notification.
    */
   @Override
-  public synchronized void connectionLost() {
+  public void connectionLost() {
     println("Disconnected from the server");
     println("Restart the client");
     System.exit(0);
