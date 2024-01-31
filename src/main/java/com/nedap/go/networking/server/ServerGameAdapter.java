@@ -155,6 +155,7 @@ public class ServerGameAdapter {
    * to the server.
    */
   public void endGame() {
+    cancelTimer();
     OnlinePlayer winner = (OnlinePlayer) game.getWinner();
     System.out.println(game);
     if (winner == null) {
@@ -165,6 +166,7 @@ public class ServerGameAdapter {
   }
 
   public void endGameOnResign(ClientHandler clientHandler) {
+    cancelTimer();
     server.sendWinner(this, getWinnerOnResign(clientHandler));
   }
 
