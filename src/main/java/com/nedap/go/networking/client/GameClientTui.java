@@ -19,7 +19,7 @@ import java.util.Scanner;
 /**
  * The class of the TUI used for the chat application.
  */
-public class GameClientTui implements ClientListener {
+public class GameClientTui implements MainClientListener {
 
   private final Scanner sc;
   private final PrintWriter output;
@@ -253,8 +253,8 @@ public class GameClientTui implements ClientListener {
    */
   private void initializeClient(String serverName, int portNumber) {
     try {
-      client = new GameClient(InetAddress.getByName(serverName), portNumber);
-      client.addListener(this);
+      client = new GameClient(InetAddress.getByName(serverName), portNumber
+          , this);
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();
@@ -271,8 +271,8 @@ public class GameClientTui implements ClientListener {
     portNumber = sc.nextInt();
     sc.nextLine();
     try {
-      client = new GameClient(InetAddress.getByName(serverName), portNumber);
-      client.addListener(this);
+      client = new GameClient(InetAddress.getByName(serverName),
+          portNumber, this);
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
       initializeClient();

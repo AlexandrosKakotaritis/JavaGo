@@ -1,5 +1,7 @@
 package com.nedap.go.gui;
 
+import com.nedap.go.ai.ComputerPlayer;
+import com.nedap.go.ai.NaiveStrategy;
 import com.nedap.go.model.Board;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
@@ -27,16 +29,6 @@ public class GoGuiListener implements ClientListener {
     gogui = new GoGuiIntegrator(true, true, 9);
     gogui.startGUI();
   }
-  /**
-   * Confirms that log in was successful with the server.
-   *
-   * @param status   The status. True if successful
-   * @param username The username used.
-   */
-  @Override
-  public void logInStatus(boolean status, String username) {
-    
-  }
 
   /**
    * Notify listeners of disconnect.
@@ -46,15 +38,6 @@ public class GoGuiListener implements ClientListener {
     gogui.stopGUI();
   }
 
-  /**
-   * Notify listeners of successful connection with the server and propagates server's message.
-   *
-   * @param message The server's hello message.
-   */
-  @Override
-  public void successfulConnection(String message) {
-
-  }
 
   /**
    * Receive the playerList.
@@ -118,16 +101,20 @@ public class GoGuiListener implements ClientListener {
       throw new RuntimeException(e);
     }
 
-//    ComputerPlayer hinter = new ComputerPlayer("AI",
-//        new NaiveStrategy(), player.getStone());
-//    GoMove move = (GoMove) hinter.determineMove(game);
-//    if(!move.isPass()) {
-//      int[] hintCoordinates = indexToXy(move.getIndex());
-//      gogui.addHintIndicator(hintCoordinates[0], hintCoordinates[1]);
-//    }
+    GiveHint(player);
 
     setGuiBoard(getAreaMarkers());
 
+  }
+
+  private void GiveHint(Player player) {
+    ComputerPlayer hinter = new ComputerPlayer("AI",
+        new NaiveStrategy(), player.getStone());
+    GoMove move = (GoMove) hinter.determineMove(game);
+    if(!move.isPass()) {
+      int[] hintCoordinates = indexToXy(move.getIndex());
+      gogui.addHintIndicator(hintCoordinates[0], hintCoordinates[1]);
+    }
   }
 
   private Stone[][] getAreaMarkers() {
