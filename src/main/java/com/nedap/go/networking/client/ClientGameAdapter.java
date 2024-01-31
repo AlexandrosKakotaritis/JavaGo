@@ -23,7 +23,7 @@ public class ClientGameAdapter {
   private GoMove serverMove;
   private Player myPlayer;
   private Player otherPlayer;
-  private boolean isGameover;
+  private boolean isGameOver;
   private String gameEndingMessage;
 
   private long moveTimer = 10000;
@@ -65,9 +65,11 @@ public class ClientGameAdapter {
       myMove = myMove();
       client.sendMove(myMove);
     }
-    while (!isMoveReceived && !isGameover) {
+    GoMove previousServerMove = null;
+    while (!isMoveReceived && !isGameOver()) {
       try {
-        this.wait();
+        previousServerMove = serverMove;
+        this.wait(500);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
@@ -75,18 +77,19 @@ public class ClientGameAdapter {
     if (isMyMove() && myMove != null  && !myMove.equals(serverMove)) {
       throw new GameMismatchException("Server move not matching client's move");
     }
-    doMove();
+    doMove(previousServerMove);
   }
 
-  private void doMove() throws InvalidMoveException {
-    if (!isGameover) {
+  private void doMove(GoMove previousMove) throws InvalidMoveException {
+    if (isMoveReceived || !isGameOver()
+        && !previousMove.equals(serverMove)) {
       game.doMove(serverMove);
     }
     isMoveReceived = false;
   }
 
   private boolean isMyMove() {
-    return game.getTurn().equals(myPlayer) && !isGameover;
+    return game.getTurn().equals(myPlayer) && !isGameOver;
   }
 
   private GoMove myMove() throws QuitGameException {
@@ -120,9 +123,9 @@ public class ClientGameAdapter {
 
   public synchronized void receiveDraw() throws GameMismatchException {
     if (game.isGameover() && game.getWinner() == null) {
-      isGameover = true;
+      isGameOver = true;
       gameEndingMessage = "It is a draw";
-    } else if (isGameover && game.getWinner() != null) {
+    } else if (isGameOver && game.getWinner() != null) {
       throw new GameMismatchException(
           "Server decides DRAW " + "while client decides WINNER: " + game.getWinner());
     } else {
@@ -134,17 +137,17 @@ public class ClientGameAdapter {
   public synchronized void receiveWinner(String winner) throws GameMismatchException {
     if (sameWinner(winner)) {
       gameEndingMessage = game.getWinner().equals(myPlayer) ? "You win!" : "You lose!";
-      isGameover = true;
+      isGameOver = true;
     } else if (notSameWinner(winner)) {
       throw new GameMismatchException(
           "Server decides WINNER: " + game.getWinner() + "while client decides WINNER: "
               + game.getWinner());
     } else if (isMyPlayerAndGameNotOver(winner)) {
       gameEndingMessage = "You win, opponent forfeited!";
-      isGameover = true;
+      isGameOver = true;
     } else {
       gameEndingMessage = "You forfeited";
-      isGameover = true;
+      isGameOver = true;
     }
     notifyAll();
   }
@@ -162,7 +165,7 @@ public class ClientGameAdapter {
   }
 
   public boolean isGameOver() {
-    return isGameover;
+    return isGameOver || game.isGameover();
   }
 
   public String displayState() {
@@ -172,7 +175,7 @@ public class ClientGameAdapter {
   public synchronized String getGameEndMessage() {
     while (gameEndingMessage == null) {
       try {
-        this.wait();
+        this.wait(500);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
