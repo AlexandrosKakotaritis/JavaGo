@@ -15,6 +15,10 @@ import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 import com.nedap.go.tui.HumanPlayer;
 import com.nedap.go.tui.QuitGameException;
 
+/**
+ * The class that works as an adapter of routing
+ * incoming and outgoing moves properly and game states.
+ */
 public class ClientGameAdapter {
 
   private final int boardDim;
@@ -29,6 +33,15 @@ public class ClientGameAdapter {
 
   private long moveTimer = 10000;
 
+  /**
+   * Main constructor.
+   * @param player1Name The name of the player with black
+   * @param player2Name The name of the player with black
+   * @param boardDim Dimension of the board.
+   * @param client The client playing the game.
+   * @throws PlayerNotFoundException When one of the player names is not
+   *     equal to the client's username.
+   */
   public ClientGameAdapter(String player1Name, String player2Name, int boardDim, GameClient client)
       throws PlayerNotFoundException {
     this.client = client;

@@ -13,10 +13,13 @@ import com.nedap.go.networking.client.GameMismatchException;
 import com.nedap.go.networking.protocol.Protocol;
 import java.util.List;
 
-
+/**
+ * Class that listens to the server and plays the move in a 2d board
+ * in a gui.
+ */
 public class GoGuiListener implements ClientListener {
 
-  private final GoGuiIntegrator gogui;
+  private final GoGuiIntegrator goGui;
   private GoGame game;
   private Player player1;
   private Player player2;
@@ -25,9 +28,16 @@ public class GoGuiListener implements ClientListener {
   private Board board;
 
 
-  public GoGuiListener(){
-    gogui = new GoGuiIntegrator(true, true, 9);
-    gogui.startGUI();
+  public GoGuiListener() {
+    goGui = new GoGuiIntegrator(true, true, 9);
+    goGui.startGUI();
+  }
+
+  public static void main(String[] args) {
+    GoGuiListener goGui = new GoGuiListener();
+    while (true) {
+
+    }
   }
 
   /**
@@ -35,9 +45,8 @@ public class GoGuiListener implements ClientListener {
    */
   @Override
   public void connectionLost() {
-    gogui.stopGUI();
+    goGui.stopGUI();
   }
-
 
   /**
    * Receive the playerList.
@@ -71,7 +80,7 @@ public class GoGuiListener implements ClientListener {
     this.board = new Board(boardDim);
     game = new GoGame(player1, player2, board);
     boardSize = boardDim;
-    gogui.setBoardSize(boardDim);
+    goGui.setBoardSize(boardDim);
   }
 
   /**
@@ -94,26 +103,25 @@ public class GoGuiListener implements ClientListener {
   public void receiveMove(int moveIndex, String moveColor) {
 
     boolean isWhite = moveColor.equals(Protocol.WHITE);
-    Player player = isWhite? player2: player1;
+    Player player = isWhite ? player2 : player1;
     try {
       game.doMove(new GoMove(player, moveIndex));
     } catch (InvalidMoveException e) {
       throw new RuntimeException(e);
     }
 
-    GiveHint(player);
+    giveHint(player);
 
     setGuiBoard(getAreaMarkers());
 
   }
 
-  private void GiveHint(Player player) {
-    ComputerPlayer hinter = new ComputerPlayer("AI",
-        new NaiveStrategy(), player.getStone());
+  private void giveHint(Player player) {
+    ComputerPlayer hinter = new ComputerPlayer("AI", new NaiveStrategy(), player.getStone());
     GoMove move = (GoMove) hinter.determineMove(game);
-    if(!move.isPass()) {
+    if (!move.isPass()) {
       int[] hintCoordinates = indexToXy(move.getIndex());
-      gogui.addHintIndicator(hintCoordinates[0], hintCoordinates[1]);
+      goGui.addHintIndicator(hintCoordinates[0], hintCoordinates[1]);
     }
   }
 
@@ -130,7 +138,6 @@ public class GoGuiListener implements ClientListener {
     return owners;
   }
 
-
   /**
    * Receive a pass.
    *
@@ -138,7 +145,7 @@ public class GoGuiListener implements ClientListener {
    */
   @Override
   public void receivePass(String color) {
-    Player player = color.equals(Protocol.WHITE)? player2: player1;
+    Player player = color.equals(Protocol.WHITE) ? player2 : player1;
     try {
       game.doMove(new GoMove(player));
     } catch (InvalidMoveException e) {
@@ -146,21 +153,20 @@ public class GoGuiListener implements ClientListener {
     }
   }
 
-
   private int[] indexToXy(int moveIndex) {
-    return new int[] {moveIndex % boardSize, moveIndex / boardSize};
+    return new int[]{moveIndex % boardSize, moveIndex / boardSize};
   }
 
   private void setGuiBoard(Stone[][] owners) {
-    gogui.clearBoard();
+    goGui.clearBoard();
     for (int x = 0; x < boardSize; x++) {
       for (int y = 0; y < boardSize; y++) {
         Stone stone = board.getField(y, x);
         switch (stone) {
-          case BLACK -> gogui.addStone(x, y, false);
-          case WHITE -> gogui.addStone(x, y, true);
+          case BLACK -> goGui.addStone(x, y, false);
+          case WHITE -> goGui.addStone(x, y, true);
           case EMPTY -> {
-            gogui.removeStone(x, y);
+            goGui.removeStone(x, y);
             setArea(owners, x, y);
           }
         }
@@ -169,19 +175,18 @@ public class GoGuiListener implements ClientListener {
   }
 
   private void setArea(Stone[][] owners, int x, int y) {
-    switch(owners[x][y]){
-      case BLACK -> gogui.addAreaIndicator(x, y,false);
-      case WHITE -> gogui.addAreaIndicator(x, y,true);
+    switch (owners[x][y]) {
+      case BLACK -> goGui.addAreaIndicator(x, y, false);
+      case WHITE -> goGui.addAreaIndicator(x, y, true);
     }
   }
-
 
   /**
    * Receive the game over with result draw.
    */
   @Override
   public void receiveDraw() throws GameMismatchException {
-//    gogui.clearBoard();
+
   }
 
   /**
@@ -191,14 +196,7 @@ public class GoGuiListener implements ClientListener {
    */
   @Override
   public void receiveWinner(String winner) throws GameMismatchException {
-//    gogui.clearBoard();
-  }
 
-  public static void main(String[] args) {
-    GoGuiListener GoGui = new GoGuiListener();
-    while(true){
-
-    }
   }
 
 }

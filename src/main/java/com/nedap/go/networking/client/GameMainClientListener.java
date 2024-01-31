@@ -1,11 +1,8 @@
 package com.nedap.go.networking.client;
 
 import com.nedap.go.gui.GoGuiListener;
-import com.nedap.go.model.GoGame;
-import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
-import com.nedap.go.networking.server.OnlinePlayer;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 import com.nedap.go.tui.GameClientTui;
 import com.nedap.go.tui.QuitGameException;
@@ -43,7 +40,7 @@ public class GameMainClientListener implements MainClientListener {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
   }
 
-  public void setTui(GameClientTui tui){
+  public void setTui(GameClientTui tui) {
     this.tui = tui;
   }
 
@@ -52,10 +49,10 @@ public class GameMainClientListener implements MainClientListener {
    */
   public void runGame() {
     boolean playGame = true;
-    while(playGame) {
+    while (playGame) {
       selectPlayerType();
       playGame = matchMakingMenu();
-      if(playGame) {
+      if (playGame) {
         try {
           play();
           println(game.displayState());
@@ -69,7 +66,7 @@ public class GameMainClientListener implements MainClientListener {
         }
       }
     }
-   tui.exit();
+    tui.exit();
   }
 
 
@@ -184,8 +181,7 @@ public class GameMainClientListener implements MainClientListener {
    */
   public void initializeClient(String serverName, int portNumber) {
     try {
-      client = new GameClient(InetAddress.getByName(serverName), portNumber
-          , this);
+      client = new GameClient(InetAddress.getByName(serverName), portNumber, this);
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
       tui.initializeClient();

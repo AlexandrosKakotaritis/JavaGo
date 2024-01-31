@@ -4,7 +4,6 @@ import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
-import com.nedap.go.networking.client.GameClient;
 import com.nedap.go.networking.client.GameMainClientListener;
 import com.nedap.go.networking.server.OnlinePlayer;
 import java.io.InputStreamReader;
@@ -12,7 +11,10 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Scanner;
 
-public class GameClientTui implements Runnable{
+/**
+ * The TUI of the client.
+ */
+public class GameClientTui implements Runnable {
 
   private final Scanner sc;
   private final PrintWriter output;
@@ -20,15 +22,26 @@ public class GameClientTui implements Runnable{
   private int portNumber = 8080;
   private String serverName = "localhost";
 
+  /**
+   * Main constructor of the TUI with specified input and output.
+   *
+   * @param input  The reader that inputs data.
+   * @param output The printwriter that outputs data
+   */
   public GameClientTui(Reader input, PrintWriter output) {
     this.output = output;
     sc = new Scanner(input);
-    mainClientListener = new GameMainClientListener(input,output);
+    mainClientListener = new GameMainClientListener(input, output);
     mainClientListener.setTui(this);
   }
 
   public GameClientTui() {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
+  }
+
+  public static void main(String[] args) {
+    GameClientTui tui = new GameClientTui();
+    tui.run();
   }
 
   /**
@@ -58,6 +71,9 @@ public class GameClientTui implements Runnable{
     }
   }
 
+  /**
+   * Send the prefered username to the main client listener.
+   */
   public void sendUsername() {
     print("Provide a username: ");
     String username = sc.nextLine();
@@ -85,6 +101,9 @@ public class GameClientTui implements Runnable{
     return choice;
   }
 
+  /**
+   * Receive the essential information of the host and send them to the main listener.
+   */
   public void initializeClient() {
     print("Please provide a server ip: ");
     serverName = sc.nextLine();
@@ -142,11 +161,6 @@ public class GameClientTui implements Runnable{
   private void print(Object o) {
     output.print(o);
     output.flush();
-  }
-
-  public static void main(String[] args) {
-    GameClientTui tui = new GameClientTui();
-    tui.run();
   }
 
 }
