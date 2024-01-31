@@ -35,7 +35,6 @@ public class HumanPlayer extends AbstractPlayer implements Player {
     this(name, stone, new ComputerPlayer(new NaiveStrategy(), stone));
     isConsole = true;
   }
-
   /**
    * This constructor gives the ability to choose AI helper.
    *
@@ -97,7 +96,7 @@ public class HumanPlayer extends AbstractPlayer implements Player {
     String input = "";
     printCommandFlavor();
     if(playerInput.hasNext()){
-      input = playerInput.nextLine();
+        input = playerInput.nextLine();
     }
     try {
       int moveIndex = Integer.parseInt(input);
@@ -110,6 +109,13 @@ public class HumanPlayer extends AbstractPlayer implements Player {
       return inputManager(game);
     }
   }
+
+  private GoMove helperMove(Game game) throws QuitGameException {
+    Game gameCopy = game.deepCopy();
+    GoMove move = (GoMove) ((AbstractPlayer) helper).determineMove(gameCopy);
+    return move;
+  }
+
 
   private GoMove getSpecialMove(Game game, String input) throws QuitGameException, WrongInputException {
     switch (input) {
@@ -124,9 +130,8 @@ public class HumanPlayer extends AbstractPlayer implements Player {
   }
 
   private void giveHint(Game game) throws QuitGameException {
-    Game gameCopy = game.deepCopy();
-    Move move = ((AbstractPlayer) helper).determineMove(gameCopy);
-    output.println("Try playing " + ((GoMove) move).getIndex());
+    GoMove move = helperMove(game);
+    output.println("Try playing " + move.getIndex());
   }
 
   private void printCommandFlavor(){

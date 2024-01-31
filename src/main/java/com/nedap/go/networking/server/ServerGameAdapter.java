@@ -9,6 +9,8 @@ import com.nedap.go.model.utils.InvalidMoveException;
 import com.nedap.go.networking.server.utils.NotYourTurnException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Connecting the server to the Go game model.
@@ -22,6 +24,9 @@ public class ServerGameAdapter {
   private OnlinePlayer player1;
   private OnlinePlayer player2;
   private GoGame game;
+
+  private Timer timer;
+  private static final long timePerMove = 120000;
 
   /**
    * Construct a game server adapter object.
@@ -64,8 +69,10 @@ public class ServerGameAdapter {
   public GoMove newMove(int index, ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
     if (isYourTurn(clientHandler)) {
+      cancelTimer();
       GoMove move = new GoMove(game.getTurn(), index);
       game.doMove(move);
+      createTimer(clientHandler);
       return move;
     } else {
       throw new NotYourTurnException();
@@ -85,12 +92,30 @@ public class ServerGameAdapter {
   public GoMove newMove(int row, int col, ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
     if (isYourTurn(clientHandler)) {
+      cancelTimer();
       GoMoveRowColumn move = new GoMoveRowColumn(game.getTurn(), row, col);
       game.doMove(move);
+      createTimer(getOtherClient(clientHandler));
       return new GoMove(move.getPlayer(), rowColumnToIndex(move.getRow(), move.getColumn()));
     } else {
       throw new NotYourTurnException();
     }
+  }
+
+  private void cancelTimer() {
+    if(timer != null) {
+      timer.cancel();
+    }
+  }
+
+  private void createTimer(ClientHandler clientHandler) {
+    timer = new Timer();
+    timer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        endGameOnResign(getOtherClient(clientHandler));
+      }
+    }, timePerMove ); //1 min
   }
 
   /**
@@ -104,8 +129,10 @@ public class ServerGameAdapter {
   public GoMove passMove(ClientHandler clientHandler)
       throws InvalidMoveException, NotYourTurnException {
     if (isYourTurn(clientHandler)) {
+      cancelTimer();
       GoMove move = new GoMove(game.getTurn());
       game.doMove(move);
+      createTimer(getOtherClient(clientHandler));
       return move;
     } else {
       throw new NotYourTurnException();
@@ -128,6 +155,7 @@ public class ServerGameAdapter {
    * to the server.
    */
   public void endGame() {
+    cancelTimer();
     OnlinePlayer winner = (OnlinePlayer) game.getWinner();
     System.out.println(game);
     if (winner == null) {
@@ -138,6 +166,7 @@ public class ServerGameAdapter {
   }
 
   public void endGameOnResign(ClientHandler clientHandler) {
+    cancelTimer();
     server.sendWinner(this, getWinnerOnResign(clientHandler));
   }
 

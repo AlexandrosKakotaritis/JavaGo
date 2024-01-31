@@ -1,6 +1,7 @@
 package com.nedap.go.networking.client;
 
 import com.nedap.go.model.GoMove;
+import com.sun.tools.javac.Main;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class GameClient {
 
   private final ClientConnection clientConnection;
   private final List<ClientListener> listOfListeners;
+  private final MainClientListener mainClientListener;
   private String username;
   private int playerType;
 
@@ -24,10 +26,13 @@ public class GameClient {
    * @throws IOException if there is an I/O exception while initializing the Reader/Writer objects
    *                     of the socket.
    */
-  public GameClient(InetAddress address, int port) throws IOException {
+  public GameClient(InetAddress address, int port,
+      MainClientListener mainClientListener) throws IOException {
     clientConnection = new ClientConnection(address, port);
     clientConnection.setGameClient(this);
     listOfListeners = new ArrayList<>();
+    this.mainClientListener = mainClientListener;
+    listOfListeners.add(mainClientListener);
   }
 
   public String getUsername() {
@@ -35,7 +40,7 @@ public class GameClient {
   }
 
 
-  public void addListener(ClientListener listener) {
+  public synchronized void addListener(ClientListener listener) {
     listOfListeners.add(listener);
   }
 
@@ -50,6 +55,7 @@ public class GameClient {
   }
 
   public void handleDisconnect() {
+    close();
     listOfListeners.forEach(ClientListener::connectionLost);
   }
 
@@ -58,11 +64,11 @@ public class GameClient {
   }
 
   public void logInStatus(boolean status, String argument) {
-    listOfListeners.forEach(listener -> listener.logInStatus(status, argument));
+    mainClientListener.logInStatus(status, argument);
   }
 
   public void successfulConnection(String message) {
-    listOfListeners.forEach(listener -> listener.successfulConnection(message));
+    mainClientListener.successfulConnection(message);
   }
 
   public void receiveList(List<String> playerList) {

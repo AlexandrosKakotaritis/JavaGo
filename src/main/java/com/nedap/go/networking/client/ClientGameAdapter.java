@@ -2,6 +2,7 @@ package com.nedap.go.networking.client;
 
 import com.nedap.go.ai.ComputerPlayer;
 import com.nedap.go.ai.NaiveStrategy;
+import com.nedap.go.ai.PassStrategy;
 import com.nedap.go.model.AbstractPlayer;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
@@ -14,6 +15,10 @@ import com.nedap.go.networking.server.utils.PlayerNotFoundException;
 import com.nedap.go.tui.HumanPlayer;
 import com.nedap.go.tui.QuitGameException;
 
+/**
+ * The class that works as an adapter of routing
+ * incoming and outgoing moves properly and game states.
+ */
 public class ClientGameAdapter {
 
   private final int boardDim;
@@ -23,9 +28,20 @@ public class ClientGameAdapter {
   private GoMove serverMove;
   private Player myPlayer;
   private Player otherPlayer;
-  private boolean isGameover;
+  private boolean isGameOver;
   private String gameEndingMessage;
 
+  private long moveTimer = 10000;
+
+  /**
+   * Main constructor.
+   * @param player1Name The name of the player with black
+   * @param player2Name The name of the player with black
+   * @param boardDim Dimension of the board.
+   * @param client The client playing the game.
+   * @throws PlayerNotFoundException When one of the player names is not
+   *     equal to the client's username.
+   */
   public ClientGameAdapter(String player1Name, String player2Name, int boardDim, GameClient client)
       throws PlayerNotFoundException {
     this.client = client;
@@ -49,11 +65,11 @@ public class ClientGameAdapter {
   }
 
   private void createMyPlayer(String name, Stone stone) {
-    switch (client.getPlayerType()) {
-      case 1 -> myPlayer = new HumanPlayer(name, stone);
-      case 2 -> myPlayer = new ComputerPlayer(name, new NaiveStrategy(), stone);
+    myPlayer = switch (client.getPlayerType()) {
+      case 2 -> new ComputerPlayer(name, new NaiveStrategy(), stone);
+      case 3 -> new ComputerPlayer(name, new PassStrategy(), stone);
       default -> new HumanPlayer(name, stone);
-    }
+    };
   }
 
   public synchronized void playMove()
@@ -63,9 +79,11 @@ public class ClientGameAdapter {
       myMove = myMove();
       client.sendMove(myMove);
     }
-    while (!isMoveReceived && !isGameover) {
+    GoMove previousServerMove = null;
+    while (!isMoveReceived && !isGameOver()) {
       try {
-        this.wait();
+        previousServerMove = serverMove;
+        this.wait(500);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
@@ -73,25 +91,24 @@ public class ClientGameAdapter {
     if (isMyMove() && myMove != null  && !myMove.equals(serverMove)) {
       throw new GameMismatchException("Server move not matching client's move");
     }
-    doMove();
+    doMove(previousServerMove);
   }
 
-  private void doMove() throws InvalidMoveException {
-    if (!isGameover) {
+  private void doMove(GoMove previousMove) throws InvalidMoveException {
+    if (isMoveReceived || !isGameOver()
+        && !previousMove.equals(serverMove)) {
       game.doMove(serverMove);
     }
     isMoveReceived = false;
   }
 
   private boolean isMyMove() {
-    return game.getTurn().equals(myPlayer) && !game.isGameover();
+    return game.getTurn().equals(myPlayer) && !isGameOver;
   }
 
   private GoMove myMove() throws QuitGameException {
     GoMove myMove;
-
     myMove = (GoMove) ((AbstractPlayer) myPlayer).determineMove(game);
-
     return myMove;
   }
 
@@ -120,9 +137,9 @@ public class ClientGameAdapter {
 
   public synchronized void receiveDraw() throws GameMismatchException {
     if (game.isGameover() && game.getWinner() == null) {
-      isGameover = true;
+      isGameOver = true;
       gameEndingMessage = "It is a draw";
-    } else if (isGameover && game.getWinner() != null) {
+    } else if (isGameOver && game.getWinner() != null) {
       throw new GameMismatchException(
           "Server decides DRAW " + "while client decides WINNER: " + game.getWinner());
     } else {
@@ -134,16 +151,17 @@ public class ClientGameAdapter {
   public synchronized void receiveWinner(String winner) throws GameMismatchException {
     if (sameWinner(winner)) {
       gameEndingMessage = game.getWinner().equals(myPlayer) ? "You win!" : "You lose!";
-      isGameover = true;
+      isGameOver = true;
     } else if (notSameWinner(winner)) {
       throw new GameMismatchException(
           "Server decides WINNER: " + game.getWinner() + "while client decides WINNER: "
               + game.getWinner());
     } else if (isMyPlayerAndGameNotOver(winner)) {
       gameEndingMessage = "You win, opponent forfeited!";
-      isGameover = true;
+      isGameOver = true;
     } else {
-      throw new GameMismatchException("Game ended for server and not for client");
+      gameEndingMessage = "You forfeited";
+      isGameOver = true;
     }
     notifyAll();
   }
@@ -161,7 +179,7 @@ public class ClientGameAdapter {
   }
 
   public boolean isGameOver() {
-    return isGameover;
+    return isGameOver || game.isGameover();
   }
 
   public String displayState() {
@@ -171,7 +189,7 @@ public class ClientGameAdapter {
   public synchronized String getGameEndMessage() {
     while (gameEndingMessage == null) {
       try {
-        this.wait();
+        this.wait(500);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }

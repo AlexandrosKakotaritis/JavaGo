@@ -1,12 +1,10 @@
 package com.nedap.go.networking.client;
 
-import com.nedap.go.gui.GoGuiClient;
-import com.nedap.go.model.GoGame;
-import com.nedap.go.model.GoMove;
+import com.nedap.go.gui.GoGuiListener;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
-import com.nedap.go.networking.server.OnlinePlayer;
 import com.nedap.go.networking.server.utils.PlayerNotFoundException;
+import com.nedap.go.tui.GameClientTui;
 import com.nedap.go.tui.QuitGameException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,51 +17,56 @@ import java.util.Scanner;
 /**
  * The class of the TUI used for the chat application.
  */
-public class GameClientTui implements ClientListener {
+public class GameMainClientListener implements MainClientListener {
 
   private final Scanner sc;
   private final PrintWriter output;
   private GameClient client;
-  private String serverName = "145.126.84.96";
-  private int portNumber = 8080;
   private boolean isLogIn;
-  private boolean isGameStarted;
   private boolean isConnected;
   private boolean hasResigned;
   private ClientGameAdapter game;
+  private GoGuiListener gui;
+
+  private GameClientTui tui;
 
 
-  public GameClientTui(Reader input, PrintWriter output) {
+  public GameMainClientListener(Reader input, PrintWriter output) {
     this.output = output;
     sc = new Scanner(input);
   }
 
-  public GameClientTui() {
+  public GameMainClientListener() {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
   }
 
-  public static void main(String[] args) {
-    GameClientTui tui = new GameClientTui();
-    tui.run();
+  public void setTui(GameClientTui tui) {
+    this.tui = tui;
   }
 
   /**
    * Runs the Matchmaking and the game instance.
    */
   public void runGame() {
-    selectPlayerType();
-    matchMakingMenu();
-    try {
-      play();
-      println(game.displayState());
-      println(game.getGameEndMessage());
-    } catch (InvalidMoveException | GameMismatchException e) {
-      printError(e.getMessage());
-    } catch (QuitGameException e) {
-      handleResignation();
+    boolean playGame = true;
+    while (playGame) {
+      selectPlayerType();
+      playGame = matchMakingMenu();
+      if (playGame) {
+        try {
+          play();
+          println(game.displayState());
+          println(game.getGameEndMessage());
+          game = null;
+        } catch (InvalidMoveException | GameMismatchException e) {
+          printError(e.getMessage());
+        } catch (QuitGameException e) {
+          handleResignation();
+          game = null;
+        }
+      }
     }
-    game = null;
-    runGame();
+    tui.exit();
   }
 
 
@@ -71,7 +74,7 @@ public class GameClientTui implements ClientListener {
       throws QuitGameException, GameMismatchException, InvalidMoveException {
     while (game == null || game.isGameOver()) {
       try {
-        this.wait();
+        this.wait(500);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
@@ -88,23 +91,7 @@ public class GameClientTui implements ClientListener {
     println("You resigned!");
   }
 
-  private void exit() {
-    println("Goodbye!");
-    System.exit(0);
-  }
-
-  private void menu() {
-    String menu = """
-        Welcome to JavaGO!\s
-               Main Menu\s
-            1. Play Game\s
-            2. Help\s
-            3. Quit\s
-        """;
-    println(menu);
-  }
-
-  private void matchMakingMenu() {
+  private boolean matchMakingMenu() {
     String matchmaking = """
         Get ready for a Game:\s
                 1. Find a Game.\s
@@ -114,8 +101,7 @@ public class GameClientTui implements ClientListener {
     switch (getIntMenuChoice()) {
       case 1 -> client.sendQueue();
       case 2 -> {
-        client.close();
-        exit();
+        return false;
       }
       default -> {
         println("Not a valid choice");
@@ -123,6 +109,7 @@ public class GameClientTui implements ClientListener {
         matchMakingMenu();
       }
     }
+    return true;
   }
 
   private void selectPlayerType() {
@@ -130,6 +117,7 @@ public class GameClientTui implements ClientListener {
         Select your player type:\s
             1. for human player via the TUI.\s
             2. for Naive AI player.\s
+            3. for Pass AI player.\s
         """;
     println(selectPlayerText);
     String playerType;
@@ -139,31 +127,9 @@ public class GameClientTui implements ClientListener {
     client.setPlayerType(Integer.parseInt(playerType));
   }
 
-  private void run() {
-    menu();
 
-    switch (getIntMenuChoice()) {
-      case 1 -> {
-        initializeClient(serverName, portNumber);
-//        initializeGui();
-        sendUsername();
-        runGame();
-      }
-      case 2 -> {
-        getHelp();
-        run();
-      }
-      case 3 -> exit();
-      default -> {
-        println("Not a valid choice");
-        println("");
-        run();
-      }
-    }
-  }
-
-  private void initializeGui() {
-    GoGuiClient gui = new GoGuiClient();
+  public void initializeGui() {
+    gui = new GoGuiListener();
     client.addListener(gui);
   }
 
@@ -177,45 +143,11 @@ public class GameClientTui implements ClientListener {
     return choice;
   }
 
-  private void getHelp() {
-    OnlinePlayer player1Help = new OnlinePlayer("Player 1", Stone.BLACK);
-    OnlinePlayer player2Help = new OnlinePlayer("Player 2", Stone.WHITE);
-    GoGame helpGame = new GoGame(player1Help, player2Help);
-    try {
-      helpGame.doMove(new GoMove(player1Help, 6));
-    } catch (InvalidMoveException e) {
-      throw new RuntimeException(e);
-    }
-    String helpText = """
-        How to start a game: \s
-            1. Type the ip and the port of the host when asked.\s
-            If no host is found, you can ask again.\s
-            \s
-            2. Choose your unique username.\s
-            (If username is already in use you will need to provide a new one).\s
-            \s
-            3. Choose your player type.\s
-            After that you automatically get in the queue.\s
-            \s
-        players: \s
-            Use -H for human player.\s
-            Use -N instead of name for the Naive Strategy AI.\s
-            \s
-        How to play: \s
-              Type the preferred line number as seen in the numbering grid, \s
-              e.g. 6. \s
-        """;
-    println(helpText);
-    println(helpGame);
-    println("Press Enter");
-    sc.nextLine();
-    println("");
-  }
 
   /**
    * username is assigned by the user and communicated to the server.
    */
-  private synchronized void sendUsername() {
+  public synchronized void sendUsername(String username) {
     while (!isConnected) {
       try {
         this.wait();
@@ -223,9 +155,6 @@ public class GameClientTui implements ClientListener {
         throw new RuntimeException(e);
       }
     }
-
-    print("Provide a username: ");
-    String username = sc.nextLine();
     client.sendUsername(username);
 
     checkUsername(username);
@@ -243,38 +172,19 @@ public class GameClientTui implements ClientListener {
       isLogIn = true;
     } else {
       println("Username: " + username + " already exists. Choose a new one.");
-      sendUsername();
+      tui.sendUsername();
     }
   }
 
   /**
    * Initialise the client - server connection.
    */
-  private void initializeClient(String serverName, int portNumber) {
+  public void initializeClient(String serverName, int portNumber) {
     try {
-      client = new GameClient(InetAddress.getByName(serverName), portNumber);
-      client.addListener(this);
+      client = new GameClient(InetAddress.getByName(serverName), portNumber, this);
     } catch (IOException e) {
       println("Could not find host " + serverName + " @ port: " + portNumber);
-      initializeClient();
-    }
-  }
-
-  /**
-   * Initialise the client - server connection.
-   */
-  private void initializeClient() {
-    print("Please provide a server ip: ");
-    serverName = sc.nextLine();
-    print("Now please provide a port: ");
-    portNumber = sc.nextInt();
-    sc.nextLine();
-    try {
-      client = new GameClient(InetAddress.getByName(serverName), portNumber);
-      client.addListener(this);
-    } catch (IOException e) {
-      println("Could not find host " + serverName + " @ port: " + portNumber);
-      initializeClient();
+      tui.initializeClient();
     }
   }
 
@@ -294,9 +204,9 @@ public class GameClientTui implements ClientListener {
    * Disconnect notification.
    */
   @Override
-  public synchronized void connectionLost() {
+  public void connectionLost() {
     println("Disconnected from the server");
-    println("Restart client to try and reconnect");
+    println("Restart the client");
     System.exit(0);
   }
 

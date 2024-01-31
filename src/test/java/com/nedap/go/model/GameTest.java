@@ -215,4 +215,30 @@ public class GameTest {
     assertFalse(game.isValidMove(move));
     assertThrows(InvalidMoveException.class, () -> game.doMove(move));
   }
+
+  @Test
+  public void testFullBoard() throws InvalidMoveException {
+    for (int i = 0; i < 80; i++) {
+      game.doMove(new GoMove(player1, i));
+      game.doMove(new GoMove(player2));
+      System.out.println(game);
+    }
+    GoMove move = new GoMove(player1, 80);
+    assertTrue(game.isValidMove(move));
+    game.doMove(move);
+    System.out.println(game);
+  }
+  @Test
+  public void testPassFirstMove() throws InvalidMoveException {
+    GoMove move = new GoMove(player1);
+
+    assertTrue(game.isValidMove(move));
+    game.doMove(move);
+
+    GoMove move2 = new GoMove(player2);
+    assertTrue(game.isValidMove(move2));
+    game.doMove(move);
+    assertTrue(game.isGameover());
+    System.out.println(game);
+  }
 }
