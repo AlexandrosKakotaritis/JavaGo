@@ -98,7 +98,7 @@ public class MessageHandlerClient {
       case Protocol.MOVE -> handleMove(messageArray);
       case Protocol.PASS -> handlePass(messageArray);
       case Protocol.GAME_OVER -> handleGameOver(messageArray);
-      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
+      case Protocol.ERROR -> throw new ErrorReceivedException(recreateMessage(messageArray));
       case Protocol.MAKE_MOVE -> {
         // Not used in this implementation. Just ignored.
       }
@@ -141,11 +141,21 @@ public class MessageHandlerClient {
     switch (messageArray[1]) {
       case Protocol.DRAW -> client.receiveDraw();
       case Protocol.WINNER -> client.receiveWinner(messageArray[2]);
-      case Protocol.ERROR -> throw new ErrorReceivedException(messageArray[1]);
+      case Protocol.ERROR -> throw new ErrorReceivedException(recreateMessage(messageArray));
       default -> throw new ImproperMessageException(
           "Only DRAW or WINNER " + "are allowed as arguments to GAME OVER!");
     }
     playerState = PlayerState.PREGAME;
+  }
+
+  private String recreateMessage(String[] messageArray) {
+    String message = "";
+    for (int i = 0; i < messageArray.length - 2; i++) {
+      message += messageArray[i];
+      message += Protocol.SEPARATOR;
+    }
+    message += messageArray[messageArray.length-1];
+    return message;
   }
 
   private void handlePass(String[] messageArray) throws InvalidMoveException {
@@ -156,7 +166,7 @@ public class MessageHandlerClient {
 
   private void handleMove(String[] messageArray) throws InvalidMoveException {
     if (messageArray.length != 3) {
-      throw new InvalidMoveException("Server sent invalid move");
+      throw new InvalidMoveException("Invalid move!");
     }
     try {
       int moveIndex = Integer.parseInt(messageArray[1]);
@@ -164,7 +174,7 @@ public class MessageHandlerClient {
       checkColor(moveColor);
       client.receiveMove(moveIndex, moveColor);
     } catch (NumberFormatException e) {
-      throw new InvalidMoveException();
+      throw new InvalidMoveException("Not a number move!");
     }
 
   }
