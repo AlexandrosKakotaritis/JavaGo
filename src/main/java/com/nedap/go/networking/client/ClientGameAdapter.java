@@ -2,6 +2,7 @@ package com.nedap.go.networking.client;
 
 import com.nedap.go.ai.ComputerPlayer;
 import com.nedap.go.ai.NaiveStrategy;
+import com.nedap.go.ai.PassStrategy;
 import com.nedap.go.model.AbstractPlayer;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
@@ -51,11 +52,11 @@ public class ClientGameAdapter {
   }
 
   private void createMyPlayer(String name, Stone stone) {
-    switch (client.getPlayerType()) {
-      case 1 -> myPlayer = new HumanPlayer(name, stone);
-      case 2 -> myPlayer = new ComputerPlayer(name, new NaiveStrategy(), stone);
+    myPlayer = switch (client.getPlayerType()) {
+      case 2 -> new ComputerPlayer(name, new NaiveStrategy(), stone);
+      case 3 -> new ComputerPlayer(name, new PassStrategy(), stone);
       default -> new HumanPlayer(name, stone);
-    }
+    };
   }
 
   public synchronized void playMove()
