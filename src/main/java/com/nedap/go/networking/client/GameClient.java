@@ -40,7 +40,7 @@ public class GameClient {
   }
 
 
-  public void addListener(ClientListener listener) {
+  public synchronized void addListener(ClientListener listener) {
     listOfListeners.add(listener);
   }
 
@@ -55,6 +55,7 @@ public class GameClient {
   }
 
   public void handleDisconnect() {
+    close();
     listOfListeners.forEach(ClientListener::connectionLost);
   }
 
