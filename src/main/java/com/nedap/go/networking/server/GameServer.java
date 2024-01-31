@@ -1,8 +1,6 @@
 package com.nedap.go.networking.server;
 
 
-import static java.lang.System.currentTimeMillis;
-
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Scanner;
 
 /**
  * Class handling and answering requests from clients playing a game.
@@ -33,43 +30,19 @@ public class GameServer extends SocketServer {
   /**
    * Constructs a new GameServer.
    *
-   * @param port the port to listen on
+   * @param port     the port to listen on
+   * @param boardDim
    * @throws IOException if the server socket cannot be created, for example, because the port is
    *                     already bound.
    */
-  public GameServer(int port) throws IOException {
+  public GameServer(int port, int boardDim) throws IOException {
     super(port);
     listOfClients = new ArrayList<>();
     inQueueClients = new LinkedList<>();
     listOfGames = new ArrayList<>();
   }
 
-  /**
-   * The main method of the server.
-   *
-   * @param args command line arguments
-   */
-  public static void main(String[] args) {
-    runServer();
-  }
 
-  private static void runServer() {
-    Scanner sc = new Scanner(System.in);
-    GameServer gameServer;
-    while (true) {
-      System.out.println("Please provide a boardSize");
-      boardDim = sc.nextInt();
-      System.out.println("Please provide a port");
-      int portNumber = sc.nextInt();
-      try {
-        gameServer = new GameServer(portNumber);
-        System.out.println("Connecting via port: " + gameServer.getPort());
-        gameServer.acceptConnections();
-      } catch (IOException e) {
-        System.out.println("Could not connect to port" + portNumber);
-      }
-    }
-  }
   //        CONNECTION METHODS
 
   /**

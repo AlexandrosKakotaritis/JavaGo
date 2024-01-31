@@ -39,11 +39,6 @@ public class GameClientTui implements Runnable {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
   }
 
-  public static void main(String[] args) {
-    GameClientTui tui = new GameClientTui();
-    tui.run();
-  }
-
   /**
    * Runs this operation.
    */
