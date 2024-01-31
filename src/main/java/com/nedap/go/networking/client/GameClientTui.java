@@ -32,6 +32,7 @@ public class GameClientTui implements MainClientListener {
   private boolean isConnected;
   private boolean hasResigned;
   private ClientGameAdapter game;
+  private GoGuiListener gui;
 
 
   public GameClientTui(Reader input, PrintWriter output) {
@@ -52,21 +53,26 @@ public class GameClientTui implements MainClientListener {
    * Runs the Matchmaking and the game instance.
    */
   public void runGame() {
-    selectPlayerType();
-    matchMakingMenu();
-    try {
-      play();
-      println(game.displayState());
-      println(game.getGameEndMessage());
-    } catch (InvalidMoveException | GameMismatchException e) {
-      printError(e.getMessage());
-    } catch (QuitGameException e) {
-      handleResignation();
+    boolean playGame = true;
+    while(playGame) {
+      selectPlayerType();
+      playGame = matchMakingMenu();
+      if(playGame) {
+        try {
+          play();
+          println(game.displayState());
+          println(game.getGameEndMessage());
+          game = null;
+        } catch (InvalidMoveException | GameMismatchException e) {
+          printError(e.getMessage());
+        } catch (QuitGameException e) {
+          handleResignation();
+          game = null;
+        }
+      }
     }
-    game = null;
-    runGame();
+    exit();
   }
-
 
   private synchronized void play()
       throws QuitGameException, GameMismatchException, InvalidMoveException {
@@ -105,7 +111,7 @@ public class GameClientTui implements MainClientListener {
     println(menu);
   }
 
-  private void matchMakingMenu() {
+  private boolean matchMakingMenu() {
     String matchmaking = """
         Get ready for a Game:\s
                 1. Find a Game.\s
@@ -115,8 +121,7 @@ public class GameClientTui implements MainClientListener {
     switch (getIntMenuChoice()) {
       case 1 -> client.sendQueue();
       case 2 -> {
-        client.close();
-        exit();
+        return false;
       }
       default -> {
         println("Not a valid choice");
@@ -124,6 +129,7 @@ public class GameClientTui implements MainClientListener {
         matchMakingMenu();
       }
     }
+    return true;
   }
 
   private void selectPlayerType() {
@@ -164,7 +170,7 @@ public class GameClientTui implements MainClientListener {
   }
 
   private void initializeGui() {
-    GoGuiListener gui = new GoGuiListener();
+    gui = new GoGuiListener();
     client.addListener(gui);
   }
 
