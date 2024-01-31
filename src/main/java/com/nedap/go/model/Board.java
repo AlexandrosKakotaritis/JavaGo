@@ -255,7 +255,7 @@ public class Board {
     return areaScore;
   }
 
-  private Stone getOwner(List<Integer> chain) {
+  public Stone getOwner(List<Integer> chain) {
     List<Integer> borders = getAreaBorder(chain);
     Stone owner = fields[borders.getFirst()];
     if (borders.size() > 1) {

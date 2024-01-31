@@ -1,6 +1,6 @@
 package com.nedap.go.networking.client;
 
-import com.nedap.go.gui.GoGuiClient;
+import com.nedap.go.gui.GoGuiListener;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
@@ -146,7 +146,7 @@ public class GameClientTui implements ClientListener {
     switch (getIntMenuChoice()) {
       case 1 -> {
         initializeClient(serverName, portNumber);
-//        initializeGui();
+        initializeGui();
         sendUsername();
         runGame();
       }
@@ -164,7 +164,7 @@ public class GameClientTui implements ClientListener {
   }
 
   private void initializeGui() {
-    GoGuiClient gui = new GoGuiClient();
+    GoGuiListener gui = new GoGuiListener();
     client.addListener(gui);
   }
 

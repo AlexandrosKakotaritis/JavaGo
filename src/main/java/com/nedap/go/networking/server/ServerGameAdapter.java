@@ -26,7 +26,7 @@ public class ServerGameAdapter {
   private GoGame game;
 
   private Timer timer;
-  private static final long timePerMove = 20000;
+  private static final long timePerMove = 120000;
 
   /**
    * Construct a game server adapter object.

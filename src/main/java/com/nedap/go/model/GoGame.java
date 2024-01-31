@@ -25,31 +25,40 @@ public class GoGame implements Game {
    * @param player2 The player with the white stones.
    */
   public GoGame(Player player1, Player player2) {
-    this(player1, player2, new Board(), true, new BoardList(),
-        new LinkedList<>());
+    this(player1, player2, new Board(), true, new BoardList(), new LinkedList<>());
   }
+
   /**
    * Constructor for creating a new game with a chosen dimensions board.
    *
    * @param player1 The player with the black stones.
    * @param player2 The player with the white stones.
-   * @param dim The dimensions of the board.
+   * @param dim     The dimensions of the board.
    */
   public GoGame(Player player1, Player player2, int dim) {
-    this(player1, player2, new Board(dim), true, new BoardList(),
-        new LinkedList<>());
+    this(player1, player2, new Board(dim), true, new BoardList(), new LinkedList<>());
+  }
+
+  /**
+   * Constructor for creating a new game with a 9x9 board.
+   *
+   * @param player1 The player with the black stones.
+   * @param player2 The player with the white stones.
+   * @param board   The board of the new game object
+   */
+  public GoGame(Player player1, Player player2, Board board) {
+    this(player1, player2, board, true, new BoardList(), new LinkedList<>());
   }
 
   /**
    * Constructor for creating a game in progress (Mainly used for copying).
    *
-   * @param player1       The player with the black stones.
-   * @param player2       The player with the white stones.
-   * @param board         The board of the new game object
-   * @param isPlayer1Turn The boolean signifying the players turn.
-   * @param last2Moves A list of the last 2 moves.
-   * @param possibleKoBoards A list of boards that is possible that they can
-   *                         be repeated in game.
+   * @param player1          The player with the black stones.
+   * @param player2          The player with the white stones.
+   * @param board            The board of the new game object
+   * @param isPlayer1Turn    The boolean signifying the players turn.
+   * @param last2Moves       A list of the last 2 moves.
+   * @param possibleKoBoards A list of boards that is possible that they can be repeated in game.
    */
   public GoGame(Player player1, Player player2, Board board, boolean isPlayer1Turn,
       BoardList possibleKoBoards, List<GoMove> last2Moves) {
@@ -63,9 +72,10 @@ public class GoGame implements Game {
 
   /**
    * Getter for board
+   *
    * @return The board of the game.
    */
-  public Board getBoard(){
+  public Board getBoard() {
     return board;
   }
 
@@ -76,8 +86,8 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isGameover() {
-    return last2Moves.size() == 2 && last2Moves.getLast().isPass()
-        && last2Moves.get(last2Moves.size()-2).isPass();
+    return last2Moves.size() == 2 && last2Moves.getLast().isPass() && last2Moves.get(
+        last2Moves.size() - 2).isPass();
   }
 
   /**
@@ -134,9 +144,9 @@ public class GoGame implements Game {
    */
   @Override
   public boolean isValidMove(Move move) {
-    if(move instanceof GoMoveRowColumn) {
+    if (move instanceof GoMoveRowColumn) {
       return isValidGoMove((GoMoveRowColumn) move);
-    }else if (move instanceof GoMove) {
+    } else if (move instanceof GoMove) {
       return isValidGoMove((GoMove) move);
     } else {
       return false;
@@ -145,8 +155,7 @@ public class GoGame implements Game {
 
   private boolean isValidGoMove(GoMove move) {
     GoMove goMove = move;
-    return goMove.isPass() || board.isField(goMove.getIndex())
-        && board.isEmpty(goMove.getIndex())
+    return goMove.isPass() || board.isField(goMove.getIndex()) && board.isEmpty(goMove.getIndex())
         && goMove.getPlayer() == this.getTurn() && isKoRuleOk(goMove);
   }
 
@@ -194,10 +203,9 @@ public class GoGame implements Game {
   }
 
   private GoMove moveConversion(Move move) {
-    if (move instanceof GoMoveRowColumn){
-      GoMoveRowColumn goMove = (GoMoveRowColumn) move;
-     return new GoMove(goMove.getPlayer(), board.index(goMove.getRow(), goMove.getColumn()));
-    }else{
+    if (move instanceof GoMoveRowColumn goMove) {
+      return new GoMove(goMove.getPlayer(), board.index(goMove.getRow(), goMove.getColumn()));
+    } else {
       return (GoMove) move;
     }
   }
@@ -208,7 +216,7 @@ public class GoGame implements Game {
 
   private void recordLastMove(GoMove move) {
     last2Moves.add(move);
-    if(last2Moves.size() > 2){
+    if (last2Moves.size() > 2) {
       last2Moves.removeFirst();
     }
   }

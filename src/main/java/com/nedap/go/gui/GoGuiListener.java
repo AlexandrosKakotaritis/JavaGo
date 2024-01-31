@@ -1,7 +1,6 @@
 package com.nedap.go.gui;
 
-import com.nedap.go.ai.ComputerPlayer;
-import com.nedap.go.ai.NaiveStrategy;
+import com.nedap.go.model.Board;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Player;
@@ -13,7 +12,7 @@ import com.nedap.go.networking.protocol.Protocol;
 import java.util.List;
 
 
-public class GoGuiClient implements ClientListener {
+public class GoGuiListener implements ClientListener {
 
   private final GoGuiIntegrator gogui;
   private GoGame game;
@@ -21,8 +20,10 @@ public class GoGuiClient implements ClientListener {
   private Player player2;
   private int boardSize;
 
+  private Board board;
 
-  public GoGuiClient(){
+
+  public GoGuiListener(){
     gogui = new GoGuiIntegrator(true, true, 9);
     gogui.startGUI();
   }
@@ -84,7 +85,8 @@ public class GoGuiClient implements ClientListener {
   public void newGame(String player1Name, String player2Name, int boardDim) {
     player1 = () -> Stone.BLACK;
     player2 = () -> Stone.WHITE;
-    game = new GoGame(player1, player2, boardDim);
+    this.board = new Board(boardDim);
+    game = new GoGame(player1, player2, board);
     boardSize = boardDim;
     gogui.setBoardSize(boardDim);
   }
@@ -107,6 +109,7 @@ public class GoGuiClient implements ClientListener {
    */
   @Override
   public void receiveMove(int moveIndex, String moveColor) {
+
     boolean isWhite = moveColor.equals(Protocol.WHITE);
     Player player = isWhite? player2: player1;
     try {
@@ -114,22 +117,32 @@ public class GoGuiClient implements ClientListener {
     } catch (InvalidMoveException e) {
       throw new RuntimeException(e);
     }
-    int[] coordinates = indexToXy(moveIndex);
-    gogui.addStone(coordinates[0], coordinates[1], isWhite);
 
-    ComputerPlayer hinter = new ComputerPlayer("AI",
-        new NaiveStrategy(), player.getStone());
-    GoMove move = (GoMove) hinter.determineMove(game);
-    if(!move.isPass()) {
-      int[] hintCoordinates = indexToXy(move.getIndex());
-      gogui.addHintIndicator(hintCoordinates[0], hintCoordinates[1]);
+//    ComputerPlayer hinter = new ComputerPlayer("AI",
+//        new NaiveStrategy(), player.getStone());
+//    GoMove move = (GoMove) hinter.determineMove(game);
+//    if(!move.isPass()) {
+//      int[] hintCoordinates = indexToXy(move.getIndex());
+//      gogui.addHintIndicator(hintCoordinates[0], hintCoordinates[1]);
+//    }
+
+    setGuiBoard(getAreaMarkers());
+
+  }
+
+  private Stone[][] getAreaMarkers() {
+    Stone[][] owners = new Stone[boardSize][boardSize];
+    List<List<Integer>> emptyAreaChains = board.getStoneChains(Stone.EMPTY);
+    for (List<Integer> chain : emptyAreaChains) {
+      Stone owner = board.getOwner(chain);
+      for (Integer index : chain) {
+        int[] xy = indexToXy(index);
+        owners[xy[0]][xy[1]] = owner;
+      }
     }
+    return owners;
   }
 
-
-  private int[] indexToXy(int moveIndex) {
-    return new int[] {moveIndex % boardSize, moveIndex / boardSize};
-  }
 
   /**
    * Receive a pass.
@@ -144,7 +157,39 @@ public class GoGuiClient implements ClientListener {
     } catch (InvalidMoveException e) {
       throw new RuntimeException(e);
     }
+    setGuiBoard(getAreaMarkers());
   }
+
+
+  private int[] indexToXy(int moveIndex) {
+    return new int[] {moveIndex % boardSize, moveIndex / boardSize};
+  }
+
+  private void setGuiBoard(Stone[][] owners) {
+    gogui.clearBoard();
+    for (int x = 0; x < boardSize; x++) {
+      for (int y = 0; y < boardSize; y++) {
+        Stone stone = board.getField(y, x);
+        switch (stone) {
+          case BLACK -> gogui.addStone(x, y, false);
+          case WHITE -> gogui.addStone(x, y, true);
+          case EMPTY -> {
+            gogui.removeStone(x, y);
+            gogui.removeStone(x, y);
+            setArea(owners, x, y);
+          }
+        }
+      }
+    }
+  }
+
+  private void setArea(Stone[][] owners, int x, int y) {
+    switch(owners[x][y]){
+      case BLACK -> gogui.addAreaIndicator(x, y,false);
+      case WHITE -> gogui.addAreaIndicator(x, y,true);
+    }
+  }
+
 
   /**
    * Receive the game over with result draw.
@@ -165,7 +210,7 @@ public class GoGuiClient implements ClientListener {
   }
 
   public static void main(String[] args) {
-    GoGuiClient GoGui = new GoGuiClient();
+    GoGuiListener GoGui = new GoGuiListener();
     while(true){
 
     }
