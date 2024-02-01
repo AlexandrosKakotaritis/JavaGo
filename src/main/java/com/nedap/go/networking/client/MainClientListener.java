@@ -24,12 +24,10 @@ public class MainClientListener implements MainListener {
   private GameClient client;
   private boolean isLogIn;
   private boolean isConnected;
-  private boolean hasResigned;
-//  private ClientGameAdapter game;
 
+  private boolean hasResigned;
   private GameListener game;
   private GoGuiListener gui;
-
   private GameClientTui tui;
 
 
@@ -49,14 +47,14 @@ public class MainClientListener implements MainListener {
   /**
    * Runs the Matchmaking and the game instance.
    */
-  public void runGame() {
+  public void runConnection() {
     boolean playGame = true;
     while (playGame) {
-      selectPlayerType();
-      playGame = matchMakingMenu();
+      client.setPlayerType(tui.selectPlayerType());
+      playGame = tui.matchMakingMenu();
       if (playGame) {
         try {
-          play();
+          playGame();
           println(game.displayState());
           println(game.getGameEndMessage());
         } catch (InvalidMoveException | GameMismatchException e) {
@@ -69,8 +67,14 @@ public class MainClientListener implements MainListener {
     tui.exit();
   }
 
-
-  private synchronized void play()
+  /**
+   * Waits for a move and calls the GameListener to produce its move if necessary.
+   *
+   * @throws QuitGameException When the player forfeits
+   * @throws GameMismatchException When the client and server state do not coincide.
+   * @throws InvalidMoveException When an invalid move is produced from the client.
+   */
+  private synchronized void playGame()
       throws QuitGameException,
       GameMismatchException, InvalidMoveException {
     while (game == null || game.isGameOver()) {
@@ -90,27 +94,6 @@ public class MainClientListener implements MainListener {
     client.sendResign();
     hasResigned = true;
     println("You resigned!");
-  }
-
-  private boolean matchMakingMenu() {
-    String matchmaking = """
-        Get ready for a Game:\s
-                1. Find a Game.\s
-                2. Quit.\s
-        """;
-    println(matchmaking);
-    switch (getIntMenuChoice()) {
-      case 1 -> client.sendQueue();
-      case 2 -> {
-        return false;
-      }
-      default -> {
-        println("Not a valid choice");
-        println("");
-        matchMakingMenu();
-      }
-    }
-    return true;
   }
 
   private void selectPlayerType() {
@@ -133,17 +116,6 @@ public class MainClientListener implements MainListener {
     gui = new GoGuiListener();
     client.addListener(gui);
   }
-
-  private int getIntMenuChoice() {
-    int choice;
-    try {
-      choice = Integer.parseInt(sc.nextLine());
-    } catch (NumberFormatException e) {
-      choice = 10;
-    }
-    return choice;
-  }
-
 
   /**
    * username is assigned by the user and communicated to the server.
@@ -244,6 +216,10 @@ public class MainClientListener implements MainListener {
     println("Waiting for game");
   }
 
+  public void sendQueue() {
+    client.sendQueue();
+  }
+
   /**
    * Starts new game.
    *
@@ -254,7 +230,6 @@ public class MainClientListener implements MainListener {
   @Override
   public synchronized void newGame(String player1Name, String player2Name, int boardDim) {
     try {
-//      game = new ClientGameAdapter(player1Name, player2Name, boardDim, client);
       game = new GameListener(player1Name, player2Name, boardDim, client);
       client.addListener(game);
     } catch (PlayerNotFoundException e) {
@@ -278,7 +253,7 @@ public class MainClientListener implements MainListener {
    */
   @Override
   public void receiveMove(int moveIndex, String moveColor) {
-//    game.receiveMove(moveIndex, moveColor);
+
   }
 
   /**
@@ -289,15 +264,14 @@ public class MainClientListener implements MainListener {
   @Override
   public void receivePass(String color) {
 
-    //game.receivePass(color);
   }
 
   /**
    * Receive the game over with result draw.
    */
   @Override
-  public void receiveDraw() throws GameMismatchException {
-    game.receiveDraw();
+  public void receiveDraw() {
+
   }
 
   /**
@@ -306,8 +280,7 @@ public class MainClientListener implements MainListener {
    * @param winner The name of the winner.
    */
   @Override
-  public void receiveWinner(String winner) throws GameMismatchException {
-    game.receiveWinner(winner);
+  public void receiveWinner(String winner)  {
   }
 
   private void println(Object o) {
@@ -319,4 +292,6 @@ public class MainClientListener implements MainListener {
     output.print(o);
     output.flush();
   }
+
+
 }

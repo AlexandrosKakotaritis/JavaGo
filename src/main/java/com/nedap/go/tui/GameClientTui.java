@@ -51,7 +51,7 @@ public class GameClientTui implements Runnable {
         mainClientListener.initializeClient(serverName, portNumber);
         mainClientListener.initializeGui();
         sendUsername();
-        mainClientListener.runGame();
+        mainClientListener.runConnection();
       }
       case 2 -> {
         getHelp();
@@ -84,6 +84,18 @@ public class GameClientTui implements Runnable {
             3. Quit\s
         """;
     println(menu);
+  }
+
+  public int selectPlayerType() {
+    String selectPlayerText = """
+        Select your player type:\s
+            1. for human player via the TUI.\s
+            2. for Naive AI player.\s
+            3. for Pass AI player.\s
+        """;
+    println(selectPlayerText);
+    String playerType;
+    return getIntMenuChoice();
   }
 
   private int getIntMenuChoice() {
@@ -141,6 +153,27 @@ public class GameClientTui implements Runnable {
     println("Press Enter");
     sc.nextLine();
     println("");
+  }
+
+  public boolean matchMakingMenu() {
+    String matchmaking = """
+        Get ready for a Game:\s
+                1. Find a Game.\s
+                2. Quit.\s
+        """;
+    println(matchmaking);
+    switch (getIntMenuChoice()) {
+      case 1 -> mainClientListener.sendQueue();
+      case 2 -> {
+        return false;
+      }
+      default -> {
+        println("Not a valid choice");
+        println("");
+        matchMakingMenu();
+      }
+    }
+    return true;
   }
 
   public void exit() {
