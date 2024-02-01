@@ -40,6 +40,7 @@ public class GameServer extends SocketServer {
     listOfClients = new ArrayList<>();
     inQueueClients = new LinkedList<>();
     listOfGames = new ArrayList<>();
+    this.boardDim = boardDim;
   }
 
 
