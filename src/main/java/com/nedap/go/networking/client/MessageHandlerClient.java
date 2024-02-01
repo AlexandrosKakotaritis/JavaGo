@@ -63,7 +63,6 @@ public class MessageHandlerClient {
     String[] messageArray = splitMessage(message);
     messageArray[0] = messageArray[0].toUpperCase();
     switch (messageArray[0]) {
-      case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
       case Protocol.QUEUED -> {
         client.receiveInQueue();
         setPlayerState(PlayerState.IN_QUEUE);
@@ -77,7 +76,6 @@ public class MessageHandlerClient {
       throws ImproperMessageException, ErrorReceivedException {
     String[] messageArray = splitMessage(message);
     switch (messageArray[0]) {
-      case Protocol.LIST -> client.receiveList((getPlayerList(messageArray)));
       case Protocol.NEW_GAME -> {
         handleNewGame(messageArray);
         setPlayerState(PlayerState.IN_GAME);

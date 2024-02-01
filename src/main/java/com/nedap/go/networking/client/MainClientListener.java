@@ -199,16 +199,6 @@ public class MainClientListener implements MainListener {
   }
 
   /**
-   * Receive the playerList.
-   *
-   * @param playerList The list of players.
-   */
-  @Override
-  public void receiveList(List<String> playerList) {
-
-  }
-
-  /**
    * Receive confirmation of entering matchmaking queue.
    */
   @Override

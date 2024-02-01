@@ -17,8 +17,8 @@ import com.nedap.go.tui.QuitGameException;
 import java.util.List;
 
 /**
- * The class that works as an adapter of routing
- * incoming and outgoing moves properly and game states.
+ * The class that works as an adapter of routing incoming and outgoing moves properly and game
+ * states.
  */
 public class GameListener implements ClientListener {
 
@@ -32,16 +32,17 @@ public class GameListener implements ClientListener {
   private boolean isGameOver;
   private String gameEndingMessage;
 
-  private long moveTimer = 10000;
+  private final long moveTimer = 10000;
 
   /**
    * Main constructor.
+   *
    * @param player1Name The name of the player with black
    * @param player2Name The name of the player with black
-   * @param boardDim Dimension of the board.
-   * @param client The client playing the game.
-   * @throws PlayerNotFoundException When one of the player names is not
-   *     equal to the client's username.
+   * @param boardDim    Dimension of the board.
+   * @param client      The client playing the game.
+   * @throws PlayerNotFoundException When one of the player names is not equal to the client's
+   *                                 username.
    */
   public GameListener(String player1Name, String player2Name, int boardDim, GameClient client)
       throws PlayerNotFoundException {
@@ -89,15 +90,14 @@ public class GameListener implements ClientListener {
         throw new RuntimeException(e);
       }
     }
-    if (isMyMove() && myMove != null  && !myMove.equals(serverMove)) {
+    if (isMyMove() && myMove != null && !myMove.equals(serverMove)) {
       throw new GameMismatchException("Server move not matching client's move");
     }
     doMove(previousServerMove);
   }
 
   private void doMove(GoMove previousMove) throws InvalidMoveException {
-    if (isMoveReceived || !isGameOver()
-        && !previousMove.equals(serverMove)) {
+    if (isMoveReceived || !isGameOver() && !previousMove.equals(serverMove)) {
       game.doMove(serverMove);
     }
     isMoveReceived = false;
@@ -118,16 +118,6 @@ public class GameListener implements ClientListener {
    */
   @Override
   public void connectionLost() {
-
-  }
-
-  /**
-   * Receive the playerList.
-   *
-   * @param playerList The list of players.
-   */
-  @Override
-  public void receiveList(List<String> playerList) {
 
   }
 

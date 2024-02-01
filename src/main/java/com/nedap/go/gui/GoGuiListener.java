@@ -14,8 +14,7 @@ import com.nedap.go.networking.protocol.Protocol;
 import java.util.List;
 
 /**
- * Class that listens to the server and plays the move in a 2d board
- * in a gui.
+ * Class that listens to the server and plays the move in a 2d board in a gui.
  */
 public class GoGuiListener implements ClientListener {
 
@@ -53,10 +52,6 @@ public class GoGuiListener implements ClientListener {
    *
    * @param playerList The list of players.
    */
-  @Override
-  public void receiveList(List<String> playerList) {
-
-  }
 
   /**
    * Receive confirmation of entering matchmaking queue.

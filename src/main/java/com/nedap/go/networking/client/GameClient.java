@@ -71,11 +71,6 @@ public class GameClient {
     mainListener.successfulConnection(message);
   }
 
-  public void receiveList(List<String> playerList) {
-    mainListener.receiveList(playerList);
-    listOfListeners.forEach(listener -> listener.receiveList(playerList));
-  }
-
   public void receiveInQueue() {
     mainListener.receiveInQueue();
     listOfListeners.forEach(ClientListener::receiveInQueue);

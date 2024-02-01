@@ -94,7 +94,6 @@ public class GameClientTui implements Runnable {
             3. for Pass AI player.\s
         """;
     println(selectPlayerText);
-    String playerType;
     return getIntMenuChoice();
   }
 
