@@ -19,8 +19,8 @@ public class GameClientTui implements Runnable {
   private final Scanner sc;
   private final PrintWriter output;
   MainClientListener mainClientListener;
-  private int portNumber = 8080;
-  private String serverName = "localhost";
+  private int portNumber;
+  private String serverName;
 
   /**
    * Main constructor of the TUI with specified input and output.
@@ -48,7 +48,7 @@ public class GameClientTui implements Runnable {
 
     switch (getIntMenuChoice()) {
       case 1 -> {
-        mainClientListener.initializeClient(serverName, portNumber);
+        initializeClient();
         mainClientListener.initializeGui();
         sendUsername();
         mainClientListener.runConnection();
