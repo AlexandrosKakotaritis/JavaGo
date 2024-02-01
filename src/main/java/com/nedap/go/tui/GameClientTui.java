@@ -4,7 +4,7 @@ import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
-import com.nedap.go.networking.client.GameMainClientListener;
+import com.nedap.go.networking.client.MainClientListener;
 import com.nedap.go.networking.server.OnlinePlayer;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -18,7 +18,7 @@ public class GameClientTui implements Runnable {
 
   private final Scanner sc;
   private final PrintWriter output;
-  GameMainClientListener mainClientListener;
+  MainClientListener mainClientListener;
   private int portNumber = 8080;
   private String serverName = "localhost";
 
@@ -31,7 +31,7 @@ public class GameClientTui implements Runnable {
   public GameClientTui(Reader input, PrintWriter output) {
     this.output = output;
     sc = new Scanner(input);
-    mainClientListener = new GameMainClientListener(input, output);
+    mainClientListener = new MainClientListener(input, output);
     mainClientListener.setTui(this);
   }
 
