@@ -237,6 +237,17 @@ public class GoGame implements Game {
         last2MovesCopy);
   }
 
+  public int getScore(Stone stone){
+    return board.getScore(stone);
+  }
+
+  public Move getLastMove(){
+    if (last2Moves.size()>0)
+      return last2Moves.getLast();
+    else
+      return null;
+  }
+
   @Override
   public String toString() {
     return scoreBoard() + "\n" + board;

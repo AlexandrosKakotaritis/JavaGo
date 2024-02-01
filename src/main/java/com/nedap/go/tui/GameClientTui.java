@@ -91,7 +91,8 @@ public class GameClientTui implements Runnable {
         Select your player type:\s
             1. for human player via the TUI.\s
             2. for Naive AI player.\s
-            3. for Pass AI player.\s
+            3. for Smart AI player.\s
+            3. for Smarter AI player.\s
         """;
     println(selectPlayerText);
     return getIntMenuChoice();
