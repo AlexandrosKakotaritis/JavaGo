@@ -1,8 +1,10 @@
 package com.nedap.go.networking.client;
 
+import com.nedap.go.ai.BetterStrategy;
 import com.nedap.go.ai.ComputerPlayer;
 import com.nedap.go.ai.NaiveStrategy;
 import com.nedap.go.ai.PassStrategy;
+import com.nedap.go.ai.SmartStrategy;
 import com.nedap.go.model.AbstractPlayer;
 import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
@@ -69,7 +71,8 @@ public class GameListener implements ClientListener {
   private void createMyPlayer(String name, Stone stone) {
     myPlayer = switch (client.getPlayerType()) {
       case 2 -> new ComputerPlayer(name, new NaiveStrategy(), stone);
-      case 3 -> new ComputerPlayer(name, new PassStrategy(), stone);
+      case 3 -> new ComputerPlayer(name, new SmartStrategy(), stone);
+      case 4 -> new ComputerPlayer(name, new BetterStrategy(), stone);
       default -> new HumanPlayer(name, stone);
     };
   }
