@@ -12,14 +12,6 @@ public interface ClientListener {
    */
   void connectionLost();
 
-
-  /**
-   * Receive the playerList.
-   *
-   * @param playerList The list of players.
-   */
-  void receiveList(List<String> playerList);
-
   /**
    * Receive confirmation of entering matchmaking queue.
    */

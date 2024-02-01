@@ -1,7 +1,6 @@
 package com.nedap.go.networking.client;
 
 import com.nedap.go.model.GoMove;
-import com.sun.tools.javac.Main;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ public class GameClient {
 
   private final ClientConnection clientConnection;
   private final List<ClientListener> listOfListeners;
-  private final MainClientListener mainClientListener;
+  private final MainListener mainListener;
   private String username;
   private int playerType;
 
@@ -27,12 +26,12 @@ public class GameClient {
    *                     of the socket.
    */
   public GameClient(InetAddress address, int port,
-      MainClientListener mainClientListener) throws IOException {
+      MainListener mainListener) throws IOException {
     clientConnection = new ClientConnection(address, port);
     clientConnection.setGameClient(this);
     listOfListeners = new ArrayList<>();
-    this.mainClientListener = mainClientListener;
-    listOfListeners.add(mainClientListener);
+    this.mainListener = mainListener;
+
   }
 
   public String getUsername() {
@@ -40,7 +39,7 @@ public class GameClient {
   }
 
 
-  public synchronized void addListener(ClientListener listener) {
+  public void addListener(ClientListener listener) {
     listOfListeners.add(listener);
   }
 
@@ -56,6 +55,7 @@ public class GameClient {
 
   public void handleDisconnect() {
     close();
+    mainListener.connectionLost();
     listOfListeners.forEach(ClientListener::connectionLost);
   }
 
@@ -64,22 +64,20 @@ public class GameClient {
   }
 
   public void logInStatus(boolean status, String argument) {
-    mainClientListener.logInStatus(status, argument);
+    mainListener.logInStatus(status, argument);
   }
 
   public void successfulConnection(String message) {
-    mainClientListener.successfulConnection(message);
-  }
-
-  public void receiveList(List<String> playerList) {
-    listOfListeners.forEach(listener -> listener.receiveList(playerList));
+    mainListener.successfulConnection(message);
   }
 
   public void receiveInQueue() {
+    mainListener.receiveInQueue();
     listOfListeners.forEach(ClientListener::receiveInQueue);
   }
 
   public void newGame(String player1Name, String player2Name, int boardDim) {
+    mainListener.newGame(player1Name, player2Name, boardDim);
     listOfListeners.forEach(listener -> listener.newGame(player1Name, player2Name, boardDim));
   }
 
@@ -108,10 +106,12 @@ public class GameClient {
   }
 
   public void printError(String message) {
+    mainListener.printError(message);
     listOfListeners.forEach(listener -> listener.printError(message));
   }
 
   public void receivePass(String color) {
+
     listOfListeners.forEach(listener -> listener.receivePass(color));
   }
 

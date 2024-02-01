@@ -1,6 +1,5 @@
 package com.nedap.go.networking;
 
-import static java.lang.System.currentTimeMillis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,9 +19,8 @@ public class ServerTest {
     private GameServer server;
     @BeforeEach
     void setUp() throws IOException {
-
-        server = new GameServer(0);
-
+        int boardDim = 9;
+        server = new GameServer(0, boardDim);
     }
 
     private void acceptConnections() {
@@ -77,8 +75,6 @@ public class ServerTest {
                 socket.getInputStream())); PrintWriter printWriter = new PrintWriter(
                 new OutputStreamWriter(socket.getOutputStream()), true)) {
             dummyClient(printWriter, "Alex");
-//            s = bufferedReader.readLine();
-//            assertEquals("HELLO~Server by Alex", s);
 
             s = bufferedReader.readLine();
             assertEquals("ACCEPTED~Alex", s);
@@ -87,44 +83,6 @@ public class ServerTest {
             socket.close();
         } finally {
             // Stop the server.
-            server.close();
-        }
-    }
-
-    @Test
-    public void testList() throws IOException, InterruptedException {
-        new Thread(this::acceptConnections).start();
-        String s;
-        Socket socket = new Socket(InetAddress.getLocalHost(), server.getPort());  // connect to the server
-        Socket socket2 = new Socket(InetAddress.getLocalHost(), server.getPort());
-
-        // using a try-with-resources block, we ensure that reader/writer are closed afterwards
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-                socket.getInputStream()));
-             PrintWriter printWriter = new PrintWriter(
-                new OutputStreamWriter(socket.getOutputStream()), true);
-             BufferedReader bufferedReader2 = new BufferedReader(new InputStreamReader(
-                     socket2.getInputStream()));
-             PrintWriter printWriter2 = new PrintWriter(
-                new OutputStreamWriter(socket2.getOutputStream()), true)) {
-
-            Thread t1 = new Thread(() -> dummyClient(printWriter, "Alex"));
-            Thread t2 = new Thread(() -> dummyClient(printWriter2, "Nick"));
-            t1.start();
-            t2.start();
-            bufferedReader.readLine();
-            bufferedReader.readLine();
-            printWriter.println(Protocol.LIST);
-            s = bufferedReader.readLine();
-            assertTrue(s.contains("Alex"));
-            assertTrue(s.contains("Nick"));
-
-            t1.join();
-            t2.join();
-
-            socket.close();
-            socket2.close();
-        }finally {
             server.close();
         }
     }

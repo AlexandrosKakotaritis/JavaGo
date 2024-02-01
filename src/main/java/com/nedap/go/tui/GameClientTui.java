@@ -4,7 +4,7 @@ import com.nedap.go.model.GoGame;
 import com.nedap.go.model.GoMove;
 import com.nedap.go.model.Stone;
 import com.nedap.go.model.utils.InvalidMoveException;
-import com.nedap.go.networking.client.GameMainClientListener;
+import com.nedap.go.networking.client.MainClientListener;
 import com.nedap.go.networking.server.OnlinePlayer;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -18,7 +18,7 @@ public class GameClientTui implements Runnable {
 
   private final Scanner sc;
   private final PrintWriter output;
-  GameMainClientListener mainClientListener;
+  MainClientListener mainClientListener;
   private int portNumber = 8080;
   private String serverName = "localhost";
 
@@ -31,17 +31,12 @@ public class GameClientTui implements Runnable {
   public GameClientTui(Reader input, PrintWriter output) {
     this.output = output;
     sc = new Scanner(input);
-    mainClientListener = new GameMainClientListener(input, output);
+    mainClientListener = new MainClientListener(input, output);
     mainClientListener.setTui(this);
   }
 
   public GameClientTui() {
     this(new InputStreamReader(System.in), new PrintWriter(System.out));
-  }
-
-  public static void main(String[] args) {
-    GameClientTui tui = new GameClientTui();
-    tui.run();
   }
 
   /**
@@ -56,7 +51,7 @@ public class GameClientTui implements Runnable {
         mainClientListener.initializeClient(serverName, portNumber);
         mainClientListener.initializeGui();
         sendUsername();
-        mainClientListener.runGame();
+        mainClientListener.runConnection();
       }
       case 2 -> {
         getHelp();
@@ -89,6 +84,17 @@ public class GameClientTui implements Runnable {
             3. Quit\s
         """;
     println(menu);
+  }
+
+  public int selectPlayerType() {
+    String selectPlayerText = """
+        Select your player type:\s
+            1. for human player via the TUI.\s
+            2. for Naive AI player.\s
+            3. for Pass AI player.\s
+        """;
+    println(selectPlayerText);
+    return getIntMenuChoice();
   }
 
   private int getIntMenuChoice() {
@@ -146,6 +152,27 @@ public class GameClientTui implements Runnable {
     println("Press Enter");
     sc.nextLine();
     println("");
+  }
+
+  public boolean matchMakingMenu() {
+    String matchmaking = """
+        Get ready for a Game:\s
+                1. Find a Game.\s
+                2. Quit.\s
+        """;
+    println(matchmaking);
+    switch (getIntMenuChoice()) {
+      case 1 -> mainClientListener.sendQueue();
+      case 2 -> {
+        return false;
+      }
+      default -> {
+        println("Not a valid choice");
+        println("");
+        matchMakingMenu();
+      }
+    }
+    return true;
   }
 
   public void exit() {

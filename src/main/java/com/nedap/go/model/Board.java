@@ -199,7 +199,7 @@ public class Board {
   }
 
   /**
-   * Get all the stone strings of the board.
+   * Get all the stone groups of the same color of the board.
    *
    * @return A list containing the sets of position for each stone.
    */
